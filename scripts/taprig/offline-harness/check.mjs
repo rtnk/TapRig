@@ -11,49 +11,74 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const harnessDir = path.dirname(new URL(import.meta.url).pathname);
+const LOGS = ['trace', 'teardown'];
 
-export function parseTrace(text) {
-  const argvByPid = new Map();
-  const parentByPid = new Map();
-  const pendingExec = new Map();
-  const events = [];
+const EXEC_LINE = /^execve\("([^"]*)", \[(.*?)\](?:, |\s*<unfinished)/;
+const EXEC_RESUMED = /^<\.\.\. execve resumed>/;
+const SPAWN_LINE = /(?:^|<\.\.\. )(?:clone3?|v?fork)\b.*= (\d+)$/;
+const SOCKET_CALL = /^(connect|sendto|sendmsg)\(/;
+
+function parseArgv(list) {
+  return [...list.matchAll(/"((?:[^"\\]|\\.)*)"(\.\.\.)?/g)].map((part) => part[1]);
+}
+
+// Every handler returns true when it consumed the line.
+function recordExec(state, pid, body) {
+  const exec = EXEC_LINE.exec(body);
+  if (!exec) return false;
+  const argv = parseArgv(exec[2]);
+  if (body.includes('<unfinished')) state.pendingExec.set(pid, argv);
+  else if (/\) = 0$/.test(body)) state.argvByPid.set(pid, argv);
+  return true;
+}
+
+function recordExecResumed(state, pid, body) {
+  if (!EXEC_RESUMED.test(body)) return false;
+  const pending = state.pendingExec.get(pid);
+  if (pending && /= 0$/.test(body)) state.argvByPid.set(pid, pending);
+  state.pendingExec.delete(pid);
+  return true;
+}
+
+function recordSpawn(state, pid, body) {
+  const spawned = SPAWN_LINE.exec(body);
+  if (!spawned) return false;
+  state.parentByPid.set(Number(spawned[1]), pid);
+  return true;
+}
+
+function recordSocket(state, pid, body, raw) {
+  const call = SOCKET_CALL.exec(body);
+  const event = call ? socketEvent(body) : null;
+  if (event) state.events.push({ pid, syscall: call[1], ...event, line: raw });
+}
+
+function commandOf(state, pid) {
+  for (let current = pid, hops = 0; current !== undefined && hops < 64; hops += 1) {
+    const argv = state.argvByPid.get(current);
+    if (argv) return argv.join(' ');
+    current = state.parentByPid.get(current);
+  }
+  return '(unknown process)';
+}
+
+function parseTrace(text) {
+  const state = {
+    argvByPid: new Map(),
+    parentByPid: new Map(),
+    pendingExec: new Map(),
+    events: [],
+  };
   for (const raw of text.split('\n')) {
     const match = /^(\d+)\s+(.*)$/.exec(raw);
     if (!match) continue;
     const pid = Number(match[1]);
     const body = match[2];
-
-    const exec = /^execve\("([^"]*)", \[(.*?)\](?:, |\s*<unfinished)/.exec(body);
-    if (exec) {
-      const argv = [...exec[2].matchAll(/"((?:[^"\\]|\\.)*)"(\.\.\.)?/g)].map((part) => part[1]);
-      if (body.includes('<unfinished')) pendingExec.set(pid, argv);
-      else if (/\) = 0$/.test(body)) argvByPid.set(pid, argv);
-      continue;
-    }
-    if (/^<\.\.\. execve resumed>/.test(body)) {
-      if (/= 0$/.test(body) && pendingExec.has(pid)) argvByPid.set(pid, pendingExec.get(pid));
-      pendingExec.delete(pid);
-      continue;
-    }
-    const spawned = /(?:^|<\.\.\. )(?:clone3?|v?fork)\b.*= (\d+)$/.exec(body);
-    if (spawned) {
-      parentByPid.set(Number(spawned[1]), pid);
-      continue;
-    }
-    const call = /^(connect|sendto|sendmsg)\(/.exec(body);
-    if (!call) continue;
-    const event = socketEvent(body);
-    if (event) events.push({ pid, syscall: call[1], ...event, line: raw });
+    if (recordExec(state, pid, body) || recordExecResumed(state, pid, body)) continue;
+    if (recordSpawn(state, pid, body)) continue;
+    recordSocket(state, pid, body, raw);
   }
-  const commandOf = (pid) => {
-    for (let current = pid, hops = 0; current !== undefined && hops < 64; hops += 1) {
-      const argv = argvByPid.get(current);
-      if (argv) return argv.join(' ');
-      current = parentByPid.get(current);
-    }
-    return '(unknown process)';
-  };
-  return events.map((event) => ({ ...event, command: commandOf(event.pid) }));
+  return state.events.map((event) => ({ ...event, command: commandOf(state, event.pid) }));
 }
 
 function socketEvent(body) {
@@ -81,7 +106,7 @@ const RESOLVER_SOCKETS = [
   /^\/(?:var\/)?run\/dbus\/system_bus_socket$/,
 ];
 
-export function classify(event) {
+function classify(event) {
   if (event.family === 'AF_UNIX') {
     return RESOLVER_SOCKETS.some((pattern) => pattern.test(event.address))
       ? 'name resolution through a resolver socket'
@@ -99,85 +124,124 @@ function readText(file) {
   }
 }
 
+function mcpToolsListed(dir) {
+  const responses = readText(path.join(dir, 'stdout.txt'))
+    .split('\n')
+    .filter((line) => line.trim().startsWith('{'))
+    .map((line) => JSON.parse(line));
+  const tools = responses.find((message) => message.id === 2)?.result?.tools;
+  return Array.isArray(tools) && tools.length > 0 ? null : 'tools/list returned no tools';
+}
+
 const SCENARIO_CHECKS = {
   version: (dir) =>
     /^\d+\.\d+\.\d+/m.test(readText(path.join(dir, 'stdout.txt'))) ? null : 'no version printed',
   'help-commands': (dir) =>
     readText(path.join(dir, 'stdout.txt')).trim().length > 0 ? null : 'no help output',
-  mcp: (dir) => {
-    const responses = readText(path.join(dir, 'stdout.txt'))
-      .split('\n')
-      .filter((line) => line.trim().startsWith('{'))
-      .map((line) => JSON.parse(line));
-    const tools = responses.find((message) => message.id === 2)?.result?.tools;
-    return Array.isArray(tools) && tools.length > 0 ? null : 'tools/list returned no tools';
-  },
+  mcp: mcpToolsListed,
 };
 const MUST_EXIT_ZERO = new Set(['version', 'help-commands', 'mcp']);
 
-export function evaluateWork(workDir, expectations) {
-  const scenarios = fs
+function listScenarios(workDir) {
+  return fs
     .readdirSync(workDir, { withFileTypes: true })
     .filter(
       (entry) => entry.isDirectory() && fs.existsSync(path.join(workDir, entry.name, 'trace.log')),
     )
     .map((entry) => entry.name)
     .sort();
-  const failures = [];
-  const rows = [];
+}
+
+function scenarioProblems(scenario, dir, exitCode) {
+  const problems = [];
+  if (exitCode === 'missing' || exitCode === '124') {
+    problems.push(`command did not finish (exit ${exitCode})`);
+  }
+  if (MUST_EXIT_ZERO.has(scenario) && exitCode !== '0') problems.push(`exit code ${exitCode}`);
+  const sanity = SCENARIO_CHECKS[scenario]?.(dir);
+  if (sanity) problems.push(sanity);
+  return problems;
+}
+
+/** Socket events of one scenario: loopback count plus classified violations. */
+function scenarioEvents(scenario, dir, expectations) {
+  let local = 0;
   const violations = [];
-  const matched = new Set();
-  for (const scenario of scenarios) {
-    const dir = path.join(workDir, scenario);
-    const exitCode = readText(path.join(dir, 'exit-code')).trim() || 'missing';
-    let local = 0;
-    let found = 0;
-    for (const log of ['trace', 'teardown']) {
-      for (const event of parseTrace(readText(path.join(dir, `${log}.log`)))) {
-        const kind = classify(event);
-        if (!kind) {
-          if (event.family !== 'AF_UNIX') local += 1;
-          continue;
-        }
-        found += 1;
+  for (const log of LOGS) {
+    for (const event of parseTrace(readText(path.join(dir, `${log}.log`)))) {
+      const kind = classify(event);
+      if (kind) {
         const expectation = expectations.find(
           (item) =>
             item.scenario === scenario && item.log === log && event.command.includes(item.process),
         );
-        if (expectation) matched.add(expectation);
         violations.push({ scenario, log, kind, event, expectation });
+      } else if (event.family !== 'AF_UNIX') {
+        local += 1;
       }
     }
-    const problems = [];
-    if (exitCode === 'missing' || exitCode === '124')
-      problems.push(`command did not finish (exit ${exitCode})`);
-    if (MUST_EXIT_ZERO.has(scenario) && exitCode !== '0') problems.push(`exit code ${exitCode}`);
-    const sanity = SCENARIO_CHECKS[scenario]?.(dir);
-    if (sanity) problems.push(sanity);
-    for (const problem of problems) failures.push(`${scenario}: ${problem}`);
-    rows.push({ scenario, exitCode, local, found, problems });
   }
-  for (const violation of violations) {
-    if (!violation.expectation) {
-      failures.push(
-        `${violation.scenario}: unexpected ${violation.kind} to ${violation.event.address}:${violation.event.port} by \`${violation.event.command}\``,
-      );
-    }
-  }
-  for (const expectation of expectations) {
+  return { local, violations };
+}
+
+function expectationFailures(expectations, scenarios, violations) {
+  const matched = new Set(violations.map((violation) => violation.expectation).filter(Boolean));
+  return expectations.flatMap((expectation) => {
     if (!scenarios.includes(expectation.scenario)) {
-      failures.push(`${expectation.id}: scenario "${expectation.scenario}" did not run`);
-    } else if (!matched.has(expectation)) {
-      failures.push(
-        `${expectation.id}: the expected violation in "${expectation.scenario}" is gone — ` +
-          `update scripts/taprig/offline-harness/expectations.json (${expectation.status})`,
-      );
+      return [`${expectation.id}: scenario "${expectation.scenario}" did not run`];
     }
+    if (matched.has(expectation)) return [];
+    return [
+      `${expectation.id}: the expected violation in "${expectation.scenario}" is gone — ` +
+        `update scripts/taprig/offline-harness/expectations.json (${expectation.status})`,
+    ];
+  });
+}
+
+function unexpectedFailures(violations) {
+  return violations
+    .filter((violation) => !violation.expectation)
+    .map(
+      ({ scenario, kind, event }) =>
+        `${scenario}: unexpected ${kind} to ${event.address}:${event.port} by \`${event.command}\``,
+    );
+}
+
+function evaluateWork(workDir, expectations) {
+  const scenarios = listScenarios(workDir);
+  const rows = [];
+  const violations = [];
+  for (const scenario of scenarios) {
+    const dir = path.join(workDir, scenario);
+    const exitCode = readText(path.join(dir, 'exit-code')).trim() || 'missing';
+    const events = scenarioEvents(scenario, dir, expectations);
+    violations.push(...events.violations);
+    const problems = scenarioProblems(scenario, dir, exitCode);
+    rows.push({
+      scenario,
+      exitCode,
+      local: events.local,
+      found: events.violations.length,
+      problems,
+    });
   }
+  const failures = [
+    ...rows.flatMap((row) => row.problems.map((problem) => `${row.scenario}: ${problem}`)),
+    ...unexpectedFailures(violations),
+    ...expectationFailures(expectations, scenarios, violations),
+  ];
   return { rows, violations, failures };
 }
 
-export function formatReport({ rows, violations, failures }) {
+function formatViolation({ scenario, log, kind, event, expectation }) {
+  const label = expectation ? `expected — ${expectation.id} (${expectation.status})` : 'UNEXPECTED';
+  return (
+    `- ${scenario}/${log}: ${kind} ${event.syscall} ${event.family} ` +
+    `${event.address}:${event.port} — pid ${event.pid} \`${event.command}\` — **${label}**`
+  );
+}
+
+function formatReport({ rows, violations, failures }) {
   const lines = ['# TapRig offline harness report', ''];
   lines.push('| Scenario | Exit | Loopback/local socket events | Violations | Problems |');
   lines.push('| --- | --- | --- | --- | --- |');
@@ -188,18 +252,9 @@ export function formatReport({ rows, violations, failures }) {
   }
   lines.push('', '## Violations', '');
   if (violations.length === 0) lines.push('None.');
-  for (const violation of violations) {
-    const { event } = violation;
-    const label = violation.expectation
-      ? `expected — ${violation.expectation.id} (${violation.expectation.status})`
-      : 'UNEXPECTED';
-    lines.push(
-      `- ${violation.scenario}/${violation.log}: ${violation.kind} ${event.syscall} ${event.family} ` +
-        `${event.address}:${event.port} — pid ${event.pid} \`${event.command}\` — **${label}**`,
-    );
-  }
+  lines.push(...violations.map(formatViolation));
   lines.push('', `## Result: ${failures.length === 0 ? 'PASS' : 'FAIL'}`, '');
-  for (const failure of failures) lines.push(`- ${failure}`);
+  lines.push(...failures.map((failure) => `- ${failure}`));
   return `${lines.join('\n')}\n`;
 }
 
@@ -219,6 +274,4 @@ function main() {
   return result.failures.length === 0 ? 0 : 1;
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(harnessDir, 'check.mjs')) {
-  process.exitCode = main();
-}
+process.exitCode = main();

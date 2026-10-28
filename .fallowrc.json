@@ -36,6 +36,8 @@
     // dependency analysis cannot follow the runCmdSync string path to it.
     "test/integration/support/exit-after-flush.ts",
     "src/cli/update-check-entry.ts",
+    // TapRig offline harness: run.sh invokes the trace classifier with `node`.
+    "scripts/taprig/offline-harness/check.mjs",
     "examples/sdk/client-session.ts",
     "examples/sdk/metro-runtime.ts",
     "examples/sdk/contracts-result.ts",

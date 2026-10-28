@@ -12,7 +12,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-export const RULE_IDS = [
+const RULE_IDS = [
   'fetch',
   'node-net-module',
   'http-client-module',
@@ -26,7 +26,7 @@ export const RULE_IDS = [
 ] as const;
 export type RuleId = (typeof RULE_IDS)[number];
 
-export const DECISIONS = [
+const DECISIONS = [
   'REMOVE',
   'RESTRICT',
   'REPLACE',
@@ -65,7 +65,7 @@ export type Violation = {
  * Markers of the cloud services TapRig removes. An allowlist entry whose token carries one of
  * them must have the REMOVE decision, so every later stage sees what is left to delete.
  */
-export const FORBIDDEN_MARKERS = [
+const FORBIDDEN_MARKERS = [
   'agent-device.dev',
   'registry.npmjs.org',
   'browserstack.com',
@@ -94,7 +94,7 @@ export function isProductionFile(file: string): boolean {
   );
 }
 
-export function listProductionFiles(repoRoot: string): string[] {
+function listProductionFiles(repoRoot: string): string[] {
   const tracked = execFileSync('git', ['ls-files', '-z', '--', 'src', 'packages', 'bin'], {
     cwd: repoRoot,
     encoding: 'utf8',
@@ -240,7 +240,7 @@ export function scanSource(file: string, source: string): Finding[] {
   return findings;
 }
 
-export function entryKey(entry: { file: string; rule: string; token: string }): string {
+function entryKey(entry: { file: string; rule: string; token: string }): string {
   return `${entry.file} :: ${entry.rule} :: ${entry.token}`;
 }
 
@@ -311,7 +311,7 @@ export function evaluate(findings: readonly Finding[], allowlist: Allowlist): Vi
   return violations;
 }
 
-export const ALLOWLIST_PATH = 'scripts/taprig/network-allowlist.json';
+const ALLOWLIST_PATH = 'scripts/taprig/network-allowlist.json';
 
 export function readAllowlist(repoRoot: string): Allowlist {
   return JSON.parse(fs.readFileSync(path.join(repoRoot, ALLOWLIST_PATH), 'utf8')) as Allowlist;
@@ -324,10 +324,7 @@ export function scanRepository(repoRoot: string): Finding[] {
 }
 
 /** Allowlist entries for unlisted findings, with placeholders a reviewer must replace. */
-export function suggestEntries(
-  findings: readonly Finding[],
-  allowlist: Allowlist,
-): AllowlistEntry[] {
+function suggestEntries(findings: readonly Finding[], allowlist: Allowlist): AllowlistEntry[] {
   const listed = new Set(allowlist.entries.map(entryKey));
   const counts = new Map<string, { finding: Finding; count: number }>();
   for (const finding of findings) {
