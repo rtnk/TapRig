@@ -1,9 +1,14 @@
 # TapRig — rejestr decyzji architektonicznych
 
-Statusy: **ACCEPTED** — wynika wprost z wymagań projektu TapRig (cel forka) lub z licencji;
+Statusy: **ACCEPTED** — wynika wprost z wymagań projektu TapRig (cel forka), z licencji albo
+właściciel zlecił ją w treści zadania etapu (źródło podane przy statusie);
 **PROPOSED** — rekomendacja techniczna Etapu 0, do potwierdzenia w przeglądzie PR;
 **NEEDS OWNER DECISION** — zmienia zakres projektu lub zależy od preferencji właściciela.
-Żadna decyzja wymagająca akceptacji właściciela nie jest oznaczona jako ACCEPTED.
+Żadna decyzja wymagająca akceptacji właściciela nie jest oznaczona jako ACCEPTED bez wskazania
+źródła tej akceptacji.
+
+Zmiany statusów: E1 (2026-10-28) — D-01, D-12, D-16 → ACCEPTED; D-10 → ACCEPTED w części
+dotyczącej wyłączenia publikacji upstream; D-18 — część E1 wykonana.
 
 Identyfikatory `NET-xx` odnoszą się do `docs/network-audit.md`. Etapy `E-x` — do
 `docs/taprig-implementation-plan.md`.
@@ -12,7 +17,7 @@ Identyfikatory `NET-xx` odnoszą się do `docs/network-audit.md`. Etapy `E-x` �
 
 ## D-01. Strategia forka i śledzenie upstream
 
-- **Status**: PROPOSED
+- **Status**: ACCEPTED (właściciel zlecił procedurę merge w zadaniu E1; wdrożone: `docs/upstream-sync.md`)
 - **Problem**: TapRig ma być niezależny, ale korzystać z poprawek upstream (automatyzacja
   iOS/Android rozwija się szybko — baza ma ~100 commitów dziennie w `nightly`).
 - **Opcje**: (a) jednorazowa kopia bez historii; (b) fork z historią i remote `upstream`,
@@ -150,7 +155,7 @@ Identyfikatory `NET-xx` odnoszą się do `docs/network-audit.md`. Etapy `E-x` �
 
 ## D-10. CI/CD, dystrybucja i metadane rejestrów
 
-- **Status**: NEEDS OWNER DECISION
+- **Status**: ACCEPTED w części „wyłączenie publikacji i harmonogramów upstream” (zlecone w zadaniu E1, wdrożone w E1 — `docs/upstream-sync.md` §5); NEEDS OWNER DECISION: sposób dystrybucji 0.1.0, metadane rejestrów MCP, lane'y urządzeń w PR (`android.yml`, `apple.yml`, `linux.yml`)
 - **Problem**: NET-40 – NET-42. Workflowy upstream publikują `agent-device` na npm, w MCP
   Registry i na GitHub Pages; manifest helpera Android i runnera iOS wskazują wydania GitHub
   upstream; `server.json`/`smithery.yaml`/`glama.json` konfigurują `npx agent-device mcp`.
@@ -177,7 +182,7 @@ Identyfikatory `NET-xx` odnoszą się do `docs/network-audit.md`. Etapy `E-x` �
 
 ## D-12. Kontrola polityki sieciowej (statyczna + dynamiczna)
 
-- **Status**: PROPOSED
+- **Status**: ACCEPTED (zlecone w zadaniu E1; wdrożone: strażnik statyczny i harness Linux — `docs/network-audit.md` §8; przebiegi macOS — E10)
 - **Problem**: trzeba udowodnić brak zabronionego ruchu i zapobiec regresjom (także po merge'ach
   upstream).
 - **Rekomendacja**: (1) strażnik statyczny z allowlistą miejsc sieciowych powiązanych z ID z
@@ -229,7 +234,7 @@ Identyfikatory `NET-xx` odnoszą się do `docs/network-audit.md`. Etapy `E-x` �
 
 ## D-16. Kolejność: usuwanie przed rebrandingiem
 
-- **Status**: PROPOSED
+- **Status**: ACCEPTED (zadanie E1: „rebranding to E9”; E1 nie zmienił nazw paczki, binarki ani zmiennych)
 - **Problem**: sugerowana kolejność zakładała rebranding w Etapie 1.
 - **Rekomendacja**: Etap 1 = fundament forka (atrybucja, CI, strażnik sieci, harness) bez
   zmiany nazw; usunięcia w E2–E7; rebranding w E9.
@@ -249,7 +254,7 @@ Identyfikatory `NET-xx` odnoszą się do `docs/network-audit.md`. Etapy `E-x` �
 
 ## D-18. Licencja i atrybucja
 
-- **Status**: ACCEPTED (wymóg licencji MIT)
+- **Status**: ACCEPTED (wymóg licencji MIT); E1: `NOTICE` i linia copyright TapRig w `LICENSE` — zrobione; zestawienie licencji zależności — E11
 - **Problem**: kod upstream jest na licencji MIT (`LICENSE`, „Copyright (c) 2026 Callstack”);
   zależności wbudowywane w `dist/` mają własne licencje.
 - **Rekomendacja**: zachować `LICENSE` z notą Callstack, dodać linię praw autorskich TapRig i

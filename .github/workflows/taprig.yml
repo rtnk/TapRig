@@ -1,0 +1,62 @@
+name: TapRig
+
+# TapRig fork policy checks (docs/network-audit.md §8, docs/upstream-sync.md):
+# - the static network guard (also part of `pnpm test:unit`, run here on docs-only PRs too);
+# - the offline harness: CLI and MCP scenarios in an empty network namespace under strace.
+# Installing strace with apt is build-time traffic; the scenarios themselves run offline.
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: taprig-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  taprig-offline:
+    name: Network guard & offline harness
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup toolchain
+        uses: ./.github/actions/setup-node-pnpm
+
+      - name: Install strace
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq strace
+
+      - name: Run the static network guard
+        run: pnpm taprig:network-guard
+
+      - name: Build CLI
+        run: pnpm build
+
+      - name: Run the offline harness
+        env:
+          TAPRIG_HARNESS_WORK: ${{ runner.temp }}/taprig-offline
+        run: |
+          status=0
+          pnpm taprig:offline-smoke || status=$?
+          if [ -f "$TAPRIG_HARNESS_WORK/report.md" ]; then
+            cat "$TAPRIG_HARNESS_WORK/report.md" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          exit "$status"
+
+      - name: Upload offline harness traces
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: taprig-offline-harness
+          path: ${{ runner.temp }}/taprig-offline
+          if-no-files-found: ignore

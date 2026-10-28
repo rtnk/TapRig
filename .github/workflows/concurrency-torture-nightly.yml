@@ -13,8 +13,8 @@ name: Concurrency Torture Nightly
 # `TORTURE_SEED=<n> pnpm gate concurrency-torture` replay command.
 
 on:
-  schedule:
-    - cron: '0 5 * * *'
+  # TapRig fork: the upstream schedule is removed; dispatch this lane manually.
+  # See docs/upstream-sync.md (CI of the fork).
   workflow_dispatch:
     inputs:
       runs:

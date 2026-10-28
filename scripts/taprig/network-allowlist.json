@@ -1,0 +1,1575 @@
+{
+  "$comment": [
+    "TapRig network allowlist (docs/network-audit.md §7.1, §8). Checked by scripts/taprig/network-guard.ts.",
+    "Each entry: file, rule, token, exact count, audit ids (NET-xx; NET-00 = literal that opens no connection), decision, reason.",
+    "Baseline: upstream 3537dc549a5edb248f918990a137c536fc46ee50 (E1). Entries marked REMOVE must disappear in E2-E6; never add a REMOVE site back."
+  ],
+  "entries": [
+    {
+      "file": "packages/capture-kit/src/ios-snapshot-acquisition.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 3,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun identifier in a shared type, catalog or capability table (e.g. limrun-ios-tree); narrow it when the provider goes (E4a)."
+    },
+    {
+      "file": "packages/command-registry/src/flag-definitions-action.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 1,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun identifier in a shared type, catalog or capability table (e.g. limrun-ios-tree); narrow it when the provider goes (E4a)."
+    },
+    {
+      "file": "packages/command-registry/src/owner-files.ts",
+      "rule": "url-literal",
+      "token": "https://github.com",
+      "count": 1,
+      "ids": ["NET-00"],
+      "decision": "IGNORE",
+      "reason": "Link to an upstream GitHub issue in a comment or diagnostic string; not fetched."
+    },
+    {
+      "file": "packages/contracts/src/interaction-guarantees.ts",
+      "rule": "url-literal",
+      "token": "https://github.com",
+      "count": 3,
+      "ids": ["NET-00"],
+      "decision": "IGNORE",
+      "reason": "Link to an upstream GitHub issue in a comment or diagnostic string; not fetched."
+    },
+    {
+      "file": "packages/contracts/src/interactor-operation-catalog.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 2,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun identifier in a shared type, catalog or capability table (e.g. limrun-ios-tree); narrow it when the provider goes (E4a)."
+    },
+    {
+      "file": "packages/contracts/src/ios-snapshot.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 2,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun identifier in a shared type, catalog or capability table (e.g. limrun-ios-tree); narrow it when the provider goes (E4a)."
+    },
+    {
+      "file": "packages/contracts/src/settings-catalog.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 1,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun identifier in a shared type, catalog or capability table (e.g. limrun-ios-tree); narrow it when the provider goes (E4a)."
+    },
+    {
+      "file": "packages/contracts/src/tap-keyboard-occlusion.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 2,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun identifier in a shared type, catalog or capability table (e.g. limrun-ios-tree); narrow it when the provider goes (E4a)."
+    },
+    {
+      "file": "packages/daemon/src/server/downloadable-artifact-http.ts",
+      "rule": "node-net-module",
+      "token": "node:http",
+      "count": 1,
+      "ids": ["NET-12"],
+      "decision": "DECISION REQUIRED",
+      "reason": "Daemon artifact-download endpoint for remote clients; loopback only, removal depends on D-19 (E6d)."
+    },
+    {
+      "file": "packages/daemon/src/server/host-lease-http.ts",
+      "rule": "node-net-module",
+      "token": "node:http",
+      "count": 1,
+      "ids": ["NET-15"],
+      "decision": "DECISION REQUIRED",
+      "reason": "Daemon lease/human-control endpoints for remote clients; loopback only, D-19 (E6d)."
+    },
+    {
+      "file": "packages/daemon/src/server/host-lease-http.ts",
+      "rule": "url-literal",
+      "token": "http://127.0.0.1",
+      "count": 1,
+      "ids": ["NET-00"],
+      "decision": "IGNORE",
+      "reason": "Base URL used only to parse a request path with the URL API; no connection."
+    },
+    {
+      "file": "packages/daemon/src/server/http-errors.ts",
+      "rule": "node-net-module",
+      "token": "node:http",
+      "count": 1,
+      "ids": ["NET-30"],
+      "decision": "PRESERVE",
+      "reason": "Local daemon HTTP server bound to 127.0.0.1 with a token (CLI/MCP/SDK IPC)."
+    },
+    {
+      "file": "packages/daemon/src/server/http/http-authorization.ts",
+      "rule": "node-net-module",
+      "token": "node:http",
+      "count": 1,
+      "ids": ["NET-30"],
+      "decision": "PRESERVE",
+      "reason": "Local daemon HTTP server bound to 127.0.0.1 with a token (CLI/MCP/SDK IPC)."
+    },
+    {
+      "file": "packages/daemon/src/server/http/http-instance-precondition.ts",
+      "rule": "node-net-module",
+      "token": "node:http",
+      "count": 1,
+      "ids": ["NET-30"],
+      "decision": "PRESERVE",
+      "reason": "Local daemon HTTP server bound to 127.0.0.1 with a token (CLI/MCP/SDK IPC)."
+    },
+    {
+      "file": "packages/daemon/src/server/http/http-rpc-envelope.ts",
+      "rule": "node-net-module",
+      "token": "node:http",
+      "count": 1,
+      "ids": ["NET-30"],
+      "decision": "PRESERVE",
+      "reason": "Local daemon HTTP server bound to 127.0.0.1 with a token (CLI/MCP/SDK IPC)."
+    },
+    {
+      "file": "packages/daemon/src/server/http/http-rpc-methods.ts",
+      "rule": "node-net-module",
+      "token": "node:http",
+      "count": 1,
+      "ids": ["NET-30"],
+      "decision": "PRESERVE",
+      "reason": "Local daemon HTTP server bound to 127.0.0.1 with a token (CLI/MCP/SDK IPC)."
+    },
+    {
+      "file": "packages/daemon/src/server/http/http-server.ts",
+      "rule": "node-net-module",
+      "token": "node:http",
+      "count": 1,
+      "ids": ["NET-30"],
+      "decision": "PRESERVE",
+      "reason": "Local daemon HTTP server bound to 127.0.0.1 with a token (CLI/MCP/SDK IPC)."
+    },
+    {
+      "file": "packages/daemon/src/server/http/transport.ts",
+      "rule": "listen",
+      "token": "listen(",
+      "count": 1,
+      "ids": ["NET-30"],
+      "decision": "PRESERVE",
+      "reason": "Local daemon HTTP server bound to 127.0.0.1 with a token (CLI/MCP/SDK IPC)."
+    },
+    {
+      "file": "packages/daemon/src/server/http/transport.ts",
+      "rule": "node-net-module",
+      "token": "node:http",
+      "count": 1,
+      "ids": ["NET-30"],
+      "decision": "PRESERVE",
+      "reason": "Local daemon HTTP server bound to 127.0.0.1 with a token (CLI/MCP/SDK IPC)."
+    },
+    {
+      "file": "packages/daemon/src/server/http/transport.ts",
+      "rule": "node-net-module",
+      "token": "node:net",
+      "count": 1,
+      "ids": ["NET-30"],
+      "decision": "PRESERVE",
+      "reason": "Local daemon HTTP server bound to 127.0.0.1 with a token (CLI/MCP/SDK IPC)."
+    },
+    {
+      "file": "packages/daemon/src/server/human-control-http.ts",
+      "rule": "node-net-module",
+      "token": "node:http",
+      "count": 1,
+      "ids": ["NET-15"],
+      "decision": "DECISION REQUIRED",
+      "reason": "Daemon lease/human-control endpoints for remote clients; loopback only, D-19 (E6d)."
+    },
+    {
+      "file": "packages/daemon/src/server/human-control-http.ts",
+      "rule": "url-literal",
+      "token": "http://127.0.0.1",
+      "count": 1,
+      "ids": ["NET-00"],
+      "decision": "IGNORE",
+      "reason": "Base URL used only to parse a request path with the URL API; no connection."
+    },
+    {
+      "file": "packages/daemon/src/server/request-diagnostics-http.ts",
+      "rule": "node-net-module",
+      "token": "node:http",
+      "count": 1,
+      "ids": ["NET-13"],
+      "decision": "DECISION REQUIRED",
+      "reason": "Daemon request-diagnostics endpoint for remote clients; loopback only, D-19 (E6d)."
+    },
+    {
+      "file": "packages/daemon/src/server/resumable-upload-transfer.ts",
+      "rule": "node-net-module",
+      "token": "node:http",
+      "count": 1,
+      "ids": ["NET-11"],
+      "decision": "DECISION REQUIRED",
+      "reason": "Daemon upload endpoints for remote clients; loopback only, removal depends on D-19 (E6d)."
+    },
+    {
+      "file": "packages/daemon/src/server/resumable-upload.ts",
+      "rule": "node-net-module",
+      "token": "node:http",
+      "count": 1,
+      "ids": ["NET-11"],
+      "decision": "DECISION REQUIRED",
+      "reason": "Daemon upload endpoints for remote clients; loopback only, removal depends on D-19 (E6d)."
+    },
+    {
+      "file": "packages/daemon/src/server/upload-http.ts",
+      "rule": "node-net-module",
+      "token": "node:http",
+      "count": 1,
+      "ids": ["NET-11"],
+      "decision": "DECISION REQUIRED",
+      "reason": "Daemon upload endpoints for remote clients; loopback only, removal depends on D-19 (E6d)."
+    },
+    {
+      "file": "packages/daemon/src/server/upload.ts",
+      "rule": "node-net-module",
+      "token": "node:http",
+      "count": 1,
+      "ids": ["NET-11"],
+      "decision": "DECISION REQUIRED",
+      "reason": "Daemon upload endpoints for remote clients; loopback only, removal depends on D-19 (E6d)."
+    },
+    {
+      "file": "packages/daemon/src/sessions/handlers/session-doctor-metro.ts",
+      "rule": "fetch",
+      "token": "fetch(",
+      "count": 1,
+      "ids": ["NET-29"],
+      "decision": "PRESERVE",
+      "reason": "doctor probes the local Metro server."
+    },
+    {
+      "file": "packages/daemon/src/sessions/handlers/session-doctor-metro.ts",
+      "rule": "url-literal",
+      "token": "http://${host}",
+      "count": 1,
+      "ids": ["NET-29"],
+      "decision": "PRESERVE",
+      "reason": "doctor probes the local Metro server."
+    },
+    {
+      "file": "packages/host-kit/src/internal/transport.ts",
+      "rule": "node-net-module",
+      "token": "node:http",
+      "count": 4,
+      "ids": ["NET-30", "NET-10"],
+      "decision": "DECISION REQUIRED",
+      "reason": "Shared HTTP(S) transport: local daemon IPC (NET-30) and the remote daemon over https (NET-10, D-04, E6c)."
+    },
+    {
+      "file": "packages/host-kit/src/internal/transport.ts",
+      "rule": "node-net-module",
+      "token": "node:https",
+      "count": 1,
+      "ids": ["NET-30", "NET-10"],
+      "decision": "DECISION REQUIRED",
+      "reason": "Shared HTTP(S) transport: local daemon IPC (NET-30) and the remote daemon over https (NET-10, D-04, E6c)."
+    },
+    {
+      "file": "packages/kernel/src/contracts.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 1,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun identifier in a shared type, catalog or capability table (e.g. limrun-ios-tree); narrow it when the provider goes (E4a)."
+    },
+    {
+      "file": "packages/kernel/src/errors.ts",
+      "rule": "url-literal",
+      "token": "https://host",
+      "count": 1,
+      "ids": ["NET-00"],
+      "decision": "IGNORE",
+      "reason": "Placeholder URL inside a JSDoc example of a remote error message."
+    },
+    {
+      "file": "packages/kernel/src/snapshot.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 1,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun identifier in a shared type, catalog or capability table (e.g. limrun-ios-tree); narrow it when the provider goes (E4a)."
+    },
+    {
+      "file": "packages/maestro/src/daemon-port/run-script-http.ts",
+      "rule": "fetch",
+      "token": "fetch(",
+      "count": 1,
+      "ids": ["NET-25", "NET-26"],
+      "decision": "PRESERVE",
+      "reason": "Maestro runScript http.post: user-authored HTTP from test scripts must keep working (D-11)."
+    },
+    {
+      "file": "packages/maestro/src/daemon-port/run-script-http.ts",
+      "rule": "http-client-module",
+      "token": "undici",
+      "count": 1,
+      "ids": ["NET-25", "NET-26"],
+      "decision": "PRESERVE",
+      "reason": "Maestro runScript http.post: user-authored HTTP from test scripts must keep working (D-11)."
+    },
+    {
+      "file": "packages/maestro/src/daemon-port/run-script-http.ts",
+      "rule": "node-net-module",
+      "token": "node:net",
+      "count": 1,
+      "ids": ["NET-25", "NET-26"],
+      "decision": "PRESERVE",
+      "reason": "Maestro runScript http.post: user-authored HTTP from test scripts must keep working (D-11)."
+    },
+    {
+      "file": "packages/maestro/src/internal/support-matrix.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 1,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun identifier in a shared type, catalog or capability table (e.g. limrun-ios-tree); narrow it when the provider goes (E4a)."
+    },
+    {
+      "file": "packages/maestro/src/internal/support-matrix.ts",
+      "rule": "url-literal",
+      "token": "https://github.com",
+      "count": 2,
+      "ids": ["NET-00"],
+      "decision": "IGNORE",
+      "reason": "Links to upstream ADR/issue tracker printed in Maestro support diagnostics; not fetched. Re-point at rebranding (E9)."
+    },
+    {
+      "file": "packages/platform-android/src/snapshot-helper-session-protocol.ts",
+      "rule": "listen",
+      "token": "listen(",
+      "count": 1,
+      "ids": ["NET-32"],
+      "decision": "PRESERVE",
+      "reason": "Android snapshot helper session over loopback and adb forward."
+    },
+    {
+      "file": "packages/platform-android/src/snapshot-helper-session-protocol.ts",
+      "rule": "node-net-module",
+      "token": "node:net",
+      "count": 1,
+      "ids": ["NET-32"],
+      "decision": "PRESERVE",
+      "reason": "Android snapshot helper session over loopback and adb forward."
+    },
+    {
+      "file": "packages/platform-android/src/snapshot-helper-session-protocol.ts",
+      "rule": "socket-connect",
+      "token": "net.connect(",
+      "count": 1,
+      "ids": ["NET-32"],
+      "decision": "PRESERVE",
+      "reason": "Android snapshot helper session over loopback and adb forward."
+    },
+    {
+      "file": "packages/platform-apple/src/runner/runner-command-route.ts",
+      "rule": "url-literal",
+      "token": "http://[${tunnelIp}",
+      "count": 1,
+      "ids": ["NET-31"],
+      "decision": "PRESERVE",
+      "reason": "XCTest runner transport: loopback, usbmux, CoreDevice tunnel to the attached device."
+    },
+    {
+      "file": "packages/platform-apple/src/runner/runner-command-route.ts",
+      "rule": "url-literal",
+      "token": "http://127.0.0.1",
+      "count": 1,
+      "ids": ["NET-31"],
+      "decision": "PRESERVE",
+      "reason": "XCTest runner transport: loopback, usbmux, CoreDevice tunnel to the attached device."
+    },
+    {
+      "file": "packages/platform-apple/src/runner/runner-contract.ts",
+      "rule": "fetch",
+      "token": "fetch(",
+      "count": 1,
+      "ids": ["NET-00"],
+      "decision": "IGNORE",
+      "reason": "The word \"fetch (\" appears in a comment or error-classification text; no call."
+    },
+    {
+      "file": "packages/platform-apple/src/runner/runner-error-classification.ts",
+      "rule": "fetch",
+      "token": "fetch(",
+      "count": 1,
+      "ids": ["NET-00"],
+      "decision": "IGNORE",
+      "reason": "The word \"fetch (\" appears in a comment or error-classification text; no call."
+    },
+    {
+      "file": "packages/platform-apple/src/runner/runner-io.ts",
+      "rule": "listen",
+      "token": "listen(",
+      "count": 1,
+      "ids": ["NET-31"],
+      "decision": "PRESERVE",
+      "reason": "XCTest runner transport: loopback, usbmux, CoreDevice tunnel to the attached device."
+    },
+    {
+      "file": "packages/platform-apple/src/runner/runner-io.ts",
+      "rule": "node-net-module",
+      "token": "node:net",
+      "count": 1,
+      "ids": ["NET-31"],
+      "decision": "PRESERVE",
+      "reason": "XCTest runner transport: loopback, usbmux, CoreDevice tunnel to the attached device."
+    },
+    {
+      "file": "packages/platform-apple/src/runner/runner-retention.ts",
+      "rule": "node-net-module",
+      "token": "node:net",
+      "count": 1,
+      "ids": ["NET-31"],
+      "decision": "PRESERVE",
+      "reason": "XCTest runner transport: loopback, usbmux, CoreDevice tunnel to the attached device."
+    },
+    {
+      "file": "packages/platform-apple/src/runner/runner-retention.ts",
+      "rule": "socket-connect",
+      "token": "net.connect(",
+      "count": 1,
+      "ids": ["NET-31"],
+      "decision": "PRESERVE",
+      "reason": "XCTest runner transport: loopback, usbmux, CoreDevice tunnel to the attached device."
+    },
+    {
+      "file": "packages/platform-apple/src/runner/runner-transport.ts",
+      "rule": "fetch",
+      "token": "fetch(",
+      "count": 1,
+      "ids": ["NET-31"],
+      "decision": "PRESERVE",
+      "reason": "XCTest runner transport: loopback, usbmux, CoreDevice tunnel to the attached device."
+    },
+    {
+      "file": "packages/platform-apple/src/runner/runner-usbmux-protocol.ts",
+      "rule": "node-net-module",
+      "token": "node:net",
+      "count": 1,
+      "ids": ["NET-31"],
+      "decision": "PRESERVE",
+      "reason": "XCTest runner transport: loopback, usbmux, CoreDevice tunnel to the attached device."
+    },
+    {
+      "file": "packages/platform-apple/src/runner/runner-usbmux-protocol.ts",
+      "rule": "socket-connect",
+      "token": "net.createConnection(",
+      "count": 1,
+      "ids": ["NET-31"],
+      "decision": "PRESERVE",
+      "reason": "XCTest runner transport: loopback, usbmux, CoreDevice tunnel to the attached device."
+    },
+    {
+      "file": "packages/platform-apple/src/runner/runner-usbmux.ts",
+      "rule": "node-net-module",
+      "token": "node:http",
+      "count": 1,
+      "ids": ["NET-31"],
+      "decision": "PRESERVE",
+      "reason": "XCTest runner transport: loopback, usbmux, CoreDevice tunnel to the attached device."
+    },
+    {
+      "file": "packages/platform-apple/src/runner/runner-usbmux.ts",
+      "rule": "node-net-module",
+      "token": "node:net",
+      "count": 1,
+      "ids": ["NET-31"],
+      "decision": "PRESERVE",
+      "reason": "XCTest runner transport: loopback, usbmux, CoreDevice tunnel to the attached device."
+    },
+    {
+      "file": "packages/platform-apple/src/snapshot-source/host.ts",
+      "rule": "node-net-module",
+      "token": "node:net",
+      "count": 1,
+      "ids": ["NET-34"],
+      "decision": "PRESERVE",
+      "reason": "Apple snapshot-source helper over a local UNIX socket."
+    },
+    {
+      "file": "packages/platform-apple/src/snapshot-source/host.ts",
+      "rule": "socket-connect",
+      "token": "net.createConnection(",
+      "count": 1,
+      "ids": ["NET-34"],
+      "decision": "PRESERVE",
+      "reason": "Apple snapshot-source helper over a local UNIX socket."
+    },
+    {
+      "file": "packages/platform-web/src/agent-browser-install.ts",
+      "rule": "net-tool-command",
+      "token": "npm",
+      "count": 4,
+      "ids": ["NET-21"],
+      "decision": "DECISION REQUIRED",
+      "reason": "web setup installs agent-browser with npm (explicit command) (D-07, E7)."
+    },
+    {
+      "file": "packages/plugins/src/store.ts",
+      "rule": "net-tool-command",
+      "token": "npm",
+      "count": 1,
+      "ids": ["NET-08"],
+      "decision": "REMOVE",
+      "reason": "plugins add/update runs npm install from the registry (E5, D-13)."
+    },
+    {
+      "file": "packages/provider-limrun/src/alert.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 1,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
+    },
+    {
+      "file": "packages/provider-limrun/src/alert.ts",
+      "rule": "websocket",
+      "token": "WebSocket",
+      "count": 1,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
+    },
+    {
+      "file": "packages/provider-limrun/src/android.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 3,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
+    },
+    {
+      "file": "packages/provider-limrun/src/app-catalog.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 4,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
+    },
+    {
+      "file": "packages/provider-limrun/src/app-log-descriptor.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 4,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
+    },
+    {
+      "file": "packages/provider-limrun/src/app-log-reconnect.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 6,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
+    },
+    {
+      "file": "packages/provider-limrun/src/app-log-runtime.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 8,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
+    },
+    {
+      "file": "packages/provider-limrun/src/client-options.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 5,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
+    },
+    {
+      "file": "packages/provider-limrun/src/connection-verification.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 16,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
+    },
+    {
+      "file": "packages/provider-limrun/src/deployment-runtime.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 4,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
+    },
+    {
+      "file": "packages/provider-limrun/src/device.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 4,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
+    },
+    {
+      "file": "packages/provider-limrun/src/facts-runtime.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 14,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
+    },
+    {
+      "file": "packages/provider-limrun/src/instance-access.ts",
+      "rule": "websocket",
+      "token": "WebSocket",
+      "count": 1,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
+    },
+    {
+      "file": "packages/provider-limrun/src/interaction-operations.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 10,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
+    },
+    {
+      "file": "packages/provider-limrun/src/ios-settings.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 4,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
+    },
+    {
+      "file": "packages/provider-limrun/src/ios-snapshot-adapter.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 1,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
+    },
+    {
+      "file": "packages/provider-limrun/src/ios.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 8,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
+    },
+    {
+      "file": "packages/provider-limrun/src/lifecycle.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 1,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
+    },
+    {
+      "file": "packages/provider-limrun/src/recording-runtime.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 6,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
+    },
+    {
+      "file": "packages/provider-limrun/src/request-cancellation.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 1,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
+    },
+    {
+      "file": "packages/provider-limrun/src/request-cancellation.ts",
+      "rule": "websocket",
+      "token": "WebSocket",
+      "count": 2,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
+    },
+    {
+      "file": "packages/provider-limrun/src/runtime-instance.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 3,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
+    },
+    {
+      "file": "packages/provider-limrun/src/runtime.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 8,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
+    },
+    {
+      "file": "packages/provider-limrun/src/session-allocation.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 4,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
+    },
+    {
+      "file": "packages/provider-testmu/src/testmu-connection-verification.ts",
+      "rule": "forbidden-marker",
+      "token": "lambdatest.com",
+      "count": 2,
+      "ids": ["NET-06"],
+      "decision": "REMOVE",
+      "reason": "TestMu AI (LambdaTest) provider endpoints (E4c)."
+    },
+    {
+      "file": "packages/provider-testmu/src/testmu-webdriver.ts",
+      "rule": "forbidden-marker",
+      "token": "lambdatest.com",
+      "count": 1,
+      "ids": ["NET-06"],
+      "decision": "REMOVE",
+      "reason": "TestMu AI (LambdaTest) provider endpoints (E4c)."
+    },
+    {
+      "file": "packages/provider-testmu/src/testmu-webdriver.ts",
+      "rule": "url-literal",
+      "token": "https://mobile-hub.lambdatest.com",
+      "count": 1,
+      "ids": ["NET-06"],
+      "decision": "REMOVE",
+      "reason": "TestMu AI (LambdaTest) provider endpoints (E4c)."
+    },
+    {
+      "file": "packages/provider-testmu/src/testmu.ts",
+      "rule": "forbidden-marker",
+      "token": "lambdatest.com",
+      "count": 6,
+      "ids": ["NET-06"],
+      "decision": "REMOVE",
+      "reason": "TestMu AI (LambdaTest) provider endpoints (E4c)."
+    },
+    {
+      "file": "packages/provider-testmu/src/testmu.ts",
+      "rule": "url-literal",
+      "token": "https://appautomation.lambdatest.com",
+      "count": 1,
+      "ids": ["NET-06"],
+      "decision": "REMOVE",
+      "reason": "TestMu AI (LambdaTest) provider endpoints (E4c)."
+    },
+    {
+      "file": "packages/provider-testmu/src/testmu.ts",
+      "rule": "url-literal",
+      "token": "https://manual-api.lambdatest.com",
+      "count": 3,
+      "ids": ["NET-06"],
+      "decision": "REMOVE",
+      "reason": "TestMu AI (LambdaTest) provider endpoints (E4c)."
+    },
+    {
+      "file": "packages/provider-testmu/src/testmu.ts",
+      "rule": "url-literal",
+      "token": "https://mobile-api.lambdatest.com",
+      "count": 1,
+      "ids": ["NET-06"],
+      "decision": "REMOVE",
+      "reason": "TestMu AI (LambdaTest) provider endpoints (E4c)."
+    },
+    {
+      "file": "packages/provider-webdriver/src/aws-device-farm-provider.ts",
+      "rule": "url-literal",
+      "token": "http://127.0.0.1",
+      "count": 1,
+      "ids": ["NET-05"],
+      "decision": "REMOVE",
+      "reason": "AWS Device Farm provider: aws CLI child process and remote WebDriver endpoint (E4b)."
+    },
+    {
+      "file": "packages/provider-webdriver/src/aws-device-farm.ts",
+      "rule": "forbidden-marker",
+      "token": "devicefarm",
+      "count": 1,
+      "ids": ["NET-05"],
+      "decision": "REMOVE",
+      "reason": "AWS Device Farm provider: aws CLI child process and remote WebDriver endpoint (E4b)."
+    },
+    {
+      "file": "packages/provider-webdriver/src/aws-device-farm.ts",
+      "rule": "net-tool-command",
+      "token": "aws",
+      "count": 1,
+      "ids": ["NET-05"],
+      "decision": "REMOVE",
+      "reason": "AWS Device Farm provider: aws CLI child process and remote WebDriver endpoint (E4b)."
+    },
+    {
+      "file": "packages/provider-webdriver/src/aws-device-farm.ts",
+      "rule": "url-literal",
+      "token": "http://${endpoint}",
+      "count": 1,
+      "ids": ["NET-05"],
+      "decision": "REMOVE",
+      "reason": "AWS Device Farm provider: aws CLI child process and remote WebDriver endpoint (E4b)."
+    },
+    {
+      "file": "packages/provider-webdriver/src/browserstack-connection-verification.ts",
+      "rule": "forbidden-marker",
+      "token": "browserstack.com",
+      "count": 3,
+      "ids": ["NET-04"],
+      "decision": "REMOVE",
+      "reason": "BrowserStack provider endpoints and connection verification (E4b)."
+    },
+    {
+      "file": "packages/provider-webdriver/src/browserstack-connection-verification.ts",
+      "rule": "url-literal",
+      "token": "https://api-cloud.browserstack.com",
+      "count": 2,
+      "ids": ["NET-04"],
+      "decision": "REMOVE",
+      "reason": "BrowserStack provider endpoints and connection verification (E4b)."
+    },
+    {
+      "file": "packages/provider-webdriver/src/browserstack.ts",
+      "rule": "forbidden-marker",
+      "token": "browserstack.com",
+      "count": 3,
+      "ids": ["NET-04"],
+      "decision": "REMOVE",
+      "reason": "BrowserStack provider endpoints and connection verification (E4b)."
+    },
+    {
+      "file": "packages/provider-webdriver/src/browserstack.ts",
+      "rule": "url-literal",
+      "token": "https://api-cloud.browserstack.com",
+      "count": 2,
+      "ids": ["NET-04"],
+      "decision": "REMOVE",
+      "reason": "BrowserStack provider endpoints and connection verification (E4b)."
+    },
+    {
+      "file": "packages/provider-webdriver/src/browserstack.ts",
+      "rule": "url-literal",
+      "token": "https://hub-cloud.browserstack.com",
+      "count": 1,
+      "ids": ["NET-04"],
+      "decision": "REMOVE",
+      "reason": "BrowserStack provider endpoints and connection verification (E4b)."
+    },
+    {
+      "file": "packages/provider-webdriver/src/webdriver-client.ts",
+      "rule": "transport-request",
+      "token": "transport.request",
+      "count": 1,
+      "ids": ["NET-04", "NET-05"],
+      "decision": "REMOVE",
+      "reason": "Shared WebDriver transport/client of the cloud providers: commands, uploads, artifacts (E4b)."
+    },
+    {
+      "file": "packages/provider-webdriver/src/webdriver-transport.ts",
+      "rule": "fetch",
+      "token": "fetch(",
+      "count": 1,
+      "ids": ["NET-04", "NET-05"],
+      "decision": "REMOVE",
+      "reason": "Shared WebDriver transport/client of the cloud providers: commands, uploads, artifacts (E4b)."
+    },
+    {
+      "file": "packages/provider-webdriver/src/webdriver-utils.ts",
+      "rule": "fetch",
+      "token": "fetch(",
+      "count": 3,
+      "ids": ["NET-04", "NET-05"],
+      "decision": "REMOVE",
+      "reason": "Shared WebDriver transport/client of the cloud providers: commands, uploads, artifacts (E4b)."
+    },
+    {
+      "file": "packages/provision-kit/src/install-source-network-transport.ts",
+      "rule": "http-client-module",
+      "token": "undici",
+      "count": 1,
+      "ids": ["NET-22"],
+      "decision": "DECISION REQUIRED",
+      "reason": "install-from-source <url>: undici download with public-address guard (D-06, E7)."
+    },
+    {
+      "file": "packages/provision-kit/src/install-source-network-transport.ts",
+      "rule": "node-net-module",
+      "token": "node:net",
+      "count": 1,
+      "ids": ["NET-22"],
+      "decision": "DECISION REQUIRED",
+      "reason": "install-from-source <url>: undici download with public-address guard (D-06, E7)."
+    },
+    {
+      "file": "packages/provision-kit/src/install-source-network.ts",
+      "rule": "node-net-module",
+      "token": "node:dns/promises",
+      "count": 1,
+      "ids": ["NET-22"],
+      "decision": "DECISION REQUIRED",
+      "reason": "install-from-source <url>: undici download with public-address guard (D-06, E7)."
+    },
+    {
+      "file": "packages/provision-kit/src/install-source-network.ts",
+      "rule": "node-net-module",
+      "token": "node:net",
+      "count": 1,
+      "ids": ["NET-22"],
+      "decision": "DECISION REQUIRED",
+      "reason": "install-from-source <url>: undici download with public-address guard (D-06, E7)."
+    },
+    {
+      "file": "packages/proxy/src/daemon-proxy.ts",
+      "rule": "fetch",
+      "token": "fetch(",
+      "count": 1,
+      "ids": ["NET-14"],
+      "decision": "DECISION REQUIRED",
+      "reason": "Daemon proxy that exposes the daemon contract for tunnelling (D-04, E6a)."
+    },
+    {
+      "file": "packages/proxy/src/daemon-proxy.ts",
+      "rule": "node-net-module",
+      "token": "node:http",
+      "count": 1,
+      "ids": ["NET-14"],
+      "decision": "DECISION REQUIRED",
+      "reason": "Daemon proxy that exposes the daemon contract for tunnelling (D-04, E6a)."
+    },
+    {
+      "file": "packages/proxy/src/daemon-proxy.ts",
+      "rule": "websocket",
+      "token": "WebSocket",
+      "count": 1,
+      "ids": ["NET-14"],
+      "decision": "DECISION REQUIRED",
+      "reason": "Daemon proxy that exposes the daemon contract for tunnelling (D-04, E6a)."
+    },
+    {
+      "file": "packages/proxy/src/node-http.ts",
+      "rule": "node-net-module",
+      "token": "node:http",
+      "count": 1,
+      "ids": ["NET-14"],
+      "decision": "DECISION REQUIRED",
+      "reason": "Daemon proxy that exposes the daemon contract for tunnelling (D-04, E6a)."
+    },
+    {
+      "file": "packages/proxy/src/node-http.ts",
+      "rule": "node-net-module",
+      "token": "node:tls",
+      "count": 1,
+      "ids": ["NET-14"],
+      "decision": "DECISION REQUIRED",
+      "reason": "Daemon proxy that exposes the daemon contract for tunnelling (D-04, E6a)."
+    },
+    {
+      "file": "packages/react-native/src/companion/client-companion-tunnel-worker.ts",
+      "rule": "fetch",
+      "token": "fetch(",
+      "count": 3,
+      "ids": ["NET-17"],
+      "decision": "REMOVE",
+      "reason": "Metro companion tunnel worker: register/unregister and WebSocket tunnel to a remote server (E6b)."
+    },
+    {
+      "file": "packages/react-native/src/companion/client-companion-tunnel-worker.ts",
+      "rule": "websocket",
+      "token": "WebSocket",
+      "count": 22,
+      "ids": ["NET-17"],
+      "decision": "REMOVE",
+      "reason": "Metro companion tunnel worker: register/unregister and WebSocket tunnel to a remote server (E6b)."
+    },
+    {
+      "file": "packages/react-native/src/metro/client-metro.ts",
+      "rule": "fetch",
+      "token": "fetch(",
+      "count": 2,
+      "ids": ["NET-16", "NET-29"],
+      "decision": "DECISION REQUIRED",
+      "reason": "Metro: one fetch reads the local Metro status (NET-29, PRESERVE), one calls the remote bridge {proxyBaseUrl}/api/metro/bridge (NET-16, REMOVE in E6b)."
+    },
+    {
+      "file": "packages/react-native/src/metro/client-metro.ts",
+      "rule": "net-tool-command",
+      "token": "npm",
+      "count": 2,
+      "ids": ["NET-18"],
+      "decision": "RESTRICT",
+      "reason": "metro prepare installs project dependencies with the detected package manager (D-08, E7)."
+    },
+    {
+      "file": "packages/react-native/src/metro/client-metro.ts",
+      "rule": "net-tool-command",
+      "token": "npx",
+      "count": 3,
+      "ids": ["NET-19"],
+      "decision": "RESTRICT",
+      "reason": "metro prepare starts Metro through npx, which may download packages (D-08, E7)."
+    },
+    {
+      "file": "packages/react-native/src/metro/client-metro.ts",
+      "rule": "net-tool-command",
+      "token": "pnpm",
+      "count": 1,
+      "ids": ["NET-18"],
+      "decision": "RESTRICT",
+      "reason": "metro prepare installs project dependencies with the detected package manager (D-08, E7)."
+    },
+    {
+      "file": "packages/react-native/src/metro/client-metro.ts",
+      "rule": "net-tool-command",
+      "token": "yarn",
+      "count": 1,
+      "ids": ["NET-18"],
+      "decision": "RESTRICT",
+      "reason": "metro prepare installs project dependencies with the detected package manager (D-08, E7)."
+    },
+    {
+      "file": "packages/react-native/src/metro/client-metro.ts",
+      "rule": "url-literal",
+      "token": "http://${settings.statusHost}",
+      "count": 2,
+      "ids": ["NET-29"],
+      "decision": "PRESERVE",
+      "reason": "Local Metro dev server: status URL and /message WebSocket reload."
+    },
+    {
+      "file": "packages/react-native/src/metro/client-metro.ts",
+      "rule": "websocket",
+      "token": "WebSocket",
+      "count": 1,
+      "ids": ["NET-29"],
+      "decision": "PRESERVE",
+      "reason": "Local Metro dev server: status URL and /message WebSocket reload."
+    },
+    {
+      "file": "packages/react-native/src/react-devtools/metro-inspector.ts",
+      "rule": "fetch",
+      "token": "fetch(",
+      "count": 1,
+      "ids": ["NET-29"],
+      "decision": "PRESERVE",
+      "reason": "React DevTools / Metro inspector on the local dev server."
+    },
+    {
+      "file": "packages/react-native/src/react-devtools/metro-inspector.ts",
+      "rule": "url-literal",
+      "token": "http://127.0.0.1",
+      "count": 1,
+      "ids": ["NET-29"],
+      "decision": "PRESERVE",
+      "reason": "React DevTools / Metro inspector on the local dev server."
+    },
+    {
+      "file": "packages/react-native/src/react-devtools/metro-inspector.ts",
+      "rule": "websocket",
+      "token": "WebSocket",
+      "count": 5,
+      "ids": ["NET-29"],
+      "decision": "PRESERVE",
+      "reason": "React DevTools / Metro inspector on the local dev server."
+    },
+    {
+      "file": "packages/remote/src/artifact-download.ts",
+      "rule": "node-net-module",
+      "token": "node:http",
+      "count": 1,
+      "ids": ["NET-12"],
+      "decision": "REMOVE",
+      "reason": "Artifact download from a remote daemon (E6c)."
+    },
+    {
+      "file": "packages/remote/src/artifact-download.ts",
+      "rule": "transport-request",
+      "token": "transport.request",
+      "count": 1,
+      "ids": ["NET-12"],
+      "decision": "REMOVE",
+      "reason": "Artifact download from a remote daemon (E6c)."
+    },
+    {
+      "file": "packages/remote/src/remote-request-diagnostics.ts",
+      "rule": "transport-request",
+      "token": "transport.request",
+      "count": 1,
+      "ids": ["NET-13"],
+      "decision": "REMOVE",
+      "reason": "Remote request diagnostics fetch (E6c)."
+    },
+    {
+      "file": "packages/remote/src/upload-client.ts",
+      "rule": "fetch",
+      "token": "fetch(",
+      "count": 2,
+      "ids": ["NET-11"],
+      "decision": "REMOVE",
+      "reason": "Artifact upload to a remote daemon (E6c)."
+    },
+    {
+      "file": "packages/remote/src/upload-stream.ts",
+      "rule": "node-net-module",
+      "token": "node:http",
+      "count": 1,
+      "ids": ["NET-11"],
+      "decision": "REMOVE",
+      "reason": "Artifact upload to a remote daemon (E6c)."
+    },
+    {
+      "file": "packages/remote/src/upload-stream.ts",
+      "rule": "transport-request",
+      "token": "transport.request",
+      "count": 1,
+      "ids": ["NET-11"],
+      "decision": "REMOVE",
+      "reason": "Artifact upload to a remote daemon (E6c)."
+    },
+    {
+      "file": "src/ai-sdk/index.ts",
+      "rule": "url-literal",
+      "token": "https://ai-sdk.dev",
+      "count": 1,
+      "ids": ["NET-00", "NET-38"],
+      "decision": "IGNORE",
+      "reason": "Documentation link in the AI SDK adapter JSDoc; the adapter opens no connection (NET-38)."
+    },
+    {
+      "file": "src/builtin-provider-ids.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 1,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Built-in Limrun provider registration and connect adapter (E4a)."
+    },
+    {
+      "file": "src/builtin-provider-plugins.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 3,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Built-in Limrun provider registration and connect adapter (E4a)."
+    },
+    {
+      "file": "src/cli/auth-session.ts",
+      "rule": "fetch",
+      "token": "fetchImpl",
+      "count": 12,
+      "ids": ["NET-02"],
+      "decision": "REMOVE",
+      "reason": "agent-device cloud control-plane login and session refresh (E3)."
+    },
+    {
+      "file": "src/cli/auth-session.ts",
+      "rule": "forbidden-marker",
+      "token": "agent-device.dev",
+      "count": 3,
+      "ids": ["NET-02"],
+      "decision": "REMOVE",
+      "reason": "agent-device cloud control-plane login and session refresh (E3)."
+    },
+    {
+      "file": "src/cli/auth-session.ts",
+      "rule": "url-literal",
+      "token": "https://cloud.agent-device.dev",
+      "count": 1,
+      "ids": ["NET-02"],
+      "decision": "REMOVE",
+      "reason": "agent-device cloud control-plane login and session refresh (E3)."
+    },
+    {
+      "file": "src/cli/commands/agent-cdp.ts",
+      "rule": "net-tool-command",
+      "token": "npm",
+      "count": 1,
+      "ids": ["NET-20"],
+      "decision": "DECISION REQUIRED",
+      "reason": "cdp runs npm exec --yes agent-cdp (download on first use) (D-14, E7)."
+    },
+    {
+      "file": "src/cli/commands/proxy.ts",
+      "rule": "listen",
+      "token": "listen(",
+      "count": 3,
+      "ids": ["NET-14"],
+      "decision": "DECISION REQUIRED",
+      "reason": "proxy command listener (configurable host) for remote access (D-04, E6a)."
+    },
+    {
+      "file": "src/cli/commands/proxy.ts",
+      "rule": "url-literal",
+      "token": "http://${formatHostForUrl(address.address)}",
+      "count": 1,
+      "ids": ["NET-14"],
+      "decision": "DECISION REQUIRED",
+      "reason": "proxy command listener (configurable host) for remote access (D-04, E6a)."
+    },
+    {
+      "file": "src/cli/commands/proxy.ts",
+      "rule": "url-literal",
+      "token": "http://127.0.0.1",
+      "count": 1,
+      "ids": ["NET-14"],
+      "decision": "DECISION REQUIRED",
+      "reason": "proxy command listener (configurable host) for remote access (D-04, E6a)."
+    },
+    {
+      "file": "src/cli/connection/cloud-profile.ts",
+      "rule": "fetch",
+      "token": "fetchImpl",
+      "count": 9,
+      "ids": ["NET-03"],
+      "decision": "REMOVE",
+      "reason": "Cloud connection profile fetched from the agent-device control plane (E3)."
+    },
+    {
+      "file": "src/cli/connection/connect-provider-adapters.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 5,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Built-in Limrun provider registration and connect adapter (E4a)."
+    },
+    {
+      "file": "src/cli/connection/limrun-profile.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 13,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider wiring, SDK export and profile (E4a)."
+    },
+    {
+      "file": "src/cli/update-check.ts",
+      "rule": "fetch",
+      "token": "fetch(",
+      "count": 1,
+      "ids": ["NET-01"],
+      "decision": "REMOVE",
+      "reason": "Background update check fetches registry.npmjs.org (E2)."
+    },
+    {
+      "file": "src/cli/update-check.ts",
+      "rule": "forbidden-marker",
+      "token": "registry.npmjs.org",
+      "count": 1,
+      "ids": ["NET-01"],
+      "decision": "REMOVE",
+      "reason": "Background update check fetches registry.npmjs.org (E2)."
+    },
+    {
+      "file": "src/cli/update-check.ts",
+      "rule": "url-literal",
+      "token": "https://registry.npmjs.org",
+      "count": 1,
+      "ids": ["NET-01"],
+      "decision": "REMOVE",
+      "reason": "Background update check fetches registry.npmjs.org (E2)."
+    },
+    {
+      "file": "src/commands/capture/alert.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 2,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun identifier in a shared type, catalog or capability table (e.g. limrun-ios-tree); narrow it when the provider goes (E4a)."
+    },
+    {
+      "file": "src/commands/capture/settings.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 1,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun identifier in a shared type, catalog or capability table (e.g. limrun-ios-tree); narrow it when the provider goes (E4a)."
+    },
+    {
+      "file": "src/commands/interaction/runtime/stable-capture.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 1,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun identifier in a shared type, catalog or capability table (e.g. limrun-ios-tree); narrow it when the provider goes (E4a)."
+    },
+    {
+      "file": "src/commands/schema/cli-help-workflows.ts",
+      "rule": "url-literal",
+      "token": "https://example.com",
+      "count": 1,
+      "ids": ["NET-00", "NET-27"],
+      "decision": "IGNORE",
+      "reason": "Example URL in help text for open/web commands (user-initiated navigation, NET-27/NET-28)."
+    },
+    {
+      "file": "src/commands/schema/cli-help.ts",
+      "rule": "url-literal",
+      "token": "http://127.0.0.1",
+      "count": 2,
+      "ids": ["NET-00", "NET-14", "NET-20"],
+      "decision": "IGNORE",
+      "reason": "Loopback examples in help text (cdp target list, proxy tunnel flow); removed with the proxy help in E6a."
+    },
+    {
+      "file": "src/commands/schema/cli-help.ts",
+      "rule": "url-literal",
+      "token": "https://example.com",
+      "count": 2,
+      "ids": ["NET-00", "NET-27"],
+      "decision": "IGNORE",
+      "reason": "Example URL in help text for open/web commands (user-initiated navigation, NET-27/NET-28)."
+    },
+    {
+      "file": "src/commands/schema/cli-help.ts",
+      "rule": "url-literal",
+      "token": "https://example.trycloudflare.com",
+      "count": 1,
+      "ids": ["NET-14"],
+      "decision": "DECISION REQUIRED",
+      "reason": "Help example of exposing the daemon through a public tunnel (proxy flow, D-04); removed with E6a."
+    },
+    {
+      "file": "src/commands/schema/command-overrides.ts",
+      "rule": "url-literal",
+      "token": "http://127.0.0.1",
+      "count": 1,
+      "ids": ["NET-00", "NET-14"],
+      "decision": "IGNORE",
+      "reason": "Loopback example in the proxy command help; removed with the proxy command in E6a."
+    },
+    {
+      "file": "src/commands/schema/command-overrides.ts",
+      "rule": "url-literal",
+      "token": "https://example.com",
+      "count": 1,
+      "ids": ["NET-00", "NET-27"],
+      "decision": "IGNORE",
+      "reason": "Example URL in help text for open/web commands (user-initiated navigation, NET-27/NET-28)."
+    },
+    {
+      "file": "src/commands/schema/command-overrides.ts",
+      "rule": "url-literal",
+      "token": "https://example.trycloudflare.com",
+      "count": 1,
+      "ids": ["NET-14"],
+      "decision": "DECISION REQUIRED",
+      "reason": "Help example of exposing the daemon through a public tunnel (proxy flow, D-04); removed with E6a."
+    },
+    {
+      "file": "src/commands/system/index.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 2,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun identifier in a shared type, catalog or capability table (e.g. limrun-ios-tree); narrow it when the provider goes (E4a)."
+    },
+    {
+      "file": "src/daemon-client/daemon-client-lifecycle.ts",
+      "rule": "node-net-module",
+      "token": "node:net",
+      "count": 1,
+      "ids": ["NET-30"],
+      "decision": "PRESERVE",
+      "reason": "Daemon client IPC to 127.0.0.1 (the same module also hosts remote-daemon branches, NET-10, E6c)."
+    },
+    {
+      "file": "src/daemon-client/daemon-client-liveness-probe.ts",
+      "rule": "node-net-module",
+      "token": "node:net",
+      "count": 1,
+      "ids": ["NET-30"],
+      "decision": "PRESERVE",
+      "reason": "Daemon client IPC to 127.0.0.1 (the same module also hosts remote-daemon branches, NET-10, E6c)."
+    },
+    {
+      "file": "src/daemon-client/daemon-client-liveness-probe.ts",
+      "rule": "socket-connect",
+      "token": "net.createConnection(",
+      "count": 1,
+      "ids": ["NET-30"],
+      "decision": "PRESERVE",
+      "reason": "Daemon client IPC to 127.0.0.1 (the same module also hosts remote-daemon branches, NET-10, E6c)."
+    },
+    {
+      "file": "src/daemon-client/daemon-client-liveness-probe.ts",
+      "rule": "transport-request",
+      "token": "transport.request",
+      "count": 2,
+      "ids": ["NET-30"],
+      "decision": "PRESERVE",
+      "reason": "Daemon client IPC to 127.0.0.1 (the same module also hosts remote-daemon branches, NET-10, E6c)."
+    },
+    {
+      "file": "src/daemon-client/daemon-client-progress.ts",
+      "rule": "node-net-module",
+      "token": "node:http",
+      "count": 1,
+      "ids": ["NET-30"],
+      "decision": "PRESERVE",
+      "reason": "Daemon client IPC to 127.0.0.1 (the same module also hosts remote-daemon branches, NET-10, E6c)."
+    },
+    {
+      "file": "src/daemon-client/daemon-client-progress.ts",
+      "rule": "node-net-module",
+      "token": "node:net",
+      "count": 1,
+      "ids": ["NET-30"],
+      "decision": "PRESERVE",
+      "reason": "Daemon client IPC to 127.0.0.1 (the same module also hosts remote-daemon branches, NET-10, E6c)."
+    },
+    {
+      "file": "src/daemon-client/daemon-client-transport.ts",
+      "rule": "node-net-module",
+      "token": "node:net",
+      "count": 1,
+      "ids": ["NET-30"],
+      "decision": "PRESERVE",
+      "reason": "Daemon client IPC to 127.0.0.1 (the same module also hosts remote-daemon branches, NET-10, E6c)."
+    },
+    {
+      "file": "src/daemon-client/daemon-client-transport.ts",
+      "rule": "socket-connect",
+      "token": "net.createConnection(",
+      "count": 2,
+      "ids": ["NET-30"],
+      "decision": "PRESERVE",
+      "reason": "Daemon client IPC to 127.0.0.1 (the same module also hosts remote-daemon branches, NET-10, E6c)."
+    },
+    {
+      "file": "src/daemon-client/daemon-client-transport.ts",
+      "rule": "transport-request",
+      "token": "transport.request",
+      "count": 2,
+      "ids": ["NET-30"],
+      "decision": "PRESERVE",
+      "reason": "Daemon client IPC to 127.0.0.1 (the same module also hosts remote-daemon branches, NET-10, E6c)."
+    },
+    {
+      "file": "src/daemon-client/daemon-client-transport.ts",
+      "rule": "url-literal",
+      "token": "http://127.0.0.1",
+      "count": 1,
+      "ids": ["NET-30"],
+      "decision": "PRESERVE",
+      "reason": "Daemon client IPC to 127.0.0.1 (the same module also hosts remote-daemon branches, NET-10, E6c)."
+    },
+    {
+      "file": "src/provider-limrun-credentials.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 4,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider wiring, SDK export and profile (E4a)."
+    },
+    {
+      "file": "src/provider-limrun-runtime.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 3,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider wiring, SDK export and profile (E4a)."
+    },
+    {
+      "file": "src/sdk/limrun-download-file.ts",
+      "rule": "fetch",
+      "token": "fetch(",
+      "count": 1,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider wiring, SDK export and profile (E4a)."
+    },
+    {
+      "file": "src/sdk/limrun-download-file.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 5,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider wiring, SDK export and profile (E4a)."
+    },
+    {
+      "file": "src/sdk/limrun-runtime-dependencies.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 3,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider wiring, SDK export and profile (E4a)."
+    },
+    {
+      "file": "src/sdk/limrun-runtime-types.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 1,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider wiring, SDK export and profile (E4a)."
+    },
+    {
+      "file": "src/sdk/limrun.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 3,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider wiring, SDK export and profile (E4a)."
+    },
+    {
+      "file": "src/vendor/limrun-delta-sync-omitted.ts",
+      "rule": "forbidden-marker",
+      "token": "limrun",
+      "count": 2,
+      "ids": ["NET-07"],
+      "decision": "REMOVE",
+      "reason": "Limrun provider wiring, SDK export and profile (E4a)."
+    }
+  ]
+}

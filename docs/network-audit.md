@@ -8,6 +8,7 @@
 | Data audytu | 2026-10-28 |
 | Zakres | `src/`, `packages/*/src`, `bin/`, `apple/`, `android/`, `linux/`, `scripts/`, `.github/`, metadane dystrybucji |
 | Status | Audyt statyczny zakończony; audyt dynamiczny wykonany wyrywkowo (Linux, bez urządzeń) — patrz §6 |
+| Kontrole automatyczne | Od E1: strażnik statyczny i harness offline (Linux) — patrz §8. W E1 nie usunięto żadnego mechanizmu |
 
 Numery linii odnoszą się do commita bazowego. Po zmianach w kolejnych etapach należy je
 odświeżyć (`git grep` po nazwie symbolu podanego w tabeli).
@@ -375,3 +376,76 @@ i brak weryfikacji ruchu narzędzi zewnętrznych (§4.3–4.4).
    build-for-testing` uruchamiane osobno, poza harnessem.
 5. **Kryterium**: raport z harnessu dołączany do PR Etapu 8 i 10; bez tych raportów nie wolno
    deklarować zgodności z polityką local-only.
+
+## 8. Kontrole wdrożone w Etapie 1
+
+E1 nie usunął żadnego mechanizmu z tabeli §2 — wszystkie NET-xx pozostają w stanie bazowym.
+E1 dodał dwie kontrole, które pilnują tego stanu i wymuszają aktualizację w kolejnych etapach.
+
+### 8.1. Strażnik statyczny
+
+- Pliki: `scripts/taprig/network-guard.ts`, `scripts/taprig/network-allowlist.json`,
+  test `scripts/taprig/network-guard.test.ts` (projekt Vitest `unit-core`, czyli
+  `pnpm test:unit` i lane Coverage w CI), komenda `pnpm taprig:network-guard`, job
+  `TapRig / Network guard & offline harness` (`.github/workflows/taprig.yml`).
+- Zakres: `git ls-files src packages bin`, rozszerzenia TS/JS, bez testów i fixture'ów
+  (`__tests__/`, `__fixtures__/`, `__mocks__/`, `fixtures/`, `test/`, `tests/`, `test-utils/`,
+  `test-support/`, `testing/`, `*.test.*`, `*.spec.*`, `*.fixture(s).*`, `*.bench.*`, `*.d.ts`)
+  oraz bez `packages/test-kit/` (pakiet tylko dla testów, nie trafia do `dist/`). Stan bazowy:
+  1 903 pliki.
+- Reguły (`rule` w allowliście):
+
+  | Reguła | Wykrywa |
+  | --- | --- |
+  | `fetch` | `fetch(`, `.fetch(`, `globalThis.fetch`, `fetchImpl` |
+  | `node-net-module` | import/require `node:http`, `https`, `http2`, `net`, `tls`, `dgram`, `dns` (także `/promises`) |
+  | `http-client-module` | import `undici`, `ws`, `axios`, `node-fetch`, `got` |
+  | `websocket` | `WebSocket` |
+  | `transport-request` | `transport.request` |
+  | `socket-connect` | `net.createConnection(`, `net.connect(`, `tls.connect(`, `createConnection(` |
+  | `listen` | `listen(` |
+  | `url-literal` | literały `http(s)://`, `ws(s)://` (token: schemat + host bez portu) |
+  | `net-tool-command` | literał tekstowy `npm`, `npx`, `pnpm`, `yarn`, `curl`, `wget`, `aws` (argument `runCmd*`/`spawn` lub zmienna z nazwą komendy) |
+  | `forbidden-marker` | domeny `agent-device.dev`, `registry.npmjs.org`, `browserstack.com`, `lambdatest.com`, `amazonaws.com` w dowolnym miejscu linii; `limrun`, `devicefarm` w literałach tekstowych |
+
+- Wpis allowlisty: `file`, `rule`, `token`, `count` (dokładna liczba wystąpień), `ids`
+  (NET-xx), `decision` (`REMOVE`, `RESTRICT`, `REPLACE`, `PRESERVE`, `DECISION REQUIRED`,
+  `IGNORE`), `reason`. Strażnik failuje dla: miejsca spoza allowlisty (`unlisted`), innej
+  liczby wystąpień (`count`), wpisu bez dopasowania (`stale`), wpisu niepoprawnego (`invalid`
+  — brak ID/uzasadnienia, zakazana domena bez `REMOVE`).
+- **NET-00** — identyfikator wpisów, które nie otwierają połączenia: linki do dokumentacji i
+  zgłoszeń upstream w komentarzach i komunikatach, przykładowe URL-e w pomocy CLI, bazowy URL
+  przekazywany tylko do parsera `URL`, słowo „fetch” w komentarzu. Decyzja: `IGNORE`. Każdy
+  taki literał ma osobny wpis — nie ma globalnej reguły ignorowania komentarzy.
+- Baseline E1: 394 wystąpienia w 174 wpisach (84 `REMOVE`), 31 identyfikatorów. Wpisy
+  `REMOVE` obejmują wszystkie wystąpienia zakazanych domen i markerów (NET-01 – NET-08,
+  NET-11 – NET-13, NET-17, typy współdzielone z `limrun`).
+- Ograniczenia: wykrywanie tekstowe (bez AST). Nie wykrywa połączeń z kodu natywnego
+  (`apple/`, `android/` — §7.1 p.6, poza zakresem E1), dynamicznie budowanych nazw modułów ani
+  sieci w zależnościach wbudowywanych w `dist/` (§7.1 p.5 — skan `dist/` planowany w E8).
+  Mechanizmy bez prymitywu sieciowego w kodzie TS (NET-09 `import()` pluginów, NET-10 wybór
+  zdalnego daemona, NET-24 `-allowProvisioningUpdates`, NET-27/28/33/35–37) nie mają wpisów.
+
+### 8.2. Harness offline
+
+- Pliki: `scripts/taprig/offline-harness/` (`run.sh`, `lo_up.py`, `check.mjs`,
+  `expectations.json`, `README.md`), komenda `pnpm taprig:offline-smoke`, job CI w
+  `.github/workflows/taprig.yml` (`ubuntu-latest`, `sudo unshare`, instalacja `strace` przez
+  `apt-get` — ruch budowania).
+- Metoda: nowa przestrzeń nazw sieci (`unshare -n`, tylko `lo`), proces jako użytkownik
+  wywołujący (`setpriv`), czyste środowisko (nowy `HOME` i `AGENT_DEVICE_STATE_DIR`, bez `CI` i
+  zmiennych proxy), `strace -f -e trace=execve,connect,sendto,sendmsg` (+ `clone*`/`fork` do
+  atrybucji wątków i procesów). Po scenariuszu: `daemon stop` z tym samym state dir.
+- Naruszenie: `connect`/`sendto`/`sendmsg` do `AF_INET`/`AF_INET6` spoza `127.0.0.0/8` i `::1`,
+  każde żądanie na port 53 (także do lokalnego resolvera, np. `127.0.0.53` na Ubuntu), połączenie
+  z gniazdem resolvera (`/run/systemd/resolve/*`, D-Bus system bus).
+- Scenariusze: `--version`, `help commands`, `devices --platform android` z TTY (`script -qec`) i
+  bez TTY, `mcp` (`initialize`, `notifications/initialized`, `tools/list`).
+- Wynik E1 (kontener Linux, Node 22.22.0, bez `adb`): jedyne naruszenia to zapytania DNS
+  (`8.8.8.8:53`, `8.8.4.4:53`) procesu `update-check-entry.js --agent-device-run-update-check`
+  w scenariuszu `devices-android-tty` — **NET-01, „expected until E2”**. Pozostałe scenariusze:
+  wyłącznie `127.0.0.1` (IPC z daemonem) lub brak gniazd. `tools/list` zwraca narzędzia bez
+  żadnego połączenia.
+- Harness failuje przy nowym naruszeniu i gdy oczekiwane naruszenie zniknie — E2 musi usunąć
+  wpis NET-01 z `expectations.json`.
+

@@ -145,6 +145,8 @@ export default defineConfig({
             'scripts/fuzz/validation-case.test.ts',
             'scripts/fuzz/envelope.test.ts',
             'scripts/__tests__/vitest-slow-test-reporter.test.ts',
+            // TapRig network policy guard: scans tracked production sources against the allowlist.
+            'scripts/taprig/*.test.ts',
             // Artifact guards assert on Swift sources, package.json, workflows, docs and examples rather
             // than on a module under src.
             'test/repo-guards/*.test.ts',
@@ -213,8 +215,6 @@ export default defineConfig({
             // Parses CI configuration only, so this action guard needs no device or subprocess lane.
             'test/ci/upload-agent-device-artifacts.test.ts',
             'test/ci/upload-artifact-hidden-paths.test.ts',
-            // npm trusts release.yml, so its token boundary is asserted on the parsed workflow.
-            'test/ci/release-workflow.test.ts',
             // The size reporter is preserved across a base checkout; its entrypoint and imported
             // modules must move as one directory or the Bundle Size lane fails before measuring.
             'test/ci/size-workflow.test.ts',

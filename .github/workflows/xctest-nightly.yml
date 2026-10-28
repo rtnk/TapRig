@@ -6,8 +6,8 @@ name: XCTest Nightly
 # replace those contracts. The source-derived count guards against a zero-test run.
 
 on:
-  schedule:
-    - cron: '30 4 * * *'
+  # TapRig fork: the upstream schedule is removed; dispatch this lane manually.
+  # See docs/upstream-sync.md (CI of the fork).
   workflow_dispatch:
 
 permissions:

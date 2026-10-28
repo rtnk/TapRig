@@ -46,6 +46,34 @@ export type ManualOnlyOwner = {
 // `pull_request` or `schedule`; the audit fails if an entry outlives its parking, and fails
 // the other way too if a declaration is deleted while its lane is still dispatch-only.
 export const MANUAL_ONLY_OWNERS: Readonly<Record<string, ManualOnlyOwner>> = {
+  'fuzz-parsers': {
+    lane: 'Replay Nightly / Parser Fuzz Lane',
+    reason: [
+      'Parked on `workflow_dispatch` by the TapRig fork (E1): the fork runs no upstream',
+      'schedules. See docs/upstream-sync.md.',
+    ].join(' '),
+  },
+  'maestro-differential': {
+    lane: 'Conformance Differential / iOS Conformance Differential',
+    reason: [
+      'Parked on `workflow_dispatch` by the TapRig fork (E1): the fork runs no upstream',
+      'schedules, and the lane downloads the Maestro CLI. See docs/upstream-sync.md.',
+    ].join(' '),
+  },
+  'maestro-regenerate': {
+    lane: 'Conformance Regenerate Verify / Regenerate & Verify Fixtures',
+    reason: [
+      'Parked on `workflow_dispatch` by the TapRig fork (E1): the fork runs no upstream',
+      'schedules. See docs/upstream-sync.md.',
+    ].join(' '),
+  },
+  'mutation-check': {
+    lane: 'Mutation Weekly / Mutation score report',
+    reason: [
+      'Parked on `workflow_dispatch` by the TapRig fork (E1): the fork runs no upstream',
+      'schedules. See docs/upstream-sync.md.',
+    ].join(' '),
+  },
   'replay-android': {
     lane: 'Replay Manual / Android Full Emulator Suite',
     opaque: true,

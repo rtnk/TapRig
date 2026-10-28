@@ -1,3 +1,8 @@
+> [!IMPORTANT]
+> **This repository is TapRig**, a fork of [callstack/agent-device](https://github.com/callstack/agent-device) that is being migrated to a local-first tool: no cloud device providers, no update check, no implicit downloads, no telemetry. Local device automation and HTTP calls written in user test scripts stay.
+> The migration is in progress. Until the rebranding stage, the package, the binary, and the environment variables keep the `agent-device` name, and the text below is the upstream README.
+> Origin and license: [NOTICE](NOTICE), [LICENSE](LICENSE). Plan and records: [implementation plan](docs/taprig-implementation-plan.md), [decisions](docs/taprig-decisions.md), [network audit](docs/network-audit.md), [upstream sync](docs/upstream-sync.md), [handoff](docs/HANDOFF.md).
+
 <a href="https://www.callstack.com/open-source?utm_campaign=generic&utm_source=github&utm_medium=referral&utm_content=agent-device" align="center">
   <picture>
     <img alt="agent-device: mobile app automation and verification for AI coding agents" src="website/docs/public/agent-device-banner.jpg">
