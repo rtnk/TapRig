@@ -7,37 +7,58 @@ znajomości wcześniejszych rozmów — wszystko, czego potrzebujesz, jest w rep
 
 | Pole | Wartość |
 | --- | --- |
-| Ostatni ukończony etap | **E0** — eksploracja, audyt sieci, plan, handoff |
-| Następny etap | **E1** — fundament forka i zabezpieczenia (bez zmian zachowania) |
+| Ostatni ukończony etap | **E1** — fundament forka: atrybucja, CI forka, strażnik sieci, harness offline (bez zmian zachowania) |
+| PR Etapu 1 | [rtnk/TapRig#2](https://github.com/rtnk/TapRig/pull/2) (gałąź `taprig/e1-fork-foundation`) |
+| Następny etap | **E2** — usunięcie sprawdzania aktualizacji (NET-01) |
 | Repozytorium | `https://github.com/rtnk/TapRig` |
-| Upstream | `https://github.com/callstack/agent-device` (remote `upstream`) |
-| Commit bazowy (upstream `main`) | `3537dc549a5edb248f918990a137c536fc46ee50` — 2026-10-28, „fix(open): refuse --launch-console on a provider-owned device before the relaunch close (#3938)”; `git describe`: `nightly/v0.21.34-nightly.20261028.102-12-g3537dc549`; `package.json` → `0.21.34-dev` |
-| Gałąź `main` w TapRig | = commit bazowy (czysty import historii upstream, bez zmian) |
-| Gałąź Etapu 0 | `taprig/e0-audit-plan` (tylko dokumenty w `docs/`) |
-| Zmiany w kodzie | **Brak.** E0 nie zmieniał zachowania narzędzia |
+| Upstream | `https://github.com/callstack/agent-device` (remote `upstream`; procedura: `docs/upstream-sync.md`) |
+| Commit bazowy (upstream `main`) | `3537dc549a5edb248f918990a137c536fc46ee50` — 2026-10-28; `package.json` → `0.21.34-dev` |
+| Gałąź `main` w TapRig | commit bazowy + PR #1 (dokumenty E0) + PR Etapu 1 (po scaleniu) |
+| Zmiany zachowania narzędzia | **Brak.** E0 i E1 nie zmieniły `src/`, `packages/`, `bin/` |
 
-## 2. Wykonane działania (E0)
+## 2. Wykonane działania (E1)
 
-1. Repozytorium `rtnk/TapRig` było puste. Dodano remote `upstream`, pobrano pełną historię,
-   `main` utworzono z `upstream/main` i wypchnięto do `origin` (bez tagów i gałęzi upstream).
-2. Przeczytano `AGENTS.md`, `CONTEXT.md`, `docs/adr/*` (indeks), `package.json`,
-   `tsdown.config.ts`, `pnpm-workspace.yaml`.
-3. `pnpm install --frozen-lockfile` i `pnpm build` — sukces (build ~15 s).
-4. Statyczny audyt komunikacji sieciowej (kod TS, natywny Swift/Java, skrypty, CI) —
-   `docs/network-audit.md`.
-5. Prototyp audytu dynamicznego (`unshare -n` + `strace`) — potwierdził NET-01 (update check)
-   i NET-03 (`connect` → chmura); `runScript` HTTP działa offline.
-6. `pnpm test:unit` w izolacji sieciowej — wyniki w §6.
-7. Dokumenty: architektura, audyt, rejestr decyzji, plan, handoff.
+1. `NOTICE` (pochodzenie, commit bazowy, MIT, Copyright Callstack, opis forka); `LICENSE` —
+   dodana linia „Copyright (c) 2026 TapRig contributors”, treść MIT i nota Callstack bez zmian;
+   baner TapRig na początku `README.md` (linki do NOTICE, LICENSE i `docs/taprig-*.md`).
+2. `docs/upstream-sync.md`: remote, procedura merge w osobnych PR, kontrole po merge'u,
+   obszary kolizji (E2–E9), stan CI forka.
+3. CI forka (szczegóły: `docs/upstream-sync.md` §5):
+   - usunięte: `release.yml`, `publish-mcp-registry.yml`, `release-android-snapshot-helper.yml`,
+     `release-ios-runner.yml`, `deploy.yml`, `pr-preview-cleanup.yml`; w `pr-preview.yml`
+     usunięty job `deploy-preview` (zostaje bramka `command-docs`);
+   - zaparkowane na `workflow_dispatch` (usunięty `schedule`): `concurrency-torture-nightly`,
+     `replays-nightly`, `xctest-nightly`, `conformance-differential`, `conformance-regenerate`,
+     `mutation-weekly`, `perf-nightly`; bramki bez innego lane'u zadeklarowane w
+     `scripts/gate/declarations.ts` (`MANUAL_ONLY_OWNERS`): `fuzz-parsers`,
+     `maestro-differential`, `maestro-regenerate`, `mutation-check`;
+   - usunięte testy usuniętych workflowów: `test/ci/release-workflow.test.ts`, test publikacji
+     MCP w `test/repo-guards/npm-package-scripts.test.ts`; testy modelu bramek
+     (`scripts/gate/workflows.test.ts`, `audit-coverage.test.ts`) nie czytają już
+     `deploy.yml`/harmonogramu `replays-nightly.yml` (wpisane workflowy testowe);
+   - `ci.yml` bez zmian (już `ubuntu-latest`, bez sekretów); nowy `.github/workflows/taprig.yml`
+     (job „Network guard & offline harness”).
+4. Strażnik statyczny: `scripts/taprig/network-guard.ts`, `network-allowlist.json` (baseline:
+   394 wystąpienia, 174 wpisy, 84 `REMOVE`), `network-guard.test.ts` (w `unit-core`),
+   `pnpm taprig:network-guard` (`--suggest` wypisuje szkielety wpisów). Opis reguł i NET-00:
+   `docs/network-audit.md` §8.1.
+5. Harness offline: `scripts/taprig/offline-harness/` (`run.sh`, `lo_up.py`, `check.mjs`,
+   `expectations.json`, `README.md`), `pnpm taprig:offline-smoke`. Jedyne naruszenie: NET-01
+   w `devices-android-tty` („expected until E2”). Opis: `docs/network-audit.md` §8.2.
+6. `docs/taprig-decisions.md`: D-01, D-12, D-16 → ACCEPTED; D-10 → ACCEPTED w części
+   „wyłączenie publikacji upstream”; D-18 — część E1 wykonana.
 
 ## 3. Dokumenty
 
 | Plik | Zawartość |
 | --- | --- |
 | `docs/architecture.md` | Architektura bazy: CLI, daemon, MCP, SDK, platformy, pluginy/providery, przepływ komendy |
-| `docs/network-audit.md` | Tabela NET-01…NET-42, opisy mechanizmów, dowody, projekt kontroli statycznej i dynamicznej |
+| `docs/network-audit.md` | Tabela NET-01…NET-42, mechanizmy, dowody, projekt kontroli (§7), kontrole wdrożone w E1 (§8) |
 | `docs/taprig-decisions.md` | Rejestr decyzji D-01…D-19 ze statusami |
 | `docs/taprig-implementation-plan.md` | Etapy E1…E11 z plikami, zadaniami, kryteriami, testami, ryzykami |
+| `docs/upstream-sync.md` | Synchronizacja z upstream, obszary kolizji, CI forka |
+| `scripts/taprig/offline-harness/README.md` | Harness offline: uruchomienie, scenariusze, klasyfikacja |
+| `NOTICE` | Pochodzenie i atrybucja |
 | `docs/HANDOFF.md` | Ten plik |
 
 Dokumenty upstream (zasady pracy, które nadal obowiązują): `AGENTS.md`, `docs/agents/*.md`,
@@ -71,36 +92,52 @@ Dokumenty upstream (zasady pracy, które nadal obowiązują): `AGENTS.md`, `docs
 
 ## 5. Decyzje i pytania otwarte
 
-- ACCEPTED: D-03 (usunięcie chmury, providerów, update checka), D-18 (licencja/atrybucja).
-- PROPOSED: D-01, D-05, D-08, D-09, D-11 (zachowanie), D-12, D-15, D-16, D-17.
+- ACCEPTED: D-01 (fork + merge), D-03 (usunięcie chmury, providerów, update checka), D-12
+  (kontrola statyczna i dynamiczna), D-16 (rebranding po usunięciach), D-18 (licencja/atrybucja),
+  D-10 w części „wyłączenie publikacji upstream”.
+- PROPOSED: D-05, D-08, D-09, D-11 (zachowanie), D-15, D-17.
 - **NEEDS OWNER DECISION**: D-02 (aliasy kompatybilności), D-04 (tryb zdalny — rekomendacja:
   usunąć), D-06 (`install-from-source` — allowlista hostów wewnętrznych), D-07 (platforma web /
-  `web setup` offline), D-10 (dystrybucja i CI), D-11 (rozszerzenia `runScript`), D-13 (system
+  `web setup` offline), D-10 (dystrybucja 0.1.0, metadane rejestrów MCP, lane'y urządzeń
+  `android.yml`/`apple.yml`/`linux.yml` w PR), D-11 (rozszerzenia `runScript`), D-13 (system
   pluginów — rekomendacja: usunąć), D-14 (`cdp`), D-19 (endpointy zdalne daemona).
 
-E1, E2, E3, E4a–c i E7 (w części PROPOSED) można realizować bez decyzji właściciela poza
-D-10 w zakresie wyłączenia publikacji upstream (bezpieczne: niczego nie publikuje). E5 wymaga
-D-13; E6a–d wymagają D-04.
+E2 (D-03, ACCEPTED) nie wymaga decyzji właściciela. E3, E4a–c i E7 (w części PROPOSED) też można
+realizować; E5 wymaga D-13; E6a–d wymagają D-04.
 
-## 6. Stan testów (baseline)
+## 6. Stan testów
 
-Środowisko E0: Linux (kontener, root), Node 22.22.0, pnpm 11.17.0, bez Xcode/Android SDK.
+Środowisko E1: Linux (kontener, root), Node 22.22.0, pnpm 11.17.0, bez Xcode/Android SDK.
 
-`pnpm test:unit` w `unshare -n` (tylko loopback): **1822 pliki / 15 170 testów przechodzi,
-8 testów w 7 plikach nie przechodzi, 65 pominiętych**. Wszystkie niepowodzenia są
-środowiskowe:
+`pnpm test:unit` w `unshare -n` (tylko loopback), stan po E1: **1 823 pliki przechodzą,
+8 testów w 6 plikach nie przechodzi, 65 pominiętych** (16 105 testów; E1 dodał 9 testów
+strażnika, usunął testy usuniętych workflowów). Wszystkie niepowodzenia są środowiskowe i
+występowały już w E0:
 
 | Plik | Przyczyna |
 | --- | --- |
-| `packages/capture-kit/src/capture-admission/__tests__/durable-capture-resource.test.ts` | Uruchomienie jako root — test zakłada brak uprawnień zapisu (nie przechodzi też online) |
+| `packages/capture-kit/src/capture-admission/__tests__/durable-capture-resource.test.ts` | Uruchomienie jako root — test zakłada brak uprawnień zapisu |
 | `packages/capture-kit/src/durable-capture/adoption.test.ts` | j.w. |
-| `packages/daemon-contracts/src/device-claims-app.test.ts` (2) | j.w. (błąd odczytu nie występuje dla roota) |
+| `packages/daemon-contracts/src/device-claims-app.test.ts` (2) | j.w. |
 | `packages/daemon/src/resources/__tests__/app-log-session-resource.test.ts` | j.w. („unwritable tombstone”) |
 | `packages/daemon/src/server/http/daemon-session-idle-expiry.test.ts` (2) | j.w. |
-| `scripts/__tests__/apple-ci-impact.test.ts` | Tylko offline: podpisywanie commitów w kontenerze używa usługi na loopback hosta, niedostępnej w nowym namespace |
-| `scripts/__tests__/eager-closure-budgets.test.ts` | Wymaga `origin/main` (w E0 jeszcze nie istniał; po wypchnięciu `main` należy sprawdzić ponownie) |
+| `scripts/__tests__/apple-ci-impact.test.ts` | Tylko w `unshare -n` (podpisywanie commitów przez usługę na loopbacku hosta); poza namespace przechodzi |
 
-Na macOS/Linux jako zwykły użytkownik pięć pierwszych powinno przechodzić — zweryfikuj w E1.
+`scripts/__tests__/eager-closure-budgets.test.ts` przechodzi od E1 (istnieje `origin/main`).
+Pięć pierwszych powinno przechodzić jako zwykły użytkownik — nadal niezweryfikowane.
+
+`pnpm check:affected --run --head a8583dc` (fail-open → pełny zestaw, `exactCommit: true`):
+`format`, `lint`, `typecheck`, `layering`, `di-seams`, `fallow`, `native-dupes`,
+`native-dupes-model`, `mcp-metadata`, `build`, `package` — OK; **`integration-node` — FAIL**
+(2 testy w `test/integration/smoke-daemon-clean.test.ts`: „clean daemon script stops a live
+daemon…”, „forced retirement waits for a real daemon…”). Ta sama porażka odtwarza się na
+niezmienionym `main` (`f8a8424`) w tym kontenerze — przyczyna środowiskowa (prawdopodobnie
+root/kontener), nie zmiana E1. Kolejne kontrole za `integration-node` nie zostały uruchomione
+lokalnie (runner zatrzymuje się na pierwszej porażce); autorytatywne są joby CI w PR.
+
+Pozostałe kontrole E1: `pnpm taprig:network-guard` — OK (394 wystąpienia, 174 wpisy);
+`pnpm taprig:offline-smoke` — PASS (jedyne naruszenie: NET-01, oczekiwane do E2);
+`check:gate-manifest`, `check:gate-manifest:test`, `mutation:test`, `check:production-exports` — OK.
 
 ## 7. Znane ryzyka
 
@@ -108,9 +145,23 @@ Na macOS/Linux jako zwykły użytkownik pięć pierwszych powinno przechodzić �
    plan §2) — ryzyko regresji lokalnego iOS przy E4a/E4b.
 2. Klient daemona jest wspólny dla trybu lokalnego i zdalnego (E6c) — najwyższe ryzyko.
 3. „Lease” oznacza też lokalne dzierżawy runnera Apple — nie usuwać ich w E6d.
-4. Merge'e upstream mogą przywracać usunięte moduły — strażnik statyczny (E1) musi to wykryć.
+4. Merge'e upstream mogą przywracać usunięte moduły — strażnik statyczny wykrywa je jako
+   `unlisted`; procedura w `docs/upstream-sync.md` §3.
 5. Ruch tła narzędzi zewnętrznych (Chromium, emulator Androida, Xcode) jest niezweryfikowany.
-6. Brak weryfikacji na urządzeniach w E0 — nie deklarować zgodności offline przed E10.
+6. Brak weryfikacji na urządzeniach — nie deklarować zgodności offline przed E10.
+7. (E1) Strażnik jest tekstowy (bez AST): nie wykryje sieci w kodzie natywnym, dynamicznych
+   importów ani kodu zależności wbudowanego w `dist/` (skan `dist/` — E8). Wpisy mają dokładne
+   `count`, więc zmiany upstream w plikach z allowlisty wymagają przeglądu wpisu.
+8. (E1) Ścieżka harnessu z `sudo` + `setpriv` (użytkownik nie-root, jak w GitHub Actions)
+   była testowana lokalnie tylko częściowo (obniżenie uprawnień do `nobody` w namespace —
+   OK; pełne `sudo -n` — weryfikuje pierwszy przebieg joba `taprig.yml`). Na Ubuntu z
+   `systemd-resolved` DNS idzie do `127.0.0.53:53` — harness traktuje każdy port 53 jako
+   naruszenie, więc NET-01 jest wykrywany także tam.
+9. (E1) Zaparkowane lane'y (nightly, mutation, conformance) nie działają same — regresje, które
+   łapały w upstream (fuzz parserów, różnicowa zgodność Maestro), wykryje dopiero ręczne
+   uruchomienie lub merge upstream.
+10. (E1) Workflowy `android.yml`, `apple.yml`, `linux.yml`, `size.yml`, `test-app-build-cache.yml`
+    nadal uruchamiają się w PR (runnery macOS, emulatory). Ograniczenie — decyzja D-10.
 
 ## 8. Uruchomienie środowiska i komendy weryfikacyjne
 
@@ -121,32 +172,33 @@ git fetch upstream main
 pnpm install --frozen-lockfile        # Node >= 22.12, pnpm 11 (packageManager w package.json)
 pnpm build
 pnpm check:quick                      # lint + typecheck
-pnpm test:unit                        # ~6 min; porównaj z baseline z §6
+pnpm taprig:network-guard             # strażnik statyczny (sekundy)
+pnpm taprig:offline-smoke             # harness offline (Linux, root lub sudo; ~15 s)
+pnpm test:unit                        # ~6-10 min; porównaj z baseline z §6
 AGENT_DEVICE_NO_UPDATE_NOTIFIER=1 node bin/agent-device.mjs help commands
 ```
-
-Prototyp harnessu offline (Linux, root lub `sudo`) — opis w `docs/network-audit.md` §6; w E1
-trafia do `scripts/taprig/offline-harness/`.
 
 Nie uruchamiaj `pnpm test:integration:provider` ani komend `connect <provider>` z prawdziwymi
 poświadczeniami — łączą się z usługami chmurowymi.
 
-## 9. Kryteria zakończenia następnego etapu (E1)
+## 9. Kryteria zakończenia następnego etapu (E2)
 
-Zgodnie z `docs/taprig-implementation-plan.md` §3 E1:
+Zgodnie z `docs/taprig-implementation-plan.md` §3 E2:
 
-- [ ] `NOTICE`, aktualizacja `LICENSE` (nota Callstack zachowana), baner w `README.md`.
-- [ ] `docs/upstream-sync.md`.
-- [ ] Workflowy publikujące/wdrażające upstream wyłączone; `ci.yml` działa w forku.
-- [ ] Strażnik statyczny + allowlista baseline (NET-xx) + test w `pnpm test:unit`.
-- [ ] Harness offline + job CI; jedyne oczekiwane naruszenie: NET-01 (TTY).
-- [ ] Brak zmian zachowania (`src/`, `packages/`, `bin/` bez zmian funkcjonalnych).
-- [ ] PR do `main`; aktualizacja `docs/HANDOFF.md` (stan, prompt dla E2).
+- [ ] Usunięte `src/cli/update-check.ts`, `src/cli/update-check-entry.ts` i ich testy; brak
+      wywołania w `src/cli.ts`; brak wpisu `internal/update-check-entry` w `tsdown.config.ts`.
+- [ ] Brak `registry.npmjs.org` w `src/`, `packages/`, `dist/`; brak `update-check-entry.js` w `dist/`.
+- [ ] Odwołania do `AGENT_DEVICE_NO_UPDATE_NOTIFIER` usunięte (skrypty, testy, `.fallowrc.json`,
+      `website/docs`).
+- [ ] Allowlista bez wpisów NET-01; `expectations.json` bez NET-01; harness bez naruszeń.
+- [ ] Test: `runCli` z TTY nie tworzy `update-check.json`.
+- [ ] PR do `main`; aktualizacja `docs/HANDOFF.md`, `docs/network-audit.md` (NET-01 → DONE),
+      `docs/taprig-decisions.md`.
 
-## 10. Prompt dla agenta realizującego Etap 1
+## 10. Prompt dla agenta realizującego Etap 2
 
 ```text
-Jesteś agentem realizującym Etap 1 (E1) projektu TapRig w repozytorium
+Jesteś agentem realizującym Etap 2 (E2) projektu TapRig w repozytorium
 https://github.com/rtnk/TapRig. TapRig to fork callstack/agent-device (narzędzia CLI + serwer
 MCP + Node.js SDK do automatyzacji iOS/Android i innych platform dla agentów AI), który ma
 stać się narzędziem local-first: bez integracji z chmurowymi dostawcami urządzeń, bez
@@ -155,65 +207,52 @@ lokalnej automatyzacji oraz wywołań HTTP świadomie zapisanych przez użytkown
 testowych (Maestro runScript http.post).
 
 Najpierw przeczytaj (w tej kolejności): AGENTS.md, docs/HANDOFF.md,
-docs/taprig-implementation-plan.md (§0 i §3 E1), docs/network-audit.md (§1, §2, §6, §7),
-docs/taprig-decisions.md (D-01, D-10, D-12, D-16, D-18), docs/architecture.md.
-Sprawdź stan Git (git status, git log -3, gałęzie). Commit bazowy upstream:
-3537dc549a5edb248f918990a137c536fc46ee50. Jeżeli main zawiera już zmiany, uwzględnij je.
+docs/taprig-implementation-plan.md (§0, §2 wiersz update check, §3 E2),
+docs/network-audit.md (§2 NET-01, §3.1, §8), docs/taprig-decisions.md (D-03, D-02),
+docs/upstream-sync.md, scripts/taprig/offline-harness/README.md.
+Sprawdź stan Git (git status, git log -5, gałęzie). Upewnij się, że PR Etapu 1
+(gałąź taprig/e1-fork-foundation) jest scalony do main; jeżeli nie — zatrzymaj się i zapytaj
+właściciela. Pracuj od aktualnego main.
 
-Zakres E1 — fundament forka BEZ zmiany zachowania narzędzia:
-1. NOTICE (pochodzenie: callstack/agent-device, commit bazowy, licencja MIT, Copyright
-   Callstack; opis forka TapRig). LICENSE: zachowaj treść MIT i notę Callstack, dodaj linię
-   copyright TapRig. README.md: baner na górze informujący, że to TapRig — fork
-   agent-device w trakcie migracji do local-first, z linkami do NOTICE i docs/taprig-*.md.
-   Nie zmieniaj jeszcze nazw paczki, binarki ani zmiennych (rebranding to E9, D-16).
-2. docs/upstream-sync.md: remote upstream, procedura synchronizacji przez merge w osobnych PR,
-   obowiązkowe kontrole po merge'u (strażnik + harness), obszary kolizji (moduły usuwane w E2–E6).
-3. CI forka (.github/workflows): wyłącz workflowy publikujące i wdrażające upstream oraz
-   harmonogramy nightly (release.yml, publish-mcp-registry.yml,
-   release-android-snapshot-helper.yml, release-ios-runner.yml, deploy.yml, pr-preview.yml,
-   pr-preview-cleanup.yml, *-nightly.yml, conformance-*.yml, mutation-weekly.yml,
-   perf-nightly.yml) — usuń je lub ogranicz do workflow_dispatch bez kroków publikacji;
-   opisz wybór w PR. Zachowaj i w razie potrzeby dostosuj ci.yml (lint, typecheck, unit,
-   build) do ubuntu-latest bez sekretów.
-4. Strażnik statyczny: scripts/taprig/network-guard.ts + scripts/taprig/network-allowlist.json
-   + test uruchamiany przez `pnpm test:unit` (sprawdź vitest.config.ts, które ścieżki obejmuje
-   projekt unit-core) + skrypt `pnpm taprig:network-guard`. Skanuje pliki produkcyjne
-   (git ls-files src packages bin bez testów/fixture'ów) pod kątem: fetch/fetchImpl,
-   node:http/https/net/tls/dgram/dns, undici, WebSocket, transport.request,
-   net.createConnection, listen(, literałów http(s)://, wywołań runCmd*/spawn z npm, npx,
-   pnpm, yarn, curl, wget, aws. Każde znalezione miejsce musi mieć wpis w allowliście
-   (plik, wzorzec/symbol, ID NET-xx z docs/network-audit.md, decyzja, uzasadnienie). Test
-   failuje dla miejsca spoza allowlisty ORAZ dla nieaktualnego wpisu allowlisty. Baseline:
-   stan obecny (wszystkie NET-xx). Zakazane domeny (agent-device.dev, registry.npmjs.org,
-   browserstack.com, lambdatest.com, limrun, amazonaws, devicefarm) oznacz w allowliście
-   decyzją REMOVE, aby kolejne etapy je usuwały.
-5. Harness offline: scripts/taprig/offline-harness/ (lo_up.py podnoszący lo przez ioctl,
-   run.sh: `unshare -n` + `strace -f -e trace=execve,connect,sendto,sendmsg`, check.mjs
-   klasyfikujący naruszenia = AF_INET/AF_INET6 poza 127.0.0.0/8 i ::1, w tym DNS na :53).
-   Scenariusze: --version, help commands, `devices --platform android` z TTY (przez `script
-   -qec`) i bez TTY na czystym state dir (AGENT_DEVICE_STATE_DIR w katalogu tymczasowym),
-   `mcp` (initialize + tools/list na stdin). Uwaga: daemon jest odłączony i żyje pod strace —
-   po scenariuszu zatrzymaj go (`node bin/agent-device.mjs daemon stop` z tym samym state dir)
-   albo użyj timeoutu. Oczekiwany wynik w E1: dokładnie jedno znane naruszenie NET-01
-   (worker update-check w scenariuszu TTY) zapisane jako „expected until E2”; harness failuje
-   przy innym naruszeniu i gdy oczekiwane zniknie. Skrypt `pnpm taprig:offline-smoke`
-   i job CI na ubuntu-latest (sudo unshare, instalacja strace jest dozwolonym ruchem budowania).
-6. Nie zmieniaj zachowania narzędzia: żadnych zmian funkcjonalnych w src/, packages/, bin/.
+Zakres E2 — usunięcie sprawdzania aktualizacji (NET-01), bez innych zmian zachowania:
+1. Usuń src/cli/update-check.ts, src/cli/update-check-entry.ts,
+   src/cli/__tests__/update-check.test.ts. Usuń import i wywołanie maybeRunUpgradeNotifier
+   w src/cli.ts (zlokalizuj przez git grep, numery linii z dokumentów dotyczą commita
+   bazowego). Usuń wpis 'internal/update-check-entry' z tsdown.config.ts.
+2. Zaktualizuj oczekiwane pliki dist w scripts/check-package.ts i
+   test/repo-guards/npm-package-scripts.test.ts. Usuń zmienną AGENT_DEVICE_NO_UPDATE_NOTIFIER
+   z scripts/check-package.ts, scripts/check-provider-plugin.mjs,
+   scripts/ios-snapshot-benchmark/*, scripts/lib/bench-host.ts,
+   src/cli/commands/__tests__/plugins.test.ts, wpis w .fallowrc.json oraz z dokumentacji
+   website/docs/docs/{configuration,installation,security-trust}.md (git grep
+   AGENT_DEVICE_NO_UPDATE_NOTIFIER i git grep update-check). Zgodnie z D-02 (NEEDS OWNER
+   DECISION) nie dodawaj obsługi zgodności dla zmiennej — po prostu przestaje mieć znaczenie;
+   opisz to w PR.
+3. Dodaj test: runCli z TTY na stderr i czystym state dir nie tworzy update-check.json i nie
+   uruchamia procesu potomnego (możesz zastąpić usunięty test).
+4. Strażnik: usuń z scripts/taprig/network-allowlist.json wszystkie wpisy src/cli/update-check.ts
+   (NET-01) — `pnpm taprig:network-guard` zgłosi je jako stale. Nie dodawaj nowych wpisów.
+5. Harness: usuń wpis NET-01 z scripts/taprig/offline-harness/expectations.json; scenariusz
+   devices-android-tty musi przejść bez naruszeń. Nie osłabiaj klasyfikacji naruszeń.
+6. Dokumentacja: docs/network-audit.md (NET-01 → „DONE w E2, PR #…”, §8 — nowy stan
+   strażnika i harnessu), docs/taprig-decisions.md (D-03: postęp), docs/upstream-sync.md
+   (obszar kolizji update check → usunięty).
+7. Nie zmieniaj niczego poza zakresem update checka (np. chmury, providerów, rebrandingu).
 
 Weryfikacja przed PR: pnpm install --frozen-lockfile && pnpm build; pnpm check:quick;
 pnpm test:unit (porównaj z baseline z docs/HANDOFF.md §6 — nowe błędy muszą być wyjaśnione
-lub naprawione, nie ukrywaj ich); pnpm taprig:network-guard; pnpm taprig:offline-smoke;
-ręcznie: tymczasowy fetch('https://example.com') w pliku src/ musi zostać wykryty przez
-strażnika (nie commituj go). Nie wyłączaj ani nie pomijaj istniejących testów/bramek.
+lub naprawione, nie ukrywaj ich); pnpm check:layering; pnpm check:production-exports;
+pnpm check:package; pnpm check:gate-manifest; pnpm taprig:network-guard;
+pnpm taprig:offline-smoke (raport w PR); ręcznie: ls dist/src/internal | grep update-check
+→ brak; git grep -n registry.npmjs.org -- src packages → brak. Nie wyłączaj ani nie pomijaj
+istniejących testów/bramek.
 
-Rezultat: gałąź taprig/e1-fork-foundation, commity w konwencji type(scope): opis, PR do main
-w rtnk/TapRig z opisem: co zrobiono, co wyłączono w CI i dlaczego, wyniki testów, raport
-harnessu. Jeżeli nie możesz utworzyć PR, wypchnij gałąź i podaj instrukcję.
+Rezultat: gałąź taprig/e2-remove-update-check, commity w konwencji type(scope): opis, PR do
+main w rtnk/TapRig z opisem: co usunięto, wyniki testów, raport harnessu, diff allowlisty.
+Jeżeli nie możesz utworzyć PR, wypchnij gałąź i podaj instrukcję.
 
-Na koniec zaktualizuj docs/HANDOFF.md: stan (E1 ukończony, link do PR), wyniki testów,
-nowe ryzyka, następny etap (E2 — usunięcie update checka, zgodnie z
-docs/taprig-implementation-plan.md §3 E2) oraz kompletny prompt dla agenta E2 w tym samym
-formacie. Zaktualizuj docs/taprig-decisions.md (statusy, jeśli właściciel coś rozstrzygnął)
-i docs/network-audit.md (nic nie zostało usunięte w E1 — dopisz tylko informację o strażniku
-i harnessie). Nie rozpoczynaj E2.
+Na koniec zaktualizuj docs/HANDOFF.md: stan (E2 ukończony, link do PR), wyniki testów, nowe
+ryzyka, następny etap (E3 — usunięcie chmury agent-device, zgodnie z
+docs/taprig-implementation-plan.md §3 E3) oraz kompletny prompt dla agenta E3 w tym samym
+formacie. Nie rozpoczynaj E3.
 ```
