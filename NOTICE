@@ -1,0 +1,48 @@
+TapRig
+======
+
+TapRig is a fork of agent-device, maintained in https://github.com/rtnk/TapRig.
+
+Origin
+------
+
+Upstream project:  agent-device
+Upstream source:   https://github.com/callstack/agent-device
+Base commit:       3537dc549a5edb248f918990a137c536fc46ee50
+                   (upstream main, 2026-10-28, package version 0.21.34-dev)
+Upstream license:  MIT License
+Upstream notice:   Copyright (c) 2026 Callstack
+
+The full MIT license text, with the Callstack copyright notice, is in the LICENSE file. The
+upstream copyright notice and permission notice must stay in all copies or substantial
+portions of the software.
+
+About the fork
+--------------
+
+TapRig turns agent-device into a local-first tool for mobile app automation (CLI, MCP server,
+and Node.js SDK for iOS, Android, and the other upstream platforms). The fork removes, in
+stages:
+
+- integrations with cloud device providers (BrowserStack, AWS Device Farm, TestMu AI /
+  LambdaTest, Limrun) and with the agent-device cloud;
+- the update check against the npm registry;
+- implicit downloads from the Internet during normal commands;
+- the remote daemon mode, unless the owner decides otherwise.
+
+The fork keeps local device automation and the HTTP calls that users write on purpose in
+their test scripts (Maestro runScript http.post). agent-device has no telemetry; TapRig adds
+none.
+
+Status: migration in progress. Until the rebranding stage (E9), the package, binary,
+environment variables, and state directory keep the upstream name `agent-device`.
+
+Plan and records: docs/taprig-implementation-plan.md, docs/taprig-decisions.md,
+docs/network-audit.md, docs/upstream-sync.md, docs/HANDOFF.md.
+
+Third-party code
+----------------
+
+The published agent-device package bundles third-party dependencies into dist/. Each keeps
+its own license. A dependency license summary is due with the first TapRig release
+(decision D-18, stage E11).
