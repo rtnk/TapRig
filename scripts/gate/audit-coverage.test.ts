@@ -41,10 +41,10 @@ test('deleting the lane that runs a gate reports exactly that gate, naming the r
   const model = mutate((m) => ({
     lanes: mapLane(
       m,
-      (lane) => lane.gates.includes('fuzz-parsers'),
+      (lane) => lane.gates.includes('maestro-conformance'),
       (lane) => ({
         ...lane,
-        gates: lane.gates.filter((id) => id !== 'fuzz-parsers'),
+        gates: lane.gates.filter((id) => id !== 'maestro-conformance'),
       }),
     ),
   }));
@@ -52,9 +52,9 @@ test('deleting the lane that runs a gate reports exactly that gate, naming the r
   assert.equal(found.length, 1);
   assert.match(
     found[0] ?? '',
-    /check "fuzz-parsers" is not declared by any pull_request\/schedule lane/,
+    /check "maestro-conformance" is not declared by any pull_request\/schedule lane/,
   );
-  assert.match(found[0] ?? '', /run-gate action step for `fuzz-parsers`/);
+  assert.match(found[0] ?? '', /run-gate action step for `maestro-conformance`/);
 });
 
 test('a docs-only change still reaches the command-reference gate (#1420)', () => {

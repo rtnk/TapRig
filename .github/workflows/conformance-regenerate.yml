@@ -14,8 +14,8 @@ name: Conformance Regenerate Verify
 # Central, none of which belong on the per-PR path.
 
 on:
-  schedule:
-    - cron: '0 6 * * *'
+  # TapRig fork: the upstream schedule is removed; dispatch this lane manually.
+  # See docs/upstream-sync.md (CI of the fork).
   workflow_dispatch:
 
 permissions:

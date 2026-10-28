@@ -14,8 +14,8 @@ name: Perf Nightly
 # - Delete or park when: no flagged change has been acted on for 60 nights.
 
 on:
-  schedule:
-    - cron: '40 2 * * *'
+  # TapRig fork: the upstream schedule is removed; dispatch this lane manually.
+  # See docs/upstream-sync.md (CI of the fork).
   workflow_dispatch:
     inputs:
       rounds:

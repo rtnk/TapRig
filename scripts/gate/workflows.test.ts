@@ -84,7 +84,16 @@ test('lanes carry the workflow spelling the catalog used, and only real triggers
   const labels = model.lanes.map((lane) => lane.label);
   assert.ok(labels.includes('Coverage'), 'CI jobs are named bare');
   assert.ok(labels.includes('Apple / Smoke Tests'), 'other workflows are prefixed');
-  const deploy = model.lanes.find((lane) => lane.workflow === 'deploy.yml');
+  const [deploy] = planted({
+    '.github/workflows/deploy.yml': `name: Deploy
+on:
+  push:
+    branches: [main]
+jobs:
+  deploy:
+    steps:
+      - run: echo deploy`,
+  });
   assert.equal(deploy?.qualifying, false, 'a push-only lane gates nothing on the way in');
 });
 
@@ -120,7 +129,18 @@ jobs:
   });
   assert.equal(push?.qualifying, false);
   assert.deepEqual(push?.triggers, ['push']);
-  const nightly = model.lanes.find((lane) => lane.workflow === 'replays-nightly.yml');
+  const [nightly] = planted({
+    '.github/workflows/planted.yml': `name: Planted
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+jobs:
+  planted:
+    steps:
+      - run: echo hi`,
+  });
+  assert.equal(nightly?.qualifying, true);
   assert.deepEqual(nightly?.triggers, ['schedule', 'workflow_dispatch']);
 });
 

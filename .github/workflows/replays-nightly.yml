@@ -5,8 +5,8 @@ name: Replay Nightly
 # still keep honest: the device-free parser fuzz lane.
 
 on:
-  schedule:
-    - cron: '0 3 * * *'
+  # TapRig fork: the upstream schedule is removed; dispatch this lane manually.
+  # See docs/upstream-sync.md (CI of the fork).
   workflow_dispatch:
     inputs:
       fuzz-iterations:

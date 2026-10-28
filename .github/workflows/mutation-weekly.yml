@@ -13,9 +13,8 @@ name: Mutation Weekly
 # test-strengthening PR (#1474, #1475 were written that way).
 
 on:
-  schedule:
-    # Sundays 05:00 UTC — after the nightly lanes, before the working week.
-    - cron: '0 5 * * 0'
+  # TapRig fork: the upstream schedule is removed; dispatch this lane manually.
+  # See docs/upstream-sync.md (CI of the fork).
   workflow_dispatch:
 
 permissions:
