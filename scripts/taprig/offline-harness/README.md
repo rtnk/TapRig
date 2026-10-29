@@ -35,9 +35,13 @@ Requirements: Linux, `unshare` and `script` (util-linux), `strace`, `python3`, `
 | `devices-android-tty` | `script -qec "agent-device devices --platform android"` (stderr is a TTY) |
 | `devices-android-no-tty` | `agent-device devices --platform android` |
 | `mcp` | `agent-device mcp` with `initialize`, `notifications/initialized`, `tools/list` on stdin |
+| `connect-no-provider` | `agent-device connect` with `AGENT_DEVICE_DAEMON_AUTH_TOKEN=<dummy>` in the environment |
 
 Without `adb`, the `devices` scenarios end with `TOOL_MISSING`. They still run the CLI, the
 daemon start, and the platform dispatch.
+
+Before E3, `connect-no-provider` resolved `cloud.agent-device.dev` (DNS requests, NET-03). Since
+E3, it ends with `INVALID_ARGS` (`connect requires a provider`) and opens no socket.
 
 ## Violations
 
@@ -57,4 +61,4 @@ E2, the list is empty: every scenario must run without violations.
 - Linux only. macOS checks are manual (`docs/network-audit.md` §7.2 p.3, stage E10).
 - No devices: traffic of `adb`, emulators, Xcode, and browsers is not covered.
 - The harness observes the scenarios above only. Add scenarios when a stage changes a command
-  with network behavior (E3: `connect`; E8: `doctor`, `replay` with `runScript`).
+  with network behavior (E8: `doctor`, `replay` with `runScript`).
