@@ -213,9 +213,13 @@ nie uruchamiana, jak w E2/E3. Autorytatywne są joby CI w PR.
 15. (E4a) Typy snapshotów iOS: usunięcie `'limrun-ios-tree'` jest zmianą kontraktu SDK
     (`SnapshotProvenance`, `IosSnapshotProducer`). Upstream rozwija te typy — merge może
     przywrócić wartość w tabelach `satisfies Record<…>`; typecheck wskaże brakujące/zbędne klucze.
-16. (E4a) Lockfile: `pnpm install` po usunięciu `@limrun/api` przeliczył też peer `vite` dla
-    `vitest` (`@types/node@26.2.0` zamiast `22.20.1` w kluczu peer) — efekt rozwiązywania pnpm,
-    bez zmian wersji pakietów.
+16. (E4a, naprawione w PR #6) Lockfile: `pnpm install` po usunięciu `@limrun/api` rozwiązał
+    opcjonalny peer `vite` → `@types/node` w `packages/daemon` na `26.2.0`. Powstała druga kopia
+    `vitest` i job CI „Integration Tests” (bramka `concurrency-torture`, `node --test`) failował
+    z „Vitest failed to access its internal state”; `pnpm test:unit` tego nie wykrywa. Poprawka:
+    `@types/node` (zakres roota) w devDependencies `packages/daemon`. Po każdej zmianie
+    lockfile'a sprawdź `ls node_modules/.pnpm | grep '^vitest@'` (jedna kopia) i uruchom
+    `pnpm test:concurrency-torture`.
 17. (E4a) Mechanizm `supportsDeferredAppSelection` (odroczony wybór aplikacji, „open
     <uploaded-asset-name>”) nie ma już wbudowanego providera; zostaje dla pluginów, a jego test
     CLI (był na Limrun) usunięto. Usuwa go E5.
@@ -375,7 +379,8 @@ pnpm check:quick; pnpm test:unit w `unshare -n` z podniesionym lo
 nie ukrywaj ich; po commicie: pnpm check:layering; pnpm check:production-exports;
 pnpm check:package; pnpm check:gate-manifest; pnpm check:fallow; pnpm check:mcp-metadata;
 pnpm check:bundle-owner-files; pnpm check:command-docs; pnpm check:capabilities-matrix;
-pnpm check:agent-guidance; pnpm taprig:network-guard; pnpm taprig:offline-smoke (raport w PR);
+pnpm check:agent-guidance; pnpm test:concurrency-torture (po zmianie lockfile'a — jedna kopia
+vitest, docs/HANDOFF.md §7 p.16); pnpm taprig:network-guard; pnpm taprig:offline-smoke (raport w PR);
 ręcznie: git grep -il -e browserstack -e devicefarm -e testmu -- src packages (lista
 pozostałych w PR); grep -rliE "browserstack|devicefarm|lambdatest" dist/ → brak. Nie
 wyłączaj ani nie pomijaj istniejących testów/bramek.
