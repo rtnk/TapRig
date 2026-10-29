@@ -379,7 +379,8 @@ pnpm check:quick; pnpm test:unit w `unshare -n` z podniesionym lo
 nie ukrywaj ich; po commicie: pnpm check:layering; pnpm check:production-exports;
 pnpm check:package; pnpm check:gate-manifest; pnpm check:fallow; pnpm check:mcp-metadata;
 pnpm check:bundle-owner-files; pnpm check:command-docs; pnpm check:capabilities-matrix;
-pnpm check:agent-guidance; pnpm taprig:network-guard; pnpm taprig:offline-smoke (raport w PR);
+pnpm check:agent-guidance; pnpm test:concurrency-torture (po zmianie lockfile'a — jedna kopia
+vitest, docs/HANDOFF.md §7 p.16); pnpm taprig:network-guard; pnpm taprig:offline-smoke (raport w PR);
 ręcznie: git grep -il -e browserstack -e devicefarm -e testmu -- src packages (lista
 pozostałych w PR); grep -rliE "browserstack|devicefarm|lambdatest" dist/ → brak. Nie
 wyłączaj ani nie pomijaj istniejących testów/bramek.
