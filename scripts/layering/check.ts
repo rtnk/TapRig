@@ -275,7 +275,7 @@ function checkRecordRuntimeOwnership(sources: ReadonlyMap<string, string>): Laye
  *   cost what a value back-edge costs, and the code places lazy seams exactly where a module
  *   defers one ranked above it or one that depends back on it: `cli/process-entry.ts` loads
  *   `cli.ts`, the MCP tools load the typed client, the daemon's provider registry loads the
- *   Limrun runtime from `src/sdk/`, and the platform runtime loads its operation host
+ *   built-in provider implementations, and the platform runtime loads its operation host
  *   (`loadHost`), which reads daemon session artifacts. Ranking them would reject that pattern
  *   rather than a mistake; what a lazy edge may load is owned by R13's laziness policy and the
  *   eager-closure budgets.

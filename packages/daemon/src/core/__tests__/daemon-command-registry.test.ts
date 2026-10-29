@@ -86,14 +86,14 @@ test('daemon command registry preserves request admission traits', () => {
   assert.deepEqual(
     resolveSessionlessLeaseAdmissionExemption({
       ...makeRequest(PUBLIC_COMMANDS.apps),
-      flags: { platform: 'android', leaseProvider: 'limrun' },
+      flags: { platform: 'android', leaseProvider: 'example-provider' },
     }),
-    { kind: 'provider-app-catalog', provider: 'limrun' },
+    { kind: 'provider-app-catalog', provider: 'example-provider' },
   );
   assert.equal(
     resolveSessionlessLeaseAdmissionExemption({
       ...makeRequest(PUBLIC_COMMANDS.apps),
-      flags: { platform: 'android', leaseProvider: 'limrun', leaseId: 'lease-a' },
+      flags: { platform: 'android', leaseProvider: 'example-provider', leaseId: 'lease-a' },
     }),
     undefined,
   );

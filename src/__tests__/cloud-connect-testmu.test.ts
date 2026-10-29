@@ -2,7 +2,6 @@ import { afterEach, beforeEach, test, vi } from 'vitest';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { runCliCapture } from './cli-capture.ts';
 import {
   readActiveConnectionState,
   type RemoteConnectionState,
@@ -333,18 +332,6 @@ test('providers other than TestMu refuse --provider-device-type before saving a 
   } finally {
     fs.rmSync(tempRoot, { recursive: true, force: true });
   }
-});
-
-test('connect limrun refuses the device type', async () => {
-  const result = await runCliCapture(
-    ['connect', 'limrun', '--platform', 'ios', '--provider-device-type', 'real', '--json'],
-    {
-      env: { LIMRUN_API_KEY: 'lim_test_key' },
-      stateDirPrefix: 'agent-device-connect-limrun-device-type-',
-    },
-  );
-  assert.equal(result.code, 1);
-  assert.match(result.stdout, /--provider-device-type is not supported by Limrun/);
 });
 
 function readGeneratedConfig(configPath: string): {

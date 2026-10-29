@@ -24,7 +24,6 @@ function workspace(overrides: Record<string, Manifest> = {}): Map<string, string
     'platform-android': { name: '@agent-device/platform-android' },
     'platform-apple': { name: '@agent-device/platform-apple' },
     'provider-testmu': { name: '@agent-device/testmu' },
-    'provider-limrun': { name: '@agent-device/provider-limrun' },
     daemon: {
       name: '@agent-device/daemon',
       exports: { '.': entry('./src/index.ts') },

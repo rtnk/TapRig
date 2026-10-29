@@ -42,13 +42,13 @@ test('provider module exposes inert exact-owner metadata without loading mechani
     throw new Error('not loaded');
   });
   const module: PlatformRuntimeProviderModule = {
-    owner: providerRuntimeOwner('limrun', 'tenant-a'),
+    owner: providerRuntimeOwner('example-provider', 'tenant-a'),
     loadRuntime,
   };
 
   assert.deepEqual(module.owner, {
     kind: 'provider-runtime',
-    provider: 'limrun',
+    provider: 'example-provider',
     instance: 'tenant-a',
   });
   assert.equal(loadRuntime.mock.calls.length, 0);

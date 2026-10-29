@@ -36,12 +36,20 @@ Requirements: Linux, `unshare` and `script` (util-linux), `strace`, `python3`, `
 | `devices-android-no-tty` | `agent-device devices --platform android` |
 | `mcp` | `agent-device mcp` with `initialize`, `notifications/initialized`, `tools/list` on stdin |
 | `connect-no-provider` | `agent-device connect` with `AGENT_DEVICE_DAEMON_AUTH_TOKEN=<dummy>` in the environment |
+| `devices-android-limrun-env` | `agent-device devices --platform android` with `LIMRUN_API_KEY=<dummy>` in the environment |
 
 Without `adb`, the `devices` scenarios end with `TOOL_MISSING`. They still run the CLI, the
 daemon start, and the platform dispatch.
 
 Before E3, `connect-no-provider` resolved `cloud.agent-device.dev` (DNS requests, NET-03). Since
 E3, it ends with `INVALID_ARGS` (`connect requires a provider`) and opens no socket.
+
+Before E4a, a Limrun API key in the environment activated the built-in Limrun provider in the
+daemon (NET-07; `daemon status` listed `limrun` as `active`). The provider opened connections only
+when a lease was allocated, so `devices-android-limrun-env` had no violations before E4a either.
+Since E4a, the daemon registers no Limrun provider. The scenario checks that a daemon started
+with Limrun credentials stays offline; `src/__tests__/provider-device-runtimes.test.ts` checks that
+no provider registers.
 
 ## Violations
 

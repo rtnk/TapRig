@@ -58,8 +58,8 @@ test('each local leg forwards the window and the session target to its own owner
     timeoutMs: 37,
     appBundleId: 'com.example.app',
     surface: 'app',
-    // The request's cancellation rides along: owners whose transport cannot abort a call (the
-    // Limrun tree legs) still refuse to consume a capture once the request is canceled.
+    // The request's cancellation rides along: owners whose transport cannot abort a call still
+    // refuse to consume a capture once the request is canceled.
     signal,
   };
   expect(legs.readAlert).toHaveBeenCalledWith(expectedOptions);

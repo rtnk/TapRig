@@ -8,10 +8,10 @@ import { createRequestHandler } from '../../__tests__/support/test-device-runtim
 import { fakeCreateCommandSurface as testCreateCommandSurface } from '../../__tests__/support/command-surface-fake.ts';
 import { providerCredentialsFixture } from '../../__tests__/support/provider-credentials-fixture.ts';
 
-const DAEMON_ENV = { LIMRUN_API_KEY: 'lim-key' };
+const DAEMON_ENV = { EXAMPLE_API_KEY: 'example-key' };
 
 test.for([
-  [{ LIMRUN_API_KEY: 'lim-rotated' }, 'provider-credentials-changed', 0],
+  [{ EXAMPLE_API_KEY: 'example-rotated' }, 'provider-credentials-changed', 0],
   [DAEMON_ENV, undefined, 1],
 ] as const)(
   'the router hands the daemon provider credentials to lease allocation (shell %j)',
@@ -25,7 +25,7 @@ test.for([
       token: 'test-token',
       sessionStore: makeSessionStore('agent-device-router-provider-credentials-store-'),
       leaseRegistry: new LeaseRegistry(),
-      providerRuntimeIds: ['limrun'],
+      providerRuntimeIds: ['example-provider'],
       deviceInventoryGateways: createTestDeviceInventoryGateways(),
       providerCredentials: providerCredentialsFixture(DAEMON_ENV, stateDir),
       leaseLifecycleProvider: {
@@ -49,8 +49,9 @@ test.for([
         runId: 'run-a',
         clientId: 'client-a',
         leaseBackend: 'ios-instance',
-        leaseProvider: 'limrun',
-        providerCredentialFingerprint: providerCredentialsFixture(shellEnv).fingerprint('limrun'),
+        leaseProvider: 'example-provider',
+        providerCredentialFingerprint:
+          providerCredentialsFixture(shellEnv).fingerprint('example-provider'),
       },
     });
 

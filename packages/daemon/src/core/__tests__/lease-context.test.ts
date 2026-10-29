@@ -60,7 +60,7 @@ test('resolveRequestOrSessionLeaseScope lets explicit request fields override se
     {
       meta: {
         leaseId: 'lease-request',
-        leaseProvider: 'limrun',
+        leaseProvider: 'example-provider',
       },
     },
     { lease: sessionLease },
@@ -71,7 +71,7 @@ test('resolveRequestOrSessionLeaseScope lets explicit request fields override se
     runId: 'run-1',
     leaseId: 'lease-request',
     leaseBackend: 'ios-instance',
-    leaseProvider: 'limrun',
+    leaseProvider: 'example-provider',
     deviceKey: 'device-1',
     clientId: 'client-a',
   });

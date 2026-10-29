@@ -1,15 +1,10 @@
 import type { CliFlags } from '@agent-device/contracts/command';
-import { requireResolvedProfilePlatform } from '@agent-device/contracts/provider-profile-fields';
 import type { ProviderConnectionVerification } from '@agent-device/contracts/remote';
-import { verifyLimrunConnection } from '@agent-device/provider-limrun';
-import { readVersion } from '@agent-device/host-kit/version';
 import { leaseBackendForPlatform } from '@agent-device/kernel/contracts';
 import { AppError } from '@agent-device/kernel/errors';
 import { resolveRemoteConfigProfile } from '@agent-device/remote/remote-config';
 import { type EnvMap } from '@agent-device/kernel/source-value';
 
-import { resolveLimrunConnectProfile } from './limrun-profile.ts';
-import { readLimrunCredentials } from '../../provider-limrun-credentials.ts';
 import { resolveProxyConnectProfile } from './proxy-profile.ts';
 import { profileToCliFlags } from '../remote-config-flags.ts';
 import {
@@ -53,7 +48,7 @@ type ConnectProviderAdapter = {
 };
 
 /** Providers whose profile the CLI composes itself; every other provider supplies connection callbacks. */
-const CONNECT_PROVIDER_ADAPTERS: Readonly<Record<'proxy' | 'limrun', ConnectProviderAdapter>> = {
+const CONNECT_PROVIDER_ADAPTERS: Readonly<Record<'proxy', ConnectProviderAdapter>> = {
   proxy: {
     resolve: resolveProxyConnectProfile,
     verify: async () => ({
@@ -62,10 +57,6 @@ const CONNECT_PROVIDER_ADAPTERS: Readonly<Record<'proxy' | 'limrun', ConnectProv
       verificationMessage:
         'Proxy configuration saved. Access is checked by the first remote command.',
     }),
-  },
-  limrun: {
-    resolve: resolveLimrunConnectProfile,
-    verify: verifyLimrun,
   },
 };
 
@@ -203,16 +194,6 @@ export async function verifyResolvedConnectProvider(
         context.env,
         async (connection) => await connection.verify(context),
       );
-}
-
-async function verifyLimrun(
-  context: Pick<AdapterContext, 'flags' | 'env'>,
-): Promise<ConnectVerification> {
-  return await verifyLimrunConnection({
-    ...readLimrunCredentials(context.env),
-    clientVersion: readVersion(),
-    platform: requireResolvedProfilePlatform(context.flags.platform, 'Limrun'),
-  });
 }
 
 function shouldUseProxyConnectShortcut(flags: CliFlags): boolean {

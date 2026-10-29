@@ -39,10 +39,7 @@ export async function createEmbeddedProviderRuntimeComposition(
 ): Promise<ProviderRuntimeComposition> {
   const { resolveProviderPlugins, startProviderRegistry } =
     await import('@agent-device/plugins/registry');
-  const resolved = await resolveProviderPlugins([
-    ...builtinProviderCandidates(host),
-    ...candidates,
-  ]);
+  const resolved = await resolveProviderPlugins([...builtinProviderCandidates(), ...candidates]);
   const registry = await startProviderRegistry(resolved, host.env, PROVIDER_PLUGIN_POLICY);
   return Object.freeze({
     runtimes: Object.freeze(registry.registrations.map(({ runtime }) => runtime)),

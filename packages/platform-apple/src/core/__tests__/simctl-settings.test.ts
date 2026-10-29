@@ -169,7 +169,7 @@ test('a refused privacy service reports the device id the caller names, not the 
     applySimctlSetting(
       request(runSimctl, {
         udid: 'booted',
-        deviceId: 'limrun:ios:lease-a',
+        deviceId: 'example-provider:ios:lease-a',
         setting: 'permission',
         state: 'grant',
         appBundleId: 'com.example.app',
@@ -178,7 +178,7 @@ test('a refused privacy service reports the device id the caller names, not the 
     ),
   ).rejects.toMatchObject({
     code: 'UNSUPPORTED_OPERATION',
-    details: { deviceId: 'limrun:ios:lease-a', appBundleId: 'com.example.app' },
+    details: { deviceId: 'example-provider:ios:lease-a', appBundleId: 'com.example.app' },
   });
   expect(argvs(runSimctl)).toEqual([
     ['privacy', 'booted', 'grant', 'notifications', 'com.example.app'],

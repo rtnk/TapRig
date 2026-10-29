@@ -446,7 +446,7 @@ test('only local lease allocation RPC keeps the provider credential fingerprint'
             tenantId: 'tenant-test',
             runId: 'run-a',
             backend: 'ios-instance',
-            provider: 'limrun',
+            provider: 'example-provider',
             providerCredentialFingerprint: 'v1:0123456789abcdef',
           },
         }),

@@ -109,7 +109,7 @@ test('merges a graceful shutdown report and cleans runner leases with the start-
   };
   mocks.readDaemonShutdownReport.mockReturnValue({
     providerReleases: {
-      released: [{ leaseId: 'lease-1', provider: 'limrun' }],
+      released: [{ leaseId: 'lease-1', provider: 'example-provider' }],
       pending: [],
     },
     claims: { released: [claim], orphaned: [], superseded: [], unattributable: [] },
@@ -139,7 +139,7 @@ test('merges a graceful shutdown report and cleans runner leases with the start-
         clean: true,
         providerReleases: {
           status: 'completed',
-          released: [{ leaseId: 'lease-1', provider: 'limrun' }],
+          released: [{ leaseId: 'lease-1', provider: 'example-provider' }],
           pending: [],
         },
         // #1799: a graceful stop reports the claims it actually released.

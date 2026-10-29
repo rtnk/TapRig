@@ -165,7 +165,7 @@ test('an expired provider lease keeps its id and provider session from a caller-
     runId: 'run-1',
     leaseId,
     leaseBackend: 'ios-instance',
-    leaseProvider: 'limrun',
+    leaseProvider: 'example-provider',
     deviceKey: 'device-1',
   });
   registry.recordProviderSession(expiring, 'provider-session-1');
@@ -182,14 +182,14 @@ test('an expired provider lease keeps its id and provider session from a caller-
         runId: 'run-2',
         leaseId,
         leaseBackend: 'ios-instance',
-        leaseProvider: 'limrun',
+        leaseProvider: 'example-provider',
         deviceKey: 'device-1',
       }),
     isLeaseIdInUse,
   );
   assert.equal(
     registry.resolveProviderSession({
-      provider: 'limrun',
+      provider: 'example-provider',
       providerSessionId: 'provider-session-1',
       tenantId: 'tenant-a',
     })?.leaseId,
@@ -414,11 +414,11 @@ test('device leases are isolated by provider and device key', () => {
     leaseProvider: 'proxy',
     deviceKey: 'device-1',
   });
-  const limrun = registry.allocateLease({
+  const providerLease = registry.allocateLease({
     tenantId: 'tenant-b',
     runId: 'run-2',
     leaseBackend: 'ios-instance',
-    leaseProvider: 'limrun',
+    leaseProvider: 'example-provider',
     deviceKey: 'device-1',
   });
   const secondDevice = registry.allocateLease({
@@ -429,7 +429,7 @@ test('device leases are isolated by provider and device key', () => {
     deviceKey: 'device-2',
   });
 
-  assert.notEqual(limrun.leaseId, proxy.leaseId);
+  assert.notEqual(providerLease.leaseId, proxy.leaseId);
   assert.notEqual(secondDevice.leaseId, proxy.leaseId);
 });
 
@@ -463,7 +463,7 @@ test('heartbeat enforces device and provider scope when supplied', () => {
         leaseId: lease.leaseId,
         tenantId: 'tenant-a',
         runId: 'run-1',
-        leaseProvider: 'limrun',
+        leaseProvider: 'example-provider',
         deviceKey: 'device-1',
         clientId: 'client-a',
       }),

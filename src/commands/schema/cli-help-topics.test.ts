@@ -413,20 +413,16 @@ test('usageForCommand resolves remote help topic', async () => {
   assert.match(help, /stores the shared proxy profile and client identity/);
   assert.match(help, /BrowserStack: agent-device connect browserstack/);
   assert.match(help, /AWS Device Farm: agent-device connect aws-device-farm/);
-  assert.match(help, /Limrun: agent-device connect limrun/);
   assert.match(help, /It does not create an App Automate session/);
   assert.match(help, /It does not create a remote access session/);
-  assert.match(help, /It does not create an instance/);
   assert.match(help, /Read the printed Device, App, Next, and workflow-note lines/);
   assert.match(help, /verification\/device\/app\/liveSession\/nextSteps\/notes/);
   assert.match(help, /Do not run devices as a pre-open catalog probe/);
-  assert.match(help, /Limrun is the exception for apps/);
   assert.match(help, /AWS Device Farm cannot install after allocation/);
   assert.match(help, /agent-device open com\.example\.app --remote-config \.\/remote-config\.json/);
   assert.match(help, /disconnect --remote-config \.\/remote-config\.json/);
   assert.match(help, /connect browserstack --platform android/);
   assert.match(help, /connect aws-device-farm --platform android/);
-  assert.match(help, /connect limrun --platform android/);
   assert.match(help, /AWS_REGION=us-west-2 AWS_ACCESS_KEY_ID/);
   assert.match(help, /AWS Device Farm uses the AWS CLI credential chain/);
   assert.match(help, /Prefer short-lived AWS role credentials in CI/);
@@ -451,8 +447,9 @@ test('usageForCommand resolves remote help topic', async () => {
   assert.match(help, /uploaded artifacts remain supported/);
   assert.match(
     help,
-    /Limrun, BrowserStack, AWS Device Farm, and TestMu AI through local provider profiles/,
+    /BrowserStack, AWS Device Farm, and TestMu AI through local provider profiles/,
   );
+  assert.doesNotMatch(help, /limrun|LIM_[A-Z_]+_INSTANCE/i);
   assert.match(help, /plugins add @agent-device\/testmu/);
   assert.match(help, /TestMu AI uses LT_USERNAME and LT_ACCESS_KEY/);
   const testMuFlow = help.slice(
@@ -466,10 +463,8 @@ test('usageForCommand resolves remote help topic', async () => {
   );
   assert.match(testMuFlow, /major OS version \(18, not 18\.0\)/);
   assert.match(testMuFlow, /agent-device disconnect/);
-  assert.match(help, /Limrun uses LIMRUN_API_KEY/);
   assert.match(help, /BrowserStack uses BROWSERSTACK_USERNAME and BROWSERSTACK_ACCESS_KEY/);
   assert.match(help, /Generated connection profiles store app\/device selectors and ARNs/);
-  assert.match(help, /Limrun Android supports direct ADB port reverse/);
   assert.match(help, /local\/proxy iOS reports that the runner is already owned/);
   assert.match(help, /same --remote-config to every operational command/);
   assert.match(help, /Do not use --config as a remote profile flag/);

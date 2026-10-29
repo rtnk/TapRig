@@ -131,7 +131,6 @@ test('SDK adapters capture their default host only through the shared entry', ()
     'src/sdk/artifacts.ts',
     'src/sdk/metro.ts',
     'src/sdk/remote-config.ts',
-    'src/provider-limrun-runtime.ts',
   ]) {
     assert.equal(check('captureHostEnvironment(process);', file).length, 1, file);
   }

@@ -3,7 +3,7 @@
  * diagnostics record, streamed as ndjson (#1801).
  *
  * A failed command names its diagnostics record by path, and that path is on the
- * DAEMON host. A remote caller — a CI runner driving an EAS/limrun simulator —
+ * DAEMON host. A remote caller — a CI runner driving an EAS simulator —
  * cannot read that filesystem, so the record has to be reachable over the same
  * base URL and token the caller already holds. The client side is
  * `packages/remote/src/remote-request-diagnostics.ts`.

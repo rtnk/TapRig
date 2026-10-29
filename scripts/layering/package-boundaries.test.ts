@@ -509,7 +509,6 @@ test('the real tree parses, declares, and passes R11', () => {
     '@agent-device/capture-kit/png-size',
     '@agent-device/capture-kit/png-worker-client',
     '@agent-device/capture-kit/post-gesture-stability',
-    '@agent-device/capture-kit/provider-app-log',
     '@agent-device/capture-kit/quality-warnings',
     '@agent-device/capture-kit/react-native-overlay',
     '@agent-device/capture-kit/recording-artifact-fixtures',
@@ -645,7 +644,6 @@ test('the real tree parses, declares, and passes R11', () => {
     '@agent-device/platform-apple/runner/requests-fixtures',
     '@agent-device/platform-apple/session-observation',
     '@agent-device/platform-apple/simctl',
-    '@agent-device/platform-apple/simctl-settings',
     '@agent-device/platform-apple/simulator',
     '@agent-device/platform-apple/simulator-boot',
     '@agent-device/platform-apple/snapshot-source',
@@ -856,20 +854,6 @@ test('the real tree parses, declares, and passes R11', () => {
     '@agent-device/kernel',
     '@agent-device/xml',
   ]);
-  const providerLimrunPackage = packages.find(
-    (pkg) => pkg.name === '@agent-device/provider-limrun',
-  );
-  assert.ok(providerLimrunPackage, 'provider-limrun package must exist');
-  assert.deepEqual(
-    [...providerLimrunPackage.exportTargets.keys()],
-    ['@agent-device/provider-limrun'],
-  );
-  assert.deepEqual([...providerLimrunPackage.workspaceDependencies].sort(), [
-    '@agent-device/capture-kit',
-    '@agent-device/contracts',
-    '@agent-device/kernel',
-    '@agent-device/platform-android',
-  ]);
   const rootExternalDependencies = rootExternalDependencyRanges(repoRoot);
   for (const pkg of packages) {
     for (const [name, range] of pkg.externalDependencies) {
@@ -917,10 +901,6 @@ test('the real tree parses, declares, and passes R11', () => {
     'root must declare the provider-webdriver workspace dependency',
   );
   assert.ok(
-    rootWorkspaceDependencyNames(repoRoot).has('@agent-device/provider-limrun'),
-    'root must declare the provider-limrun workspace dependency',
-  );
-  assert.ok(
     rootWorkspaceDependencyNames(repoRoot).has('@agent-device/xml'),
     'root must declare the xml workspace dependency',
   );
@@ -944,8 +924,6 @@ test('Node resolution enforces the exports map at runtime', () => {
     '@agent-device/contracts/src/facades/snapshot.ts',
     '@agent-device/provider-webdriver/runtime',
     '@agent-device/provider-webdriver/src/runtime.ts',
-    '@agent-device/provider-limrun/runtime',
-    '@agent-device/provider-limrun/src/runtime.ts',
     '@agent-device/xml/internal/parser',
     '@agent-device/xml/src/index.ts',
     '@agent-device/ad-script/codec',
@@ -981,11 +959,6 @@ test('Node resolution enforces the exports map at runtime', () => {
   assert.ok(
     providerWebDriverResolved.endsWith('packages/provider-webdriver/src/index.ts'),
     providerWebDriverResolved,
-  );
-  const providerLimrunResolved = import.meta.resolve('@agent-device/provider-limrun');
-  assert.ok(
-    providerLimrunResolved.endsWith('packages/provider-limrun/src/index.ts'),
-    providerLimrunResolved,
   );
   const xmlResolved = import.meta.resolve('@agent-device/xml');
   assert.ok(xmlResolved.endsWith('packages/xml/src/index.ts'), xmlResolved);

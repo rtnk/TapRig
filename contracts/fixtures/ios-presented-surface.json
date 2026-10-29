@@ -199,7 +199,7 @@
     },
     {
       "name": "a capture whose producer never stated completeness",
-      "note": "Anticipated, not read from a device: an Appium page source or Limrun element tree reports nothing about truncation, so nothing about its windows can add up to absence even when the shape is ordinary. Positive evidence still answers, as the capped dimming-view case shows.",
+      "note": "Anticipated, not read from a device: an Appium page source reports nothing about truncation, so nothing about its windows can add up to absence even when the shape is ordinary. Positive evidence still answers, as the capped dimming-view case shows.",
       "truncated": null,
       "expected": "unknown",
       "classBlindExpected": "unknown",

@@ -291,7 +291,7 @@ const backCommandDescription =
 const homeCommandDescription =
   'Send the selected device to its home screen. This leaves the app session open but moves the foreground away from the app.';
 const orientationCommandDescription =
-  'Set device orientation on iOS and Android. auto hands rotation back to the sensor on ADB-backed Android (local and Limrun); other backends refuse it. A foldable iPhone simulator (iPhone Duo) refuses portrait-upside-down, and refuses every rotation in a scoped simulator set.';
+  'Set device orientation on iOS and Android. auto hands rotation back to the sensor on ADB-backed Android; other backends refuse it. A foldable iPhone simulator (iPhone Duo) refuses portrait-upside-down, and refuses every rotation in a scoped simulator set.';
 const foldGuidance = {
   hingeEvent: 'simulator HID hinge event',
   permissions: 'Device Hub and host Accessibility permission are not required.',
@@ -755,7 +755,7 @@ const telephonyCommandFacet = defineCommandFacet({
   text: {
     summary: 'Simulate an incoming call or SMS on an Android emulator over adb',
     cliDetail:
-      'Android emulators through the local adb executor; WebDriver (Appium) and Limrun sessions refuse it. Quote the SMS text, or pass it as the remaining words. Re-snapshot after the event: the call screen or notification can cover the app.',
+      'Android emulators through the local adb executor; WebDriver (Appium) sessions refuse it. Quote the SMS text, or pass it as the remaining words. Re-snapshot after the event: the call screen or notification can cover the app.',
   },
   metadata: telephonyCommandMetadata,
   run: (client, input) => client.command.telephony(input),

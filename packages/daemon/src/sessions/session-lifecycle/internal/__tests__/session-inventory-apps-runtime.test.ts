@@ -201,12 +201,12 @@ test('deferred provider apps returns uploaded assets without resolving a device'
   const listAvailableApps = vi.fn(async () => ['Example.apk', 'Settings.apk']);
   const req: DaemonRequest = {
     token: 'test-token',
-    session: 'limrun-apps',
+    session: 'example-provider-apps',
     command: 'apps',
     positionals: [],
     flags: {
       platform: 'android',
-      leaseProvider: 'limrun',
+      leaseProvider: 'example-provider',
     },
   };
 
@@ -219,7 +219,7 @@ test('deferred provider apps returns uploaded assets without resolving a device'
     inspectFacts,
     bindDevice,
     providerAppCatalog: {
-      supports: (provider) => provider === 'limrun',
+      supports: (provider) => provider === 'example-provider',
       list: listAvailableApps,
     },
   });
@@ -230,7 +230,7 @@ test('deferred provider apps returns uploaded assets without resolving a device'
   });
   expect(listAvailableApps).toHaveBeenCalledWith(
     {
-      provider: 'limrun',
+      provider: 'example-provider',
       platform: 'android',
     },
     undefined,
@@ -251,10 +251,10 @@ test('deferred provider apps forwards request cancellation to the catalog', asyn
   });
   const req: DaemonRequest = {
     token: 'test-token',
-    session: 'limrun-apps-abort',
+    session: 'example-provider-apps-abort',
     command: 'apps',
     positionals: [],
-    flags: { platform: 'ios', leaseProvider: 'limrun' },
+    flags: { platform: 'ios', leaseProvider: 'example-provider' },
     meta: { requestId },
   };
 
@@ -266,7 +266,7 @@ test('deferred provider apps forwards request cancellation to the catalog', asyn
       sessionName: req.session,
       sessionStore: makeSessionStore(),
       providerAppCatalog: {
-        supports: (provider) => provider === 'limrun',
+        supports: (provider) => provider === 'example-provider',
         list: listAvailableApps,
       },
     });
@@ -281,10 +281,10 @@ test('deferred provider apps forwards public daemon access to the catalog', asyn
   const listAvailableApps = vi.fn(async () => ['Example.apk']);
   const req: DaemonRequest = {
     token: 'test-token',
-    session: 'limrun-public-apps',
+    session: 'example-provider-public-apps',
     command: 'apps',
     positionals: [],
-    flags: { platform: 'ios', leaseProvider: 'limrun' },
+    flags: { platform: 'ios', leaseProvider: 'example-provider' },
     internal: { publicNetworkOnly: true },
   };
 
@@ -295,13 +295,13 @@ test('deferred provider apps forwards public daemon access to the catalog', asyn
     sessionName: req.session,
     sessionStore: makeSessionStore(),
     providerAppCatalog: {
-      supports: (provider) => provider === 'limrun',
+      supports: (provider) => provider === 'example-provider',
       list: listAvailableApps,
     },
   });
 
   expect(listAvailableApps).toHaveBeenCalledWith(
-    { provider: 'limrun', platform: 'ios', publicNetworkOnly: true },
+    { provider: 'example-provider', platform: 'ios', publicNetworkOnly: true },
     undefined,
   );
 });

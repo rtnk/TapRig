@@ -10,7 +10,7 @@ właściciel zlecił ją w treści zadania etapu (źródło podane przy statusie
 Zmiany statusów: E1 (2026-10-28) — D-01, D-12, D-16 → ACCEPTED; D-10 → ACCEPTED w części
 dotyczącej wyłączenia publikacji upstream; D-18 — część E1 wykonana. E2 (2026-10-29) — D-03:
 update check usunięty (NET-01, PR #3). E3 (2026-10-29) — D-03: chmura agent-device usunięta
-(NET-02/03, PR #4).
+(NET-02/03, PR #4). E4a (2026-10-29) — D-03: provider Limrun usunięty (NET-07, PR #5).
 
 Identyfikatory `NET-xx` odnoszą się do `docs/network-audit.md`. Etapy `E-x` — do
 `docs/taprig-implementation-plan.md`.
@@ -64,7 +64,10 @@ Identyfikatory `NET-xx` odnoszą się do `docs/network-audit.md`. Etapy `E-x` �
   przestały istnieć bez aliasu i bez specjalnego błędu (D-02 nierozstrzygnięta — `auth` daje
   „Unknown command”); `connect` bez providera → `INVALID_ARGS`. `'cloud'` zostaje w
   `RUNTIME_LESS_LEASE_PROVIDERS` (kontrakt dzierżaw daemona dla zdalnych klientów — D-19, E6d).
-  Pozostało: E4a–c (providery).
+  E4a — provider Limrun (NET-07) usunięty, PR #5: eksport `agent-device/limrun`, zmienne
+  `LIMRUN_*`/`LIM_*_INSTANCE_*` i `connect limrun` przestały istnieć bez aliasu i bez specjalnego
+  błędu (D-02 nierozstrzygnięta — `connect limrun` daje „Unknown connect provider”); typ
+  `'limrun-ios-tree'` usunięty z kontraktów snapshotów iOS. Pozostało: E4b, E4c.
 - **Problem**: NET-01 – NET-07 to ruch zabroniony.
 - **Opcje**: (a) usunięcie kodu; (b) wyłączenie flagą/zmienną; (c) pozostawienie z domyślnym
   wyłączeniem.

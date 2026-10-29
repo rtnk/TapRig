@@ -6,7 +6,7 @@ description: Which commands each target supports, read from the runtime code tha
 # Capabilities
 
 The target tables below are generated from the runtime command-admission facts that back the `capabilities` command: a command that leaves the code leaves this page. Labels, limits, and integration rows are maintained beside the generator, and command availability does not establish support for every operation, subcommand, or device model.
-It covers agent-device 0.21.34-dev, generated 2026-10-27.
+It covers agent-device 0.21.34-dev, generated 2026-10-29.
 
 **Yes** means the facts admit every command in that row on the target and every operation the row advertises. **No** means at least one is refused. A qualified cell names the operations that answer there. Targets that share the same available operations print as one column.
 
@@ -54,12 +54,12 @@ A provider column answers for that provider in its default configuration. Provid
 
 ### Hosted provider sessions
 
-| Capability and reference | BrowserStack Android / TestMu AI Android | BrowserStack iOS / TestMu AI iOS | AWS Device Farm Android | AWS Device Farm iOS | Limrun iOS | Limrun Android |
-| --- | --- | --- | --- | --- | --- | --- |
-| [Accessibility snapshot and snapshot diff](/docs/snapshots) | Yes | Yes | Yes | Yes | Yes | Yes |
-| [Refs, selectors, element lookup, and attribute reads](/docs/selectors) | Yes | Yes | Yes | Yes | Yes | Yes |
-| [Screenshots](/docs/commands#media-and-logs) | Yes | Yes | Yes | Yes | Yes | Yes |
-| [Wait for text, selectors, and timeouts](/docs/commands#wait-and-alerts) | Yes | Yes | Yes | Yes | Yes | Yes |
+| Capability and reference | BrowserStack Android / TestMu AI Android | BrowserStack iOS / TestMu AI iOS | AWS Device Farm Android | AWS Device Farm iOS |
+| --- | --- | --- | --- | --- |
+| [Accessibility snapshot and snapshot diff](/docs/snapshots) | Yes | Yes | Yes | Yes |
+| [Refs, selectors, element lookup, and attribute reads](/docs/selectors) | Yes | Yes | Yes | Yes |
+| [Screenshots](/docs/commands#media-and-logs) | Yes | Yes | Yes | Yes |
+| [Wait for text, selectors, and timeouts](/docs/commands#wait-and-alerts) | Yes | Yes | Yes | Yes |
 
 What a **Yes** does not claim:
 
@@ -108,16 +108,16 @@ What a **Yes** does not claim:
 
 ### Hosted provider sessions
 
-| Capability and reference | BrowserStack Android / TestMu AI Android | BrowserStack iOS / TestMu AI iOS | AWS Device Farm Android | AWS Device Farm iOS | Limrun iOS | Limrun Android |
-| --- | --- | --- | --- | --- | --- | --- |
-| [Tap, press, fill, and type](/docs/commands#interactions) | Yes | Yes | Yes | Yes | Yes | Yes |
-| [Long press](/docs/commands#interactions) | Yes | Yes | Yes | Yes | Yes | Yes |
-| [Scroll](/docs/commands#scroll) | Yes | Yes | Yes | Yes | Yes | Yes |
-| [Gesture plans and swipes](/docs/commands#pointer-and-gestures) | Yes | Yes | Yes | Yes | No | Yes |
-| [Hover and viewport size](/docs/commands#web-automation) | No | No | No | No | No | No |
-| [Read, accept, and dismiss system alerts](/docs/commands#wait-and-alerts) | No | No | No | No | Yes | Yes |
-| [Keyboard dismiss, enter, and status](/docs/commands#keyboard) | Yes | Dismiss only; status and enter unsupported | Yes | Dismiss only; status and enter unsupported | No | Yes |
-| [React Native overlay dismissal](/docs/commands#react-native-overlays) | Yes | Yes | Yes | Yes | Yes | Yes |
+| Capability and reference | BrowserStack Android / TestMu AI Android | BrowserStack iOS / TestMu AI iOS | AWS Device Farm Android | AWS Device Farm iOS |
+| --- | --- | --- | --- | --- |
+| [Tap, press, fill, and type](/docs/commands#interactions) | Yes | Yes | Yes | Yes |
+| [Long press](/docs/commands#interactions) | Yes | Yes | Yes | Yes |
+| [Scroll](/docs/commands#scroll) | Yes | Yes | Yes | Yes |
+| [Gesture plans and swipes](/docs/commands#pointer-and-gestures) | Yes | Yes | Yes | Yes |
+| [Hover and viewport size](/docs/commands#web-automation) | No | No | No | No |
+| [Read, accept, and dismiss system alerts](/docs/commands#wait-and-alerts) | No | No | No | No |
+| [Keyboard dismiss, enter, and status](/docs/commands#keyboard) | Yes | Dismiss only; status and enter unsupported | Yes | Dismiss only; status and enter unsupported |
+| [React Native overlay dismissal](/docs/commands#react-native-overlays) | Yes | Yes | Yes | Yes |
 
 What a **Yes** does not claim:
 
@@ -174,18 +174,18 @@ What a **Yes** does not claim:
 
 ### Hosted provider sessions
 
-| Capability and reference | BrowserStack Android / TestMu AI Android | BrowserStack iOS / TestMu AI iOS | AWS Device Farm Android | AWS Device Farm iOS | Limrun iOS | Limrun Android |
-| --- | --- | --- | --- | --- | --- | --- |
-| [Open and close apps, URLs, and deep links](/docs/commands#navigation) | Yes | Yes | Yes | Yes | Yes | Yes |
-| [Install and reinstall an app](/docs/commands#app-install-in-place) | Yes | Yes | No | No | Yes | Yes |
-| [Uninstall an app](/docs/commands#app-uninstall) | No | No | No | No | No | No |
-| [Install from a source URL](/docs/commands#app-install-from-source-url) | Yes | Yes | No | No | Yes | Yes |
-| [Installed app list](/docs/commands#app-state-and-app-lists) | No | No | No | No | Yes | Yes |
-| [Foreground app state](/docs/commands#app-state-and-app-lists) | No | No | No | No | No | Yes |
-| [App switcher](/docs/commands#navigation) | Yes | Yes | Yes | Yes | No | Yes |
-| [Get the device ready and boot simulators and emulators](/docs/commands#navigation) | Yes | Yes | Yes | Yes | Yes | Yes |
-| [Shut down a simulator or emulator](/docs/commands#navigation) | No | No | No | No | No | No |
-| [Prepare the Apple runner](/docs/commands#prepare-apple-runner) | No | No | No | No | No | No |
+| Capability and reference | BrowserStack Android / TestMu AI Android | BrowserStack iOS / TestMu AI iOS | AWS Device Farm Android | AWS Device Farm iOS |
+| --- | --- | --- | --- | --- |
+| [Open and close apps, URLs, and deep links](/docs/commands#navigation) | Yes | Yes | Yes | Yes |
+| [Install and reinstall an app](/docs/commands#app-install-in-place) | Yes | Yes | No | No |
+| [Uninstall an app](/docs/commands#app-uninstall) | No | No | No | No |
+| [Install from a source URL](/docs/commands#app-install-from-source-url) | Yes | Yes | No | No |
+| [Installed app list](/docs/commands#app-state-and-app-lists) | No | No | No | No |
+| [Foreground app state](/docs/commands#app-state-and-app-lists) | No | No | No | No |
+| [App switcher](/docs/commands#navigation) | Yes | Yes | Yes | Yes |
+| [Get the device ready and boot simulators and emulators](/docs/commands#navigation) | Yes | Yes | Yes | Yes |
+| [Shut down a simulator or emulator](/docs/commands#navigation) | No | No | No | No |
+| [Prepare the Apple runner](/docs/commands#prepare-apple-runner) | No | No | No | No |
 
 What a **Yes** does not claim:
 
@@ -226,13 +226,13 @@ What a **Yes** does not claim:
 
 ### Hosted provider sessions
 
-| Capability and reference | BrowserStack Android / TestMu AI Android | BrowserStack iOS / TestMu AI iOS | AWS Device Farm Android | AWS Device Farm iOS | Limrun iOS | Limrun Android |
-| --- | --- | --- | --- | --- | --- | --- |
-| [Screen recording](/docs/commands#media-and-logs) | No | No | No | No | Yes | Yes |
-| [App logs](/docs/debugging-profiling#logs) | No | No | No | No | Yes | Yes |
-| [HTTP(S) request inspection](/docs/debugging-profiling#network-inspection) | No | No | No | No | Yes | Yes |
-| [Performance samples (frames, memory, CPU profiles)](/docs/debugging-profiling#performance-snapshots) | No | No | No | No | No | No |
-| [Audio probe](/docs/debugging-profiling#audio-probes) | No | No | No | No | No | No |
+| Capability and reference | BrowserStack Android / TestMu AI Android | BrowserStack iOS / TestMu AI iOS | AWS Device Farm Android | AWS Device Farm iOS |
+| --- | --- | --- | --- | --- |
+| [Screen recording](/docs/commands#media-and-logs) | No | No | No | No |
+| [App logs](/docs/debugging-profiling#logs) | No | No | No | No |
+| [HTTP(S) request inspection](/docs/debugging-profiling#network-inspection) | No | No | No | No |
+| [Performance samples (frames, memory, CPU profiles)](/docs/debugging-profiling#performance-snapshots) | No | No | No | No |
+| [Audio probe](/docs/debugging-profiling#audio-probes) | No | No | No | No |
 
 What a **Yes** does not claim:
 
@@ -295,20 +295,20 @@ What a **Yes** does not claim:
 
 ### Hosted provider sessions
 
-| Capability and reference | BrowserStack Android / TestMu AI Android | BrowserStack iOS / TestMu AI iOS | AWS Device Farm Android | AWS Device Farm iOS | Limrun iOS | Limrun Android |
-| --- | --- | --- | --- | --- | --- | --- |
-| [Back](/docs/commands#navigation) | Yes | Yes | Yes | Yes | Yes | Yes |
-| [Home](/docs/commands#navigation) | Yes | Yes | Yes | Yes | Yes | Yes |
-| [Set screen orientation](/docs/commands#navigation) | Set only; unlock unsupported | Set only; unlock unsupported | Set only; unlock unsupported | Set only; unlock unsupported | Set only; unlock unsupported | Yes |
-| [Phone hardware buttons](/docs/commands#navigation) | Yes | Yes | Yes | Yes | No | Yes |
-| [iPhone Action Button](/docs/commands#navigation) | No | No | No | No | No | No |
-| [Foldable pose](/docs/commands#navigation) | No | No | No | No | No | No |
-| [TV remote keys](/docs/commands#tv-targets) | No | No | No | No | No | No |
-| [System and app settings helpers](/docs/commands#settings-helpers) | No | No | No | No | Set only; no reads | Yes |
-| [Clipboard read and write](/docs/commands#clipboard) | Yes | Yes | Yes | Yes | Yes | Yes |
-| [Push notification simulation](/docs/commands#push-notification-simulation) | No | No | No | No | No | No |
-| [App event triggers through the app hook](/docs/commands#app-event-triggers-app-hook) | Yes | Yes | Yes | Yes | Yes | Yes |
-| [Call and SMS simulation](/docs/commands#navigation) | No | No | No | No | No | No |
+| Capability and reference | BrowserStack Android / TestMu AI Android | BrowserStack iOS / TestMu AI iOS | AWS Device Farm Android | AWS Device Farm iOS |
+| --- | --- | --- | --- | --- |
+| [Back](/docs/commands#navigation) | Yes | Yes | Yes | Yes |
+| [Home](/docs/commands#navigation) | Yes | Yes | Yes | Yes |
+| [Set screen orientation](/docs/commands#navigation) | Set only; unlock unsupported | Set only; unlock unsupported | Set only; unlock unsupported | Set only; unlock unsupported |
+| [Phone hardware buttons](/docs/commands#navigation) | Yes | Yes | Yes | Yes |
+| [iPhone Action Button](/docs/commands#navigation) | No | No | No | No |
+| [Foldable pose](/docs/commands#navigation) | No | No | No | No |
+| [TV remote keys](/docs/commands#tv-targets) | No | No | No | No |
+| [System and app settings helpers](/docs/commands#settings-helpers) | No | No | No | No |
+| [Clipboard read and write](/docs/commands#clipboard) | Yes | Yes | Yes | Yes |
+| [Push notification simulation](/docs/commands#push-notification-simulation) | No | No | No | No |
+| [App event triggers through the app hook](/docs/commands#app-event-triggers-app-hook) | Yes | Yes | Yes | Yes |
+| [Call and SMS simulation](/docs/commands#navigation) | No | No | No | No |
 
 What a **Yes** does not claim:
 
@@ -334,6 +334,6 @@ These come with the tool rather than with a target, so no column above decides t
 | Typed Node.js API | The typed client exposes device and session operations through domain methods and `client.command`. Daemon-backed methods share CLI command semantics and target restrictions; the client does not expose every CLI entry point. | [Typed Node.js API](/docs/client-api#command-methods) |
 | Named sessions, leases, and parallel runs | Sessions and leases are daemon state, so parallel runs come from separate session names, device allowlists, and worktrees rather than from the target. Two worktrees can drive two platforms from one checkout. | [Named sessions, leases, and parallel runs](/docs/sessions#drive-two-platforms-from-one-checkout) |
 | Remote daemon and device host | A `proxy` between the agent machine and the device host forwards the same daemon surface, so the device rows above apply across it. Provider clouds need no proxy. | [Remote daemon and device host](/docs/remote-proxy#what-the-proxy-exposes) |
-| Hosted device providers | BrowserStack, AWS Device Farm, TestMu AI, and Limrun appear as their own columns above. Provider artifact lookup after `close` works for the three WebDriver providers; Limrun keeps no artifacts. | [Hosted device providers](/docs/device-clouds#compare-providers) |
+| Hosted device providers | BrowserStack, AWS Device Farm, and TestMu AI appear as their own columns above. Provider artifact lookup after `close` works for all three WebDriver providers. | [Hosted device providers](/docs/device-clouds#compare-providers) |
 | Native, React Native, Expo, and Flutter apps | Native and Flutter apps use the interactions and accessibility data exposed by their target. React Native and Expo development builds can additionally expose React component inspection, render profiling, and Metro CDP tools when their documented prerequisites are met. | [Native, React Native, Expo, and Flutter apps](/docs/introduction#what-you-can-use-it-for) |
 

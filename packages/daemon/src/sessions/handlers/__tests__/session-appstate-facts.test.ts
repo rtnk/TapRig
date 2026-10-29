@@ -22,19 +22,19 @@ import { makeSession } from '../../../__tests__/support/session-factories.ts';
 test('appstate refuses unavailable provider facts before binding the device', async () => {
   const staleDevice: DeviceInfo = {
     platform: 'android',
-    id: 'limrun:android:released-lease',
-    name: 'Released Limrun Android',
+    id: 'example-provider:android:released-lease',
+    name: 'Released Provider Android',
     kind: 'emulator',
     target: 'mobile',
     booted: true,
   };
   const unavailable = createUnavailableRuntimeFactsForTest(
     staleDevice,
-    providerRuntimeOwner('limrun', 'stale'),
+    providerRuntimeOwner('example-provider', 'stale'),
     {
       available: false,
       reason: 'unsupported-provider-mode',
-      hint: 'Limrun requires a matching live provider session for this device.',
+      hint: 'The provider requires a matching live provider session for this device.',
     },
   );
   mockInspectDeviceRuntimeFacts.mockResolvedValue(unavailable);
@@ -64,7 +64,7 @@ test('appstate refuses unavailable provider facts before binding the device', as
   if (response && !response.ok) {
     expect(response.error.code).toBe('UNSUPPORTED_OPERATION');
     expect(response.error.hint).toBe(
-      'Limrun requires a matching live provider session for this device.',
+      'The provider requires a matching live provider session for this device.',
     );
   }
   expect(mockInspectDeviceRuntimeFacts).toHaveBeenCalledOnce();

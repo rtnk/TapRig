@@ -539,7 +539,7 @@ test('a provider-owned device takes no host-local claim', async () => {
   const { stateDir, claimsDir } = setup();
   const admission = makeAdmission('transient-exclusive', stateDir);
 
-  await admission.admit(ANDROID_EMULATOR, providerRuntimeOwner('limrun', 'instance-1'));
+  await admission.admit(ANDROID_EMULATOR, providerRuntimeOwner('example-provider', 'instance-1'));
   await admission[Symbol.asyncDispose]();
 
   expect(fs.existsSync(claimsDir)).toBe(false);
@@ -551,7 +551,7 @@ test.for(POLICY_CLAIMS.map(([policy]) => policy))(
     const { stateDir, claimsDir } = setup();
     const admission = makeAdmission(policy, stateDir);
 
-    await admission.admit(ANDROID_EMULATOR, providerRuntimeOwner('limrun', 'instance-1'));
+    await admission.admit(ANDROID_EMULATOR, providerRuntimeOwner('example-provider', 'instance-1'));
     await admission[Symbol.asyncDispose]();
     expect(fs.existsSync(claimsDir)).toBe(false);
   },

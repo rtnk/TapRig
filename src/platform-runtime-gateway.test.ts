@@ -6,14 +6,12 @@ import {
 import type {
   PlatformRuntimeHost,
   PlatformRuntimeOperations,
-  PlatformRuntimeOwner,
 } from '@agent-device/contracts/platform-runtime-operations';
 import { applicationLifecycleOperationFacts } from '@agent-device/contracts/application-lifecycle-runtime';
 import { createUnavailablePlatformRuntimeFacts } from '@agent-device/contracts/platform-runtime-unavailable';
 import { screenshotRuntimeOperationFacts } from '@agent-device/contracts/screenshot-runtime';
 import { viewportRuntimeOperationFacts } from '@agent-device/contracts/viewport-runtime';
 import type { DeviceInfo } from '@agent-device/kernel/device';
-import { createLimrunRuntime } from '@agent-device/provider-limrun';
 import { describe, expect, test, vi } from 'vitest';
 import { createComposedPlatformRuntimeGateway } from './platform-runtime-gateway.ts';
 import {
@@ -21,7 +19,6 @@ import {
   gatewayFixtureDevice as device,
   gatewayFixtureScope as scope,
   LIFECYCLE_FACETS,
-  limrunTestDependencies,
   providerLifecycleOwnerFixture as providerLifecycleOwner,
   providerRuntimeFixture as providerRuntime,
   runtimeOwnerFixture as runtimeOwner,
@@ -262,7 +259,7 @@ describe('composed platform runtime gateway', () => {
   });
 
   test('inspects only the selected lazy owner and does not bind it', async () => {
-    const selectedRef = providerRuntimeOwner('limrun', 'selected');
+    const selectedRef = providerRuntimeOwner('example-provider', 'selected');
     const selectedOwner = runtimeOwner({ ref: selectedRef });
     const inspectFacts = vi.spyOn(selectedOwner, 'inspectFacts');
     const bind = vi.spyOn(selectedOwner, 'bind');
@@ -271,7 +268,7 @@ describe('composed platform runtime gateway', () => {
     });
     const runtimeGateway = gateway([
       providerRuntime({
-        ref: providerRuntimeOwner('limrun', 'unrelated'),
+        ref: providerRuntimeOwner('example-provider', 'unrelated'),
         ownsDevice: () => false,
         load: unrelatedLoad,
       }),
@@ -287,67 +284,8 @@ describe('composed platform runtime gateway', () => {
     expect(unrelatedLoad).not.toHaveBeenCalled();
   });
 
-  test('keeps a stale Limrun Android id unavailable without binding or local fallback', async () => {
-    const registration = createLimrunRuntime(
-      { apiKey: 'test-key', runtimeInstance: 'test-instance' },
-      limrunTestDependencies,
-      { includePlatformModule: true },
-    );
-    const staleDevice: DeviceInfo = {
-      platform: 'android',
-      id: 'limrun:android:released-lease',
-      name: 'Released Limrun Android',
-      kind: 'emulator',
-      target: 'mobile',
-      booted: true,
-    };
-    let inspectCount = 0;
-    let bindCount = 0;
-    const providerModule = {
-      ...registration.platformModule,
-      loadRuntime: async (host: PlatformRuntimeHost) => {
-        const owner = await registration.platformModule.loadRuntime(host);
-        return {
-          ...owner,
-          inspectFacts: async (device: DeviceInfo) => {
-            inspectCount += 1;
-            return await owner.inspectFacts(device);
-          },
-          bind: async (request: Parameters<PlatformRuntimeOwner['bind']>[0]) => {
-            bindCount += 1;
-            return await owner.bind(request);
-          },
-        };
-      },
-    };
-    const localLoad = vi.fn(async () => {
-      throw new Error('stale Limrun identity must not fall back to local Android');
-    });
-    const runtimeGateway = createComposedPlatformRuntimeGateway({
-      modules: new Map([['android', { family: 'android', loadRuntime: localLoad }]]),
-      loadHost: async () => ({}) as PlatformRuntimeHost,
-      providerRuntimes: [registration.runtime],
-      providerModules: [{ runtime: registration.runtime, module: providerModule }],
-    });
-
-    try {
-      const facts = await runtimeGateway.inspectFacts(staleDevice);
-      expect(facts.operations.appState).toMatchObject({
-        available: false,
-        reason: 'owner-capability-missing',
-        hint: 'Limrun requires a matching live provider session for this device.',
-      });
-      expect(inspectCount).toBe(1);
-      expect(bindCount).toBe(0);
-      expect(localLoad).not.toHaveBeenCalled();
-    } finally {
-      await runtimeGateway.shutdown();
-      await registration.runtime.shutdown();
-    }
-  });
-
   test('rejects inspected facts with a provider-mode mismatch', async () => {
-    const ref = providerRuntimeOwner('limrun', 'stable');
+    const ref = providerRuntimeOwner('example-provider', 'stable');
     await expect(
       gateway([providerRuntime({ ref, mismatch: 'facts' })]).inspectFacts(device),
     ).rejects.toMatchObject({ details: { reason: 'runtime-contract-invalid' } });
@@ -355,7 +293,7 @@ describe('composed platform runtime gateway', () => {
 
   test('selects an exact provider owner without ordinary ownsDevice arbitration', async () => {
     const ownsDevice = vi.fn(() => false);
-    const ref = providerRuntimeOwner('limrun', 'stable');
+    const ref = providerRuntimeOwner('example-provider', 'stable');
     const runtime = providerRuntime({ ref, ownsDevice });
     const runtimeGateway = gateway([runtime]);
 
@@ -385,19 +323,22 @@ describe('composed platform runtime gateway', () => {
   });
 
   test('rejects duplicate stable provider owner refs', async () => {
-    const ref = providerRuntimeOwner('limrun', 'stable');
+    const ref = providerRuntimeOwner('example-provider', 'stable');
     expect(() => gateway([providerRuntime({ ref }), providerRuntime({ ref })])).toThrow(
       'Duplicate platform runtime owner',
     );
   });
 
   test('loads only the exact provider instance selected by stable owner metadata', async () => {
-    const target = providerRuntimeOwner('limrun', 'target');
+    const target = providerRuntimeOwner('example-provider', 'target');
     const unrelatedLoad = vi.fn(async () => {
       throw new Error('must stay lazy');
     });
     const runtimeGateway = gateway([
-      providerRuntime({ ref: providerRuntimeOwner('limrun', 'other'), load: unrelatedLoad }),
+      providerRuntime({
+        ref: providerRuntimeOwner('example-provider', 'other'),
+        load: unrelatedLoad,
+      }),
       providerRuntime({ ref: target, ownsDevice: () => false }),
     ]);
     await expect(
@@ -540,7 +481,7 @@ describe('composed platform runtime gateway', () => {
     'disposes a provider binding with mismatched %s identity',
     async (mismatch) => {
       const disposed = vi.fn(async () => {});
-      const ref = providerRuntimeOwner('limrun', 'stable');
+      const ref = providerRuntimeOwner('example-provider', 'stable');
       const runtime = providerRuntime({ ref, mismatch, disposed });
       await expect(
         gateway([runtime]).bind({

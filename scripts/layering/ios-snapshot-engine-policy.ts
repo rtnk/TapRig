@@ -1,4 +1,4 @@
-// Catches: an iOS snapshot caller reaching the XCTest/Limrun/Appium runners directly instead of
+// Catches: an iOS snapshot caller reaching the XCTest/Appium runners directly instead of
 //   through the one converged engine.ts — the fragmentation #2222's "converge Limrun snapshots
 //   through engine" and #758's "bulk-snapshot DEPTH limit" both trace back to, where each
 //   backend's snapshot path could silently diverge from the others' presentation contract.

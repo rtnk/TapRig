@@ -478,7 +478,7 @@ test('provider lease admission succeeds without a device key', async () => {
     tenantId: 'tenant-a',
     runId: 'run-1',
     leaseBackend: 'android-instance',
-    leaseProvider: 'limrun',
+    leaseProvider: 'example-provider',
   });
   sessionStore.publish(
     'default',
@@ -488,7 +488,7 @@ test('provider lease admission succeeds without a device key', async () => {
         tenantId: lease.tenantId,
         runId: lease.runId,
         leaseBackend: lease.backend,
-        leaseProvider: 'limrun',
+        leaseProvider: 'example-provider',
       },
     }),
   );

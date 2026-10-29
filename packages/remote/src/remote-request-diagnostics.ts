@@ -3,7 +3,7 @@
  * (#1801).
  *
  * A daemon renders `logPath` as a path on its own host. For a remote daemon —
- * a CI runner driving an EAS/limrun simulator on someone else's macOS box —
+ * a CI runner driving an EAS simulator on someone else's macOS box —
  * that path names a filesystem the caller cannot open, so an agent that follows
  * it loses a turn and a CI job cannot keep the record as an artifact.
  *

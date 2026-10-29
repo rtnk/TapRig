@@ -26,8 +26,7 @@ function sortedAndroidSerialAllowlist(
 /**
  * The foreground app a device runtime reports for a non-session target. Apple devices never
  * answer here — they require the session the runner is attached to — so only runtimes whose owner
- * admits `appState` (the local Android and HarmonyOS runtimes on devices and emulators, and the
- * Limrun Android runtime today) get their readiness warmed and queried.
+ * admits `appState` (the local Android and HarmonyOS runtimes on devices and emulators) get their readiness warmed and queried.
  */
 export async function queryDeviceRuntimeAppState(
   params: RuntimeCommandHandlerParams,

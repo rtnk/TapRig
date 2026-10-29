@@ -377,7 +377,7 @@ const a = await startAgentDevice({
   host: supplied,
   plugins: [
     fixture('fixture-a'),
-    fixture('limrun'),
+    fixture('browserstack'),
     null,
     { ...fixture('wrong-version'), apiVersion: 1 },
     {
@@ -407,7 +407,7 @@ try {
   const inventory = JSON.parse(fs.readFileSync(path.join(a.clientConfig.stateDir, 'daemon.json'), 'utf8')).plugins;
   assert.equal(inventory.find((p) => p.provider === 'fixture-a').state, 'active');
   assert.equal(
-    inventory.filter((p) => p.provider === 'limrun' && p.source === 'embedder')[0].state,
+    inventory.filter((p) => p.provider === 'browserstack' && p.source === 'embedder')[0].state,
     'failed',
   );
   assert.equal(inventory.find((p) => p.provider === 'broken').state, 'failed');
@@ -608,11 +608,6 @@ assert.equal(fs.existsSync(path.join(cwd, 'host-a', 'daemon.json')), false);
           './finders': (mod) => mod.findBestMatchesByLocator([], 'text', 'anything').matches.length,
           './install-source': (mod) => typeof mod.isTrustedInstallSourceUrl('https://example.test/app.apk'),
           './io': (mod) => typeof mod.createLocalArtifactAdapter({ cwd: process.cwd() }).reserveOutput,
-          './limrun': async (mod) => {
-            const runtime = new mod.LimrunRuntime({ apiKey: 'lim_test_key' });
-            await runtime.shutdown();
-            return runtime.provider;
-          },
           './metro': (mod) => mod.buildBundleUrl('https://public.example.test', 'ios'),
           './plugins': (mod) => Object.keys(mod).length === 0,
           './plugins/webdriver': (mod) => Object.keys(mod).length === 0,
@@ -695,7 +690,6 @@ assert.equal(fs.existsSync(path.join(cwd, 'host-a', 'daemon.json')), false);
       './finders': 0,
       './install-source': 'boolean',
       './io': 'function',
-      './limrun': 'limrun',
       './plugins': true,
       './plugins/webdriver': true,
       // Type-only subpath: resolving the module from the packed exports map is

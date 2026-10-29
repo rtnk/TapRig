@@ -52,7 +52,7 @@ test('sessionless cleanup runs when the task fails and keeps the failure', async
 });
 
 test('sessionless cleanup leaves a provider-owned device to its provider', async () => {
-  const device = { ...IOS_SIMULATOR, id: 'limrun:ios:lease-a' };
+  const device = { ...IOS_SIMULATOR, id: 'example-provider:ios:lease-a' };
   installProviderDeviceAdmission({ isActive: (candidate) => candidate.id === device.id });
   const platformCleanup = platformResourceCleanupFixture();
 

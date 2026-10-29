@@ -118,8 +118,8 @@ test('close --shutdown keeps a selected provider-owned iOS simulator off local s
   const sessionName = 'provider-ios-shutdown-session';
   const device = {
     platform: 'apple' as const,
-    id: 'limrun:ios:lease-a',
-    name: 'Limrun iOS',
+    id: 'example-provider:ios:lease-a',
+    name: 'Provider iOS',
     kind: 'simulator' as const,
     booted: true,
   };
@@ -135,7 +135,7 @@ test('close --shutdown keeps a selected provider-owned iOS simulator off local s
     return narrowDeviceBinding(
       {
         device: candidate,
-        owner: providerRuntimeOwner('limrun', 'lease-a'),
+        owner: providerRuntimeOwner('example-provider', 'lease-a'),
         facts,
         operations: {
           closeApplication: providerClose,

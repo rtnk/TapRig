@@ -75,8 +75,7 @@ const LEASE_BACKEND_BY_PLATFORM: Partial<Record<PlatformSelector, LeaseBackend>>
 /**
  * Maps a platform to the lease backend that rents it. The CLI reads it for `--platform`/
  * `--lease-backend` resolution and the remote connection reads it for the device it just resolved.
- * Both previously keyed their own copy off a platform axis, which is where #2962 started; a further
- * copy in `connect limrun` validation is tracked for follow-up.
+ * Both previously keyed their own copy off a platform axis, which is where #2962 started.
  */
 export function leaseBackendForPlatform(
   platform: PlatformSelector | undefined,

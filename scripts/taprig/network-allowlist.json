@@ -6,24 +6,6 @@
   ],
   "entries": [
     {
-      "file": "packages/capture-kit/src/ios-snapshot-acquisition.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 3,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun identifier in a shared type, catalog or capability table (e.g. limrun-ios-tree); narrow it when the provider goes (E4a)."
-    },
-    {
-      "file": "packages/command-registry/src/flag-definitions-action.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 1,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun identifier in a shared type, catalog or capability table (e.g. limrun-ios-tree); narrow it when the provider goes (E4a)."
-    },
-    {
       "file": "packages/command-registry/src/owner-files.ts",
       "rule": "url-literal",
       "token": "https://github.com",
@@ -40,42 +22,6 @@
       "ids": ["NET-00"],
       "decision": "IGNORE",
       "reason": "Link to an upstream GitHub issue in a comment or diagnostic string; not fetched."
-    },
-    {
-      "file": "packages/contracts/src/interactor-operation-catalog.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 2,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun identifier in a shared type, catalog or capability table (e.g. limrun-ios-tree); narrow it when the provider goes (E4a)."
-    },
-    {
-      "file": "packages/contracts/src/ios-snapshot.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 2,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun identifier in a shared type, catalog or capability table (e.g. limrun-ios-tree); narrow it when the provider goes (E4a)."
-    },
-    {
-      "file": "packages/contracts/src/settings-catalog.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 1,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun identifier in a shared type, catalog or capability table (e.g. limrun-ios-tree); narrow it when the provider goes (E4a)."
-    },
-    {
-      "file": "packages/contracts/src/tap-keyboard-occlusion.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 2,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun identifier in a shared type, catalog or capability table (e.g. limrun-ios-tree); narrow it when the provider goes (E4a)."
     },
     {
       "file": "packages/daemon/src/server/downloadable-artifact-http.ts",
@@ -285,15 +231,6 @@
       "reason": "Shared HTTP(S) transport: local daemon IPC (NET-30) and the remote daemon over https (NET-10, D-04, E6c)."
     },
     {
-      "file": "packages/kernel/src/contracts.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 1,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun identifier in a shared type, catalog or capability table (e.g. limrun-ios-tree); narrow it when the provider goes (E4a)."
-    },
-    {
       "file": "packages/kernel/src/errors.ts",
       "rule": "url-literal",
       "token": "https://host",
@@ -301,15 +238,6 @@
       "ids": ["NET-00"],
       "decision": "IGNORE",
       "reason": "Placeholder URL inside a JSDoc example of a remote error message."
-    },
-    {
-      "file": "packages/kernel/src/snapshot.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 1,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun identifier in a shared type, catalog or capability table (e.g. limrun-ios-tree); narrow it when the provider goes (E4a)."
     },
     {
       "file": "packages/maestro/src/daemon-port/run-script-http.ts",
@@ -337,15 +265,6 @@
       "ids": ["NET-25", "NET-26"],
       "decision": "PRESERVE",
       "reason": "Maestro runScript http.post: user-authored HTTP from test scripts must keep working (D-11)."
-    },
-    {
-      "file": "packages/maestro/src/internal/support-matrix.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 1,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun identifier in a shared type, catalog or capability table (e.g. limrun-ios-tree); narrow it when the provider goes (E4a)."
     },
     {
       "file": "packages/maestro/src/internal/support-matrix.ts",
@@ -535,222 +454,6 @@
       "ids": ["NET-08"],
       "decision": "REMOVE",
       "reason": "plugins add/update runs npm install from the registry (E5, D-13)."
-    },
-    {
-      "file": "packages/provider-limrun/src/alert.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 1,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
-    },
-    {
-      "file": "packages/provider-limrun/src/alert.ts",
-      "rule": "websocket",
-      "token": "WebSocket",
-      "count": 1,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
-    },
-    {
-      "file": "packages/provider-limrun/src/android.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 3,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
-    },
-    {
-      "file": "packages/provider-limrun/src/app-catalog.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 4,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
-    },
-    {
-      "file": "packages/provider-limrun/src/app-log-descriptor.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 4,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
-    },
-    {
-      "file": "packages/provider-limrun/src/app-log-reconnect.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 6,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
-    },
-    {
-      "file": "packages/provider-limrun/src/app-log-runtime.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 8,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
-    },
-    {
-      "file": "packages/provider-limrun/src/client-options.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 5,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
-    },
-    {
-      "file": "packages/provider-limrun/src/connection-verification.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 16,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
-    },
-    {
-      "file": "packages/provider-limrun/src/deployment-runtime.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 4,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
-    },
-    {
-      "file": "packages/provider-limrun/src/device.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 4,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
-    },
-    {
-      "file": "packages/provider-limrun/src/facts-runtime.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 14,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
-    },
-    {
-      "file": "packages/provider-limrun/src/instance-access.ts",
-      "rule": "websocket",
-      "token": "WebSocket",
-      "count": 1,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
-    },
-    {
-      "file": "packages/provider-limrun/src/interaction-operations.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 10,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
-    },
-    {
-      "file": "packages/provider-limrun/src/ios-settings.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 4,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
-    },
-    {
-      "file": "packages/provider-limrun/src/ios-snapshot-adapter.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 1,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
-    },
-    {
-      "file": "packages/provider-limrun/src/ios.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 8,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
-    },
-    {
-      "file": "packages/provider-limrun/src/lifecycle.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 1,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
-    },
-    {
-      "file": "packages/provider-limrun/src/recording-runtime.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 6,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
-    },
-    {
-      "file": "packages/provider-limrun/src/request-cancellation.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 1,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
-    },
-    {
-      "file": "packages/provider-limrun/src/request-cancellation.ts",
-      "rule": "websocket",
-      "token": "WebSocket",
-      "count": 2,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
-    },
-    {
-      "file": "packages/provider-limrun/src/runtime-instance.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 3,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
-    },
-    {
-      "file": "packages/provider-limrun/src/runtime.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 8,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
-    },
-    {
-      "file": "packages/provider-limrun/src/session-allocation.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 4,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider package (HTTP + WebSocket client of the Limrun cloud) (E4a)."
     },
     {
       "file": "packages/provider-testmu/src/testmu-connection-verification.ts",
@@ -1176,24 +879,6 @@
       "reason": "Documentation link in the AI SDK adapter JSDoc; the adapter opens no connection (NET-38)."
     },
     {
-      "file": "src/builtin-provider-ids.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 1,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Built-in Limrun provider registration and connect adapter (E4a)."
-    },
-    {
-      "file": "src/builtin-provider-plugins.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 3,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Built-in Limrun provider registration and connect adapter (E4a)."
-    },
-    {
       "file": "src/cli/commands/agent-cdp.ts",
       "rule": "net-tool-command",
       "token": "npm",
@@ -1228,51 +913,6 @@
       "ids": ["NET-14"],
       "decision": "DECISION REQUIRED",
       "reason": "proxy command listener (configurable host) for remote access (D-04, E6a)."
-    },
-    {
-      "file": "src/cli/connection/connect-provider-adapters.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 5,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Built-in Limrun provider registration and connect adapter (E4a)."
-    },
-    {
-      "file": "src/cli/connection/limrun-profile.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 13,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider wiring, SDK export and profile (E4a)."
-    },
-    {
-      "file": "src/commands/capture/alert.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 2,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun identifier in a shared type, catalog or capability table (e.g. limrun-ios-tree); narrow it when the provider goes (E4a)."
-    },
-    {
-      "file": "src/commands/capture/settings.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 1,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun identifier in a shared type, catalog or capability table (e.g. limrun-ios-tree); narrow it when the provider goes (E4a)."
-    },
-    {
-      "file": "src/commands/interaction/runtime/stable-capture.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 1,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun identifier in a shared type, catalog or capability table (e.g. limrun-ios-tree); narrow it when the provider goes (E4a)."
     },
     {
       "file": "src/commands/schema/cli-help-workflows.ts",
@@ -1336,15 +976,6 @@
       "ids": ["NET-14"],
       "decision": "DECISION REQUIRED",
       "reason": "Help example of exposing the daemon through a public tunnel (proxy flow, D-04); removed with E6a."
-    },
-    {
-      "file": "src/commands/system/index.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 2,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun identifier in a shared type, catalog or capability table (e.g. limrun-ios-tree); narrow it when the provider goes (E4a)."
     },
     {
       "file": "src/daemon-client/daemon-client-lifecycle.ts",
@@ -1435,78 +1066,6 @@
       "ids": ["NET-30"],
       "decision": "PRESERVE",
       "reason": "Daemon client IPC to 127.0.0.1 (the same module also hosts remote-daemon branches, NET-10, E6c)."
-    },
-    {
-      "file": "src/provider-limrun-credentials.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 4,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider wiring, SDK export and profile (E4a)."
-    },
-    {
-      "file": "src/provider-limrun-runtime.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 3,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider wiring, SDK export and profile (E4a)."
-    },
-    {
-      "file": "src/sdk/limrun-download-file.ts",
-      "rule": "fetch",
-      "token": "fetch(",
-      "count": 1,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider wiring, SDK export and profile (E4a)."
-    },
-    {
-      "file": "src/sdk/limrun-download-file.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 5,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider wiring, SDK export and profile (E4a)."
-    },
-    {
-      "file": "src/sdk/limrun-runtime-dependencies.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 3,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider wiring, SDK export and profile (E4a)."
-    },
-    {
-      "file": "src/sdk/limrun-runtime-types.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 1,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider wiring, SDK export and profile (E4a)."
-    },
-    {
-      "file": "src/sdk/limrun.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 3,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider wiring, SDK export and profile (E4a)."
-    },
-    {
-      "file": "src/vendor/limrun-delta-sync-omitted.ts",
-      "rule": "forbidden-marker",
-      "token": "limrun",
-      "count": 2,
-      "ids": ["NET-07"],
-      "decision": "REMOVE",
-      "reason": "Limrun provider wiring, SDK export and profile (E4a)."
     }
   ]
 }

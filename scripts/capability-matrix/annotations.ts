@@ -402,11 +402,6 @@ export const MATRIX_SECTIONS: readonly MatrixSection[] = [
             admits: ['setOrientation'],
             refuses: ['unlockOrientation'],
           },
-          'limrun-ios': {
-            text: 'Set only; unlock unsupported',
-            admits: ['setOrientation'],
-            refuses: ['unlockOrientation'],
-          },
         },
       },
       {
@@ -494,11 +489,6 @@ export const MATRIX_SECTIONS: readonly MatrixSection[] = [
           },
           'harmonyos-device': {
             text: 'Clear app state only; other settings and reads unsupported',
-            admits: ['setSetting'],
-            refuses: ['readSetting'],
-          },
-          'limrun-ios': {
-            text: 'Set only; no reads',
             admits: ['setSetting'],
             refuses: ['readSetting'],
           },
@@ -659,7 +649,7 @@ export const SCOPE_ROWS: readonly ScopeRow[] = [
     label: 'Hosted device providers',
     commands: ['connect', 'artifacts'],
     scope:
-      'BrowserStack, AWS Device Farm, TestMu AI, and Limrun appear as their own columns above. Provider artifact lookup after `close` works for the three WebDriver providers; Limrun keeps no artifacts.',
+      'BrowserStack, AWS Device Farm, and TestMu AI appear as their own columns above. Provider artifact lookup after `close` works for all three WebDriver providers.',
     link: docs('device-clouds', 'compare-providers'),
   },
   {

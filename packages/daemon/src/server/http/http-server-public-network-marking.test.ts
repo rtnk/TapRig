@@ -20,7 +20,7 @@ type RpcResponse = { error?: { data?: { code?: string } } };
 test('public HTTP marks command and lease requests before dispatch', async (t) => {
   if (await skipWhenLoopbackUnavailable(t)) return;
   const requests: DaemonRequest[] = [];
-  const token = 'limrun-http-test-token';
+  const token = 'example-provider-http-test-token';
   const leaseRegistry = new LeaseRegistry();
   const handleRequest = vi.fn(async (request: DaemonRequest): Promise<DaemonResponse> => {
     requests.push(request);
@@ -38,23 +38,23 @@ test('public HTTP marks command and lease requests before dispatch', async (t) =
     const port = await listenOnLoopback(server);
     const apps = await callRpc(port, token, {
       jsonrpc: '2.0',
-      id: 'limrun-public-apps',
+      id: 'example-provider-public-apps',
       method: 'agent_device.command',
       params: {
         command: 'apps',
         positionals: [],
-        flags: { platform: 'android', leaseProvider: 'limrun' },
+        flags: { platform: 'android', leaseProvider: 'example-provider' },
       },
     });
     const allocation = await callRpc(port, token, {
       jsonrpc: '2.0',
-      id: 'limrun-public-allocation',
+      id: 'example-provider-public-allocation',
       method: 'agent_device.lease.allocate',
       params: {
         tenantId: 'tenant-a',
         runId: 'run-a',
         backend: 'android-instance',
-        leaseProvider: 'limrun',
+        leaseProvider: 'example-provider',
         providerApp: 'Example.apk',
       },
     });
@@ -64,7 +64,7 @@ test('public HTTP marks command and lease requests before dispatch', async (t) =
     expect(requests).toHaveLength(2);
     expect(requests.map((request) => request.command)).toEqual(['apps', 'lease_allocate']);
     expect(requests.every((request) => request.internal?.publicNetworkOnly === true)).toBe(true);
-    expect(requests[1]?.meta?.leaseProvider).toBe('limrun');
+    expect(requests[1]?.meta?.leaseProvider).toBe('example-provider');
   } finally {
     await closeLoopbackServer(server);
   }

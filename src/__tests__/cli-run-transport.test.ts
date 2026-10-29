@@ -32,7 +32,7 @@ test('a CLI run builds one transport, shared by the remote-materialization clien
       tenant: 'tenant',
       runId: 'run-transport',
       leaseBackend: 'ios-instance',
-      leaseProvider: 'limrun',
+      leaseProvider: 'example-provider',
       platform: 'ios',
       connectedAt: now,
       updatedAt: now,
