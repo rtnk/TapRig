@@ -48,8 +48,9 @@ A violation is one of these:
 - a connection to a resolver socket (`/run/systemd/resolve/*`, the D-Bus system bus).
 
 `expectations.json` lists the known violations. The harness fails on any other violation, and
-when an expected violation does not occur. Stage E1 expects exactly one mechanism: NET-01, the
-update-check worker in `devices-android-tty` (**expected until E2**). E2 deletes that entry.
+when an expected violation does not occur. Stage E1 expected exactly one mechanism: NET-01, the
+update-check worker in `devices-android-tty`. E2 removed the update check and that entry. Since
+E2, the list is empty: every scenario must run without violations.
 
 ## Limits
 
