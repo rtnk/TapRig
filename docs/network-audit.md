@@ -53,7 +53,7 @@ jawnej komendy użytkownika.
 | NET-04 | Provider BrowserStack | `packages/provider-webdriver/src/browserstack.ts:61-65`, `browserstack-connection-verification.ts:12-14`, transport `webdriver-transport.ts:241`, upload `webdriver-utils.ts:109,217,270` | `connect browserstack`, potem `open`/`install`/`artifacts`… ; także `leaseProvider` w SDK i w pliku konfiguracji | `hub-cloud.browserstack.com`, `api-cloud.browserstack.com` | Poświadczenia (Basic), **upload binarki aplikacji**, polecenia WebDriver, screenshoty, pobieranie artefaktów sesji | KONF./NIE | REMOVE | Dostawca chmurowy |
 | NET-05 | Provider AWS Device Farm | `packages/provider-webdriver/src/aws-device-farm.ts:339` (`aws devicefarm …` jako proces potomny), artefakty `aws-device-farm-artifacts.ts`, WebDriver jak NET-04 | `connect aws-device-farm` + komendy sesji | AWS API (przez AWS CLI i łańcuch poświadczeń AWS), endpoint WebDriver sesji zdalnej | ARN-y, poświadczenia AWS (pośrednio), polecenia, artefakty | KONF./NIE | REMOVE | Dostawca chmurowy |
 | NET-06 | Provider TestMu AI (LambdaTest) | `packages/provider-testmu/src/testmu.ts:27-34`, `testmu-webdriver.ts:25`; katalog `src/commands/provider-plugin-catalog.ts:8`; pomoc `src/commands/schema/cli-help.ts:584` | `plugins add @agent-device/testmu` + `connect testmu` | `manual-api.lambdatest.com`, `mobile-api.lambdatest.com`, `mobile-hub.lambdatest.com` | `LT_USERNAME`/`LT_ACCESS_KEY`, **upload aplikacji**, polecenia, artefakty | NIE | REMOVE | Dostawca chmurowy (dystrybuowany jako plugin npm) |
-| NET-07 | Provider Limrun | `packages/provider-limrun/**` (klient `@limrun/api`, HTTP + WebSocket, ADB-over-WebSocket), rejestracja `src/builtin-provider-plugins.ts:67`, `src/provider-limrun-*.ts`, SDK `src/sdk/limrun*.ts` (`limrun-download-file.ts:20`), eksport `agent-device/limrun` | Wbudowany kandydat rejestrowany przy starcie daemona, **aktywny automatycznie, gdy w env są poświadczenia Limrun**; połączenia przy `connect limrun` i komendach sesji | Limrun API / instancje Limrun | Token Limrun, binarki aplikacji, screenshoty, logi, ruch ADB | KONF. | REMOVE | Dostawca chmurowy; aktywacja zależna tylko od zmiennych środowiskowych |
+| NET-07 | Provider Limrun | `packages/provider-limrun/**` (klient `@limrun/api`, HTTP + WebSocket, ADB-over-WebSocket), rejestracja `src/builtin-provider-plugins.ts:67`, `src/provider-limrun-*.ts`, SDK `src/sdk/limrun*.ts` (`limrun-download-file.ts:20`), eksport `agent-device/limrun` | Wbudowany kandydat rejestrowany przy starcie daemona, **aktywny automatycznie, gdy w env są poświadczenia Limrun**; połączenia przy `connect limrun` i komendach sesji | Limrun API / instancje Limrun | Token Limrun, binarki aplikacji, screenshoty, logi, ruch ADB | KONF. | REMOVE — **DONE w E4a, PR #5** | Dostawca chmurowy; aktywacja zależna tylko od zmiennych środowiskowych |
 | NET-08 | Instalacja pluginów | `packages/plugins/src/store.ts:242` (`npm install <pakiet>`), komenda `src/cli/commands/plugins.ts:25` | `plugins add <pkg>`, `plugins update <pkg>` | Rejestr npm (lub skonfigurowany) | Nazwa paczki; pobranie i późniejsze **wykonanie kodu z Internetu** | NIE | REMOVE | Automatyczna instalacja pluginów z Internetu jest zabroniona; jedynym zastosowaniem są providery urządzeń zdalnych |
 | NET-09 | Ładowanie pluginów | `src/provider-device-runtimes.ts:31` (`storePluginCandidates`), `packages/plugins/src/store.ts:104` (`import()` kodu z `~/.agent-device/plugins`) | **Każdy start daemona** oraz `connect <provider>` | Dowolny — kod pluginu | Dowolne | **TAK** (o ile plugin został zainstalowany) | REMOVE | Niekontrolowane wykonanie kodu z niezweryfikowanym zachowaniem sieciowym; alternatywna ścieżka uruchamiania providerów chmurowych |
 | NET-10 | Klient zdalnego daemona | `src/daemon-client/daemon-client-lifecycle.ts:139,190` (`--daemon-base-url` / `AGENT_DEVICE_DAEMON_BASE_URL`), transport `src/daemon-client/daemon-client-transport.ts:788` | Każda komenda, gdy ustawiono zmienną/flagę, plik konfiguracji (`--config`, `AGENT_DEVICE_CONFIG`, `~/.agent-device/config.json`) lub zapisane połączenie `connect` | Dowolny host HTTP(S) | **Wszystkie polecenia i wyniki**: snapshoty, screenshoty, nagrania, tokeny | KONF. | DECISION REQUIRED (rekomendacja: REMOVE) | Tryb zdalny wysyła dane z urządzeń poza komputer; patrz D-04 |
@@ -507,3 +507,41 @@ flow” i opis w `website/docs/docs/{commands,configuration}.md`. Testy tych mod
   `AGENT_DEVICE_DAEMON_AUTH_TOKEN=<atrapa>`). Przed E3: 6 zapytań DNS (`8.8.8.8:53`,
   `8.8.4.4:53`) procesu `agent-device connect`, błąd `fetch failed`. Po E3: `INVALID_ARGS`,
   0 zdarzeń gniazd. `expectations.json` pusty; wszystkie scenariusze — **0 naruszeń**, PASS.
+
+## 11. Stan po Etapie 4a
+
+E4a (PR #5) usunął NET-07: `packages/provider-limrun/` (klient `@limrun/api`, HTTP, WebSocket,
+ADB-over-WebSocket), `src/provider-limrun-credentials.ts`, `src/provider-limrun-runtime.ts`,
+`src/sdk/limrun*.ts` (eksport `agent-device/limrun`), `src/vendor/limrun-delta-sync-omitted.ts`
+(alias `@limrun/xdelta3-wasm` w `tsdown.config.ts`), `src/cli/connection/limrun-profile.ts`,
+kandydata Limrun w `src/builtin-provider-plugins.ts`, `LIMRUN_ID`/`LIMRUN_CONNECTION` w
+`src/builtin-provider-ids.ts`, adapter `limrun` i `verifyLimrun` w `connect-provider-adapters.ts`,
+zależności `@limrun/api` i `@agent-device/provider-limrun`, pomoc i strony `website/docs`.
+Wspólny typ producenta snapshotu iOS `'limrun-ios-tree'` usunięto z
+`packages/contracts/src/ios-snapshot.ts`, `packages/kernel/src/snapshot.ts`,
+`packages/capture-kit/src/ios-snapshot-acquisition.ts` i budżetów `stable-capture.ts`.
+Pomocniki używane tylko przez Limrun (`transcodeScreenshotToPngAsync` i zadanie workera
+`jpeg-to-png`, `createProviderAppLogOperations` z pollerem, fasada
+`@agent-device/platform-apple/simctl-settings`) usunięto razem z testami.
+
+- Przed E4a `LIMRUN_API_KEY` (albo `LIM_*_INSTANCE_*`) w env aktywował wbudowanego providera w
+  daemonie (`daemon status` → `limrun`, `state: active`). Połączenia z Limrun powstawały dopiero
+  przy dzierżawie, `connect limrun` i komendach sesji. Po E4a daemon nie rejestruje providera
+  Limrun (lista: `browserstack`, `aws-device-farm` i pluginy), a `connect limrun` kończy się
+  `INVALID_ARGS` „Unknown connect provider: limrun” bez połączeń. Testy:
+  `src/__tests__/provider-device-runtimes.test.ts` (poświadczenia Limrun w env → brak providera,
+  brak `fetch`), `src/__tests__/cli-connect-unknown-provider.test.ts` (brak `fetch`, `runCmd`,
+  `runCmdDetached` i żądań do daemona). Na kodzie sprzed E4a oba failują (`limrun` w rejestrze;
+  `connect limrun` → `COMMAND_FAILED` po próbie `fetch`).
+- `'limrun'` nie jest już zarezerwowanym id providera: plugin może zarejestrować provider o tej
+  nazwie (system pluginów usuwa E5, D-13).
+- `dist/` bez `@limrun/api` i bez napisu `limrun`; `pnpm check:package` — 14 publikowanych wejść.
+  Override `undici@7` zostaje: `undici` 7.30.1 jest zależnością bezpośrednią (`maestro`,
+  `provision-kit`) i przechodnią (`@ai-sdk/provider-utils`).
+- Strażnik statyczny: usunięte 49 wpisów (wszystkie wpisy NET-07). Stan: **183 wystąpienia w
+  118 wpisach (28 `REMOVE`), 27 identyfikatorów**. Nowych wpisów brak. Marker `limrun` zostaje w
+  regułach strażnika (`forbidden-marker`), aby wykryć powrót kodu przy merge'u upstream.
+- Harness offline: nowy scenariusz `devices-android-limrun-env` (`agent-device devices --platform
+  android` z `LIMRUN_API_KEY=<atrapa>`). Przed E4a i po E4a — 0 naruszeń (Limrun łączył się
+  dopiero przy dzierżawie); wszystkie 7 scenariuszy — **0 naruszeń**, PASS. `expectations.json`
+  pusty.
