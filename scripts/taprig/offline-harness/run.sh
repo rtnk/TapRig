@@ -154,5 +154,9 @@ run_scenario mcp "$mcp_input" "${cli[@]}" mcp
 # daemon token skips the interactive login and reached the cloud profile fetch before E3.
 run_scenario connect-no-provider - env AGENT_DEVICE_DAEMON_AUTH_TOKEN=taprig-harness-dummy-token \
   "${cli[@]}" connect
+# Limrun credentials in the environment used to activate the built-in Limrun provider in the
+# daemon (NET-07). A dummy API key must not activate a provider or open a connection.
+run_scenario devices-android-limrun-env - env LIMRUN_API_KEY=taprig-harness-dummy-key \
+  "${cli[@]}" devices --platform android
 
 chown -R "$TAPRIG_HARNESS_UID:$TAPRIG_HARNESS_GID" "$work"

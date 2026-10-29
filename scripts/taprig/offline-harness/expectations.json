@@ -1,4 +1,4 @@
 {
-  "$comment": "Known violations of the offline harness (run.sh, check.mjs). An entry matches violations of one scenario/log whose process command line contains `process`. The harness fails on any other violation and when an entry matches nothing. Remove an entry in the stage that removes its mechanism. E2 removed the only entry (NET-01, update check); every scenario must now run without violations. E3 added the connect-no-provider scenario without an entry (NET-02/03 removed).",
+  "$comment": "Known violations of the offline harness (run.sh, check.mjs). An entry matches violations of one scenario/log whose process command line contains `process`. The harness fails on any other violation and when an entry matches nothing. Remove an entry in the stage that removes its mechanism. E2 removed the only entry (NET-01, update check); every scenario must now run without violations. E3 added the connect-no-provider scenario without an entry (NET-02/03 removed). E4a added the devices-android-limrun-env scenario without an entry (NET-07 removed).",
   "expected": []
 }
