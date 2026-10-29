@@ -1194,33 +1194,6 @@
       "reason": "Built-in Limrun provider registration and connect adapter (E4a)."
     },
     {
-      "file": "src/cli/auth-session.ts",
-      "rule": "fetch",
-      "token": "fetchImpl",
-      "count": 12,
-      "ids": ["NET-02"],
-      "decision": "REMOVE",
-      "reason": "agent-device cloud control-plane login and session refresh (E3)."
-    },
-    {
-      "file": "src/cli/auth-session.ts",
-      "rule": "forbidden-marker",
-      "token": "agent-device.dev",
-      "count": 3,
-      "ids": ["NET-02"],
-      "decision": "REMOVE",
-      "reason": "agent-device cloud control-plane login and session refresh (E3)."
-    },
-    {
-      "file": "src/cli/auth-session.ts",
-      "rule": "url-literal",
-      "token": "https://cloud.agent-device.dev",
-      "count": 1,
-      "ids": ["NET-02"],
-      "decision": "REMOVE",
-      "reason": "agent-device cloud control-plane login and session refresh (E3)."
-    },
-    {
       "file": "src/cli/commands/agent-cdp.ts",
       "rule": "net-tool-command",
       "token": "npm",
@@ -1255,15 +1228,6 @@
       "ids": ["NET-14"],
       "decision": "DECISION REQUIRED",
       "reason": "proxy command listener (configurable host) for remote access (D-04, E6a)."
-    },
-    {
-      "file": "src/cli/connection/cloud-profile.ts",
-      "rule": "fetch",
-      "token": "fetchImpl",
-      "count": 9,
-      "ids": ["NET-03"],
-      "decision": "REMOVE",
-      "reason": "Cloud connection profile fetched from the agent-device control plane (E3)."
     },
     {
       "file": "src/cli/connection/connect-provider-adapters.ts",

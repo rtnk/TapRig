@@ -249,7 +249,7 @@ function summarizeProviderScenarioFlagExclusions() {
     {
       name: 'remote connection and session-lock policy',
       owner: 'connection/runtime/request policy tests',
-      keys: ['force', 'noLogin', 'sessionLock'],
+      keys: ['force', 'sessionLock'],
     },
     {
       name: 'cloud artifact provider lookup',

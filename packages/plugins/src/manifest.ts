@@ -4,7 +4,7 @@ import { AppError } from '@agent-device/kernel/errors';
 import type { ConnectionProviderCapabilities } from '@agent-device/contracts/remote';
 
 /** Provider ids that name daemon routing, not a runtime a plugin can supply. */
-export const ROUTING_PROVIDER_IDENTITIES: readonly string[] = ['cloud', 'proxy'];
+export const ROUTING_PROVIDER_IDENTITIES: readonly string[] = ['proxy'];
 
 const V1_PLUGIN_API_VERSION = 1;
 

@@ -369,15 +369,6 @@ export const CONNECTION_FLAG_DEFINITIONS: readonly FlagDefinition[] = [
     recorded: false,
   },
   {
-    key: 'noLogin',
-    names: ['--no-login'],
-    type: 'boolean',
-    usageLabel: '--no-login',
-    usageDescription: 'Connect: fail instead of starting implicit cloud login',
-    projectConfig: true,
-    recorded: false,
-  },
-  {
     key: 'sessionLock',
     names: ['--session-lock'],
     type: 'enum',

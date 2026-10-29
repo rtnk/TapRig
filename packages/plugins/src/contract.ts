@@ -89,7 +89,7 @@ export type PluginSetupResult<WebDriver extends WebDriverDescriptor = WebDriverD
 export type AgentDevicePlugin<WebDriver extends WebDriverDescriptor = WebDriverDescriptor> =
   Readonly<{
     apiVersion: typeof PROVIDER_PLUGIN_API_VERSION;
-    /** Lowercase id; `cloud` and `proxy` are reserved routing identities. */
+    /** Lowercase id; `proxy` is a reserved routing identity. */
     provider: string;
     credentials: PluginCredentials;
     connection?: PluginConnection;

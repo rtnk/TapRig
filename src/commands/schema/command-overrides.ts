@@ -35,16 +35,6 @@ const SCHEMA_ONLY_CLI_COMMAND_SCHEMAS = {
     allowsExtraPositionals: true,
     supportedFlags: COMMON_COMMAND_SUPPORTED_FLAG_KEYS,
   },
-  auth: {
-    text: {
-      summary: 'Manage cloud login state',
-      description: 'Manage cloud login state used by remote daemon and cloud device workflows.',
-    },
-    usageOverride: 'auth status|login|logout',
-    listUsageOverride: 'auth',
-    positionalArgs: ['status|login|logout'],
-    supportedFlags: ['remoteConfig', 'stateDir'],
-  },
   daemon: {
     text: {
       summary: 'Stop a local daemon or show the providers it registered',
@@ -77,10 +67,10 @@ const SCHEMA_ONLY_CLI_COMMAND_SCHEMAS = {
     text: {
       summary: 'Configure remote or provider state',
       description:
-        'Configure remote access without allocating a device. Direct providers validate credentials/resources before saving state and print the exact device/app preparation needed before open. AGENT_DEVICE_CLOUD_BASE_URL is the bridge/control-plane API origin; use AGENT_DEVICE_DAEMON_AUTH_TOKEN=adc_live_... for CI/service-token automation.',
+        'Configure remote access without allocating a device. Direct providers validate credentials/resources before saving state and print the exact device/app preparation needed before open. A provider positional or --remote-config is required.',
     },
     usageOverride:
-      'connect [provider] [--remote-config <path>] [--daemon-base-url <url>] [--tenant <id>] [--run-id <id>] [--lease-id <id>] [--lease-backend <backend>] [--force] [--no-login]',
+      'connect [provider] [--remote-config <path>] [--daemon-base-url <url>] [--tenant <id>] [--run-id <id>] [--lease-id <id>] [--lease-backend <backend>] [--force]',
     usageFlags: [],
     listUsageOverride: 'connect',
     positionalArgs: ['provider?'],
@@ -112,7 +102,6 @@ const SCHEMA_ONLY_CLI_COMMAND_SCHEMAS = {
       'awsRegion',
       'awsInteractionMode',
       'force',
-      'noLogin',
     ],
     supportedFlags: [
       'stateDir',

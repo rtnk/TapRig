@@ -51,13 +51,12 @@ test('prepare help documents iOS runner CI setup', async () => {
   assert.match(result.stdout, /after boot\/install and before replay\/test/);
 });
 
-test('connect help documents cloud auth environment origins', async () => {
+test('connect help requires a provider and documents no cloud login', async () => {
   const result = await runCliCapture(['help', 'connect']);
   assert.equal(result.code, 0);
   assert.equal(result.calls.length, 0);
-  assert.match(result.stdout, /AGENT_DEVICE_CLOUD_BASE_URL/);
-  assert.match(result.stdout, /bridge\/control-plane API origin/);
-  assert.match(result.stdout, /AGENT_DEVICE_DAEMON_AUTH_TOKEN/);
+  assert.match(result.stdout, /A provider positional or --remote-config is required/);
+  assert.doesNotMatch(result.stdout, /AGENT_DEVICE_CLOUD_BASE_URL|--no-login|cloud login/);
 });
 
 test('help react-devtools prints agent workflow topic and skips daemon dispatch', async () => {

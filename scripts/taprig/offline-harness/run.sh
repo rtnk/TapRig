@@ -150,5 +150,9 @@ run_scenario help-commands - "${cli[@]}" help commands
 run_scenario devices-android-tty - script -qec "${cli[*]} devices --platform android" /dev/null
 run_scenario devices-android-no-tty - "${cli[@]}" devices --platform android
 run_scenario mcp "$mcp_input" "${cli[@]}" mcp
+# `connect` without a provider used to start the agent-device cloud flow (NET-02/03). A dummy
+# daemon token skips the interactive login and reached the cloud profile fetch before E3.
+run_scenario connect-no-provider - env AGENT_DEVICE_DAEMON_AUTH_TOKEN=taprig-harness-dummy-token \
+  "${cli[@]}" connect
 
 chown -R "$TAPRIG_HARNESS_UID:$TAPRIG_HARNESS_GID" "$work"

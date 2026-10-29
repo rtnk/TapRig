@@ -318,8 +318,8 @@ export function resolveRemoteConnectionDefaults(options: {
       daemonBaseUrl: state.daemon?.baseUrl ?? profile.daemonBaseUrl,
       // Deliberately not sourced from state: the daemon bearer token is never
       // persisted to the connection-state file (ADR 0007). It is resolved
-      // from the profile here, and from the flag/env/CLI-session chain in
-      // resolveRemoteAuth (src/cli/auth-session.ts) at command dispatch time.
+      // from the profile here, and from the flag or AGENT_DEVICE_DAEMON_AUTH_TOKEN
+      // by the daemon client at request time.
       daemonAuthToken: profile.daemonAuthToken,
       daemonTransport: state.daemon?.transport ?? profile.daemonTransport,
       daemonServerMode: state.daemon?.serverMode ?? profile.daemonServerMode,

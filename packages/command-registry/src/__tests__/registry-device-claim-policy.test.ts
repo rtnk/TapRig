@@ -54,7 +54,6 @@ test('every command that deviates from require-owner is a reviewed, diffable set
     observe: ['apps', 'appstate', 'capabilities', 'device', 'devices', 'doctor', 'takeover'],
     none: [
       'artifacts',
-      'auth',
       'batch',
       'cdp',
       'connect',

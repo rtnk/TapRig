@@ -47,10 +47,6 @@ const ENVIRONMENT_LINES = [
     label: 'AGENT_DEVICE_DAEMON_STARTUP_TIMEOUT_MS',
     description: 'Local daemon startup ceiling (default 120000)',
   },
-  {
-    label: 'AGENT_DEVICE_CLOUD_BASE_URL',
-    description: 'Bridge/control-plane API origin for cloud auth and /api-keys',
-  },
 ] as const;
 
 const EXAMPLE_LINES = [
@@ -574,12 +570,6 @@ Human takeover of a leased remote device:
     agent-device takeover release <hold-id>
   An HTTP-mode daemon also accepts authenticated GET/PUT/DELETE requests at /admin/human-control/holds on its loopback listener. Host administrators supply the exact lease backend/provider/device key and use the local daemon token, not a tenant credential. This host-admin route is intentionally not forwarded by agent-device proxy. Holds do not survive daemon restart; re-establish them after reconnecting. The same listener and token serve GET/PUT/DELETE /admin/leases, where a host allocates a macos-app lease confining a client to one app (<bundleId> or <bundleId>@<pid>); tenants cannot allocate one.
 
-Cloud profile flow:
-  agent-device connect
-  agent-device open com.example.app
-  agent-device snapshot
-  agent-device disconnect
-
 TestMu AI virtual-device flow (emulators and simulators):
   agent-device plugins add @agent-device/testmu
   export LT_USERNAME=... LT_ACCESS_KEY=...
@@ -639,7 +629,7 @@ Script flow, per-command config:
 
 Rules:
   connect and disconnect are top-level commands. Do not write agent-device remote connect or agent-device remote disconnect.
-  Use connect without --remote-config when the cloud control plane owns the connection profile.
+  connect requires a provider positional or --remote-config. Without either it fails with INVALID_ARGS before it opens any connection.
   Prefer connect --remote-config over --daemon-base-url, --tenant, --run-id, and --lease-id when using a local profile.
   Use agent-device proxy for direct tunnel access to a Mac you control. Expose the printed proxy URL through cloudflared/ngrok, then run agent-device connect proxy with the tunnel URL and printed token before normal commands.
   Use Limrun, BrowserStack, AWS Device Farm, and TestMu AI through local provider profiles; they do not accept a remote agent-device daemon URL.
