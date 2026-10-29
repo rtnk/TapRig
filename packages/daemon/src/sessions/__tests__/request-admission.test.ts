@@ -17,8 +17,8 @@ function missingLeaseIdError(error: unknown): boolean {
   return true;
 }
 
-const limrunAppCatalog: ProviderAppCatalog = {
-  supports: (provider) => provider === 'limrun',
+const exampleAppCatalog: ProviderAppCatalog = {
+  supports: (provider) => provider === 'example-provider',
   list: async () => [],
 };
 
@@ -170,12 +170,12 @@ test('sessionless apps admits a provider declared by the runtime app catalog', (
   const result = assertRequestLeaseAdmission(
     makeRequest({
       command: 'apps',
-      flags: { platform: 'ios', leaseProvider: 'limrun' },
+      flags: { platform: 'ios', leaseProvider: 'example-provider' },
       meta: { tenantId: 'tenant-a', runId: 'run-1', sessionIsolation: 'tenant' },
     }),
     registry,
     undefined,
-    { env: process.env, providerAppCatalog: limrunAppCatalog },
+    { env: process.env, providerAppCatalog: exampleAppCatalog },
   );
 
   assert.equal(result, undefined);

@@ -43,7 +43,7 @@ test('an operation the owner never names reports the denial the owner stated for
   const denial = {
     available: false,
     reason: 'unsupported-platform-leaf',
-    hint: 'Limrun iOS direct sessions do not expose keyboard actions.',
+    hint: 'Provider iOS direct sessions do not expose keyboard actions.',
   } as const;
 
   expect(keyboardRuntimeOperationFacts({ unsupported: denial, dismiss: available })).toEqual({

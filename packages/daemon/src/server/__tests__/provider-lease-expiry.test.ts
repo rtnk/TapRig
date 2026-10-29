@@ -21,7 +21,7 @@ test('retries an expired live-only provider lease release after a transient fail
   const release = vi
     .fn<(lease: DeviceLease) => Promise<Record<string, unknown>>>()
     .mockRejectedValueOnce(new Error('temporary provider outage'))
-    .mockResolvedValueOnce({ limrunInstanceId: 'instance-1' });
+    .mockResolvedValueOnce({ providerInstanceId: 'instance-1' });
   const releaser = createExpiredProviderLeaseReleaser({
     leaseLifecycleProvider: { release },
     providerRuntimeIds: ['browserstack'],
@@ -50,18 +50,18 @@ test('retries a persisted expired provider lease after daemon restart', async ()
   const lease = new LeaseRegistry().allocateLease({
     tenantId: 'tenant-a',
     runId: 'run-1',
-    leaseProvider: 'limrun',
+    leaseProvider: 'example-provider',
   });
   const release = vi
     .fn<(lease: DeviceLease) => Promise<Record<string, unknown>>>()
     .mockRejectedValueOnce(new Error('temporary provider outage'))
-    .mockResolvedValueOnce({ limrunInstanceId: 'instance-1' });
+    .mockResolvedValueOnce({ providerInstanceId: 'instance-1' });
   const options = {
     recoverExpiredLease: async (expiredLease: typeof lease) => {
       await release(expiredLease);
     },
     stateDir,
-    recoverableProviderIds: ['limrun'],
+    recoverableProviderIds: ['example-provider'],
   };
   const firstDaemon = createExpiredProviderLeaseReleaser(options);
 
@@ -70,13 +70,13 @@ test('retries a persisted expired provider lease after daemon restart', async ()
     expect(release).toHaveBeenCalledTimes(1);
     firstDaemon.shutdown();
 
-    const daemonWithoutLimrun = createExpiredProviderLeaseReleaser({
+    const daemonWithoutProvider = createExpiredProviderLeaseReleaser({
       ...options,
       recoverableProviderIds: [],
     });
-    await daemonWithoutLimrun.retryPending();
+    await daemonWithoutProvider.retryPending();
     expect(release).toHaveBeenCalledTimes(1);
-    daemonWithoutLimrun.shutdown();
+    daemonWithoutProvider.shutdown();
 
     const restartedDaemon = createExpiredProviderLeaseReleaser(options);
     await restartedDaemon.retryPending();
@@ -94,13 +94,13 @@ test('does not release until the expired lease record is durable', async () => {
   const lease = new LeaseRegistry().allocateLease({
     tenantId: 'tenant-a',
     runId: 'run-1',
-    leaseProvider: 'limrun',
+    leaseProvider: 'example-provider',
   });
   const recoverExpiredLease = vi.fn(async () => undefined);
   const releaser = createExpiredProviderLeaseReleaser({
     recoverExpiredLease,
     stateDir,
-    recoverableProviderIds: ['limrun'],
+    recoverableProviderIds: ['example-provider'],
     retryDelayMs: 60_000,
   });
   const writeFile = vi.spyOn(fs, 'writeFileSync').mockImplementationOnce(() => {

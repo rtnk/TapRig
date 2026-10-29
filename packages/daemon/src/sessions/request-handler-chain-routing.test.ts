@@ -172,11 +172,11 @@ test('request handler chain routes trace commands to the record-trace family', a
 
 test('request handler chain forwards the deferred provider app catalog to inventory', async () => {
   const req = makeRequest('apps');
-  req.flags = { platform: 'android', leaseProvider: 'limrun' };
+  req.flags = { platform: 'android', leaseProvider: 'example-provider' };
   const response = await runRequestHandlerChain({
     ...makeChainParams(req),
     providerAppCatalog: {
-      supports: (provider) => provider === 'limrun',
+      supports: (provider) => provider === 'example-provider',
       list: async () => ['Example.apk'],
     },
   });

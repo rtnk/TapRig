@@ -17,7 +17,7 @@ test('port reverse rejects a missing resolved lease before runtime admission', a
     platformServices: daemonPlatformServicesFixture(),
     req: {
       ...baseRequest,
-      flags: { platform: 'android', leaseProvider: 'limrun', devicePort: 8097 },
+      flags: { platform: 'android', leaseProvider: 'example-provider', devicePort: 8097 },
     },
     session: undefined,
     env: process.env,
@@ -45,7 +45,7 @@ test('sessionless port reverse requires an explicit device selector', async () =
       ...baseRequest,
       flags: {
         leaseId: 'lease-1',
-        leaseProvider: 'limrun',
+        leaseProvider: 'example-provider',
         devicePort: 8097,
       },
     },

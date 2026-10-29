@@ -159,10 +159,10 @@ test('a shutdown removes its own metadata and reports an unverified release', as
 test('a failed provider plugin is logged and published after this daemon publishes its record', async () => {
   const stateDir = mkdtempForTestSync('agent-device-daemon-provider-skip-');
   const failed = {
-    provider: 'limrun',
+    provider: 'example-provider',
     source: 'builtin',
     state: 'failed',
-    error: { code: 'INVALID_ARGS', message: 'Limrun instance access is missing X.' },
+    error: { code: 'INVALID_ARGS', message: 'Provider instance access is missing X.' },
     credentials: { variables: [], byBackend: {} },
   } as const;
   providerComposition.inventory = [failed];
@@ -170,7 +170,7 @@ test('a failed provider plugin is logged and published after this daemon publish
   try {
     const event = logEvents(stateDir).find(({ phase }) => phase === 'provider_plugin_failed');
     expect(event?.data).toMatchObject({
-      provider: 'limrun',
+      provider: 'example-provider',
       source: 'builtin',
       code: 'INVALID_ARGS',
     });

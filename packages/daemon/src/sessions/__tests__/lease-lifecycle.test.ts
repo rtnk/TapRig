@@ -222,7 +222,7 @@ test('releaseExpiredProviderLease releases a provider-owned lease without a sess
   const lease = new LeaseRegistry().allocateLease({
     tenantId: 'tenant-a',
     runId: 'run-1',
-    leaseProvider: 'limrun',
+    leaseProvider: 'example-provider',
   });
   const recover = vi.fn(async () => undefined);
 

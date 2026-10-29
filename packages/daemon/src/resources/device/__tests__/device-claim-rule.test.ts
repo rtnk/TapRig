@@ -8,5 +8,8 @@ import { deviceClaimRuleForOwner } from '../device-claim-rule.ts';
 // as test data that no caller reads.
 test('the device-claim rule selects ordinary for a local family and none for a provider runtime', () => {
   assert.equal(deviceClaimRuleForOwner(localRuntimeOwner('android')), 'ordinary');
-  assert.equal(deviceClaimRuleForOwner(providerRuntimeOwner('limrun', 'instance-1')), 'none');
+  assert.equal(
+    deviceClaimRuleForOwner(providerRuntimeOwner('example-provider', 'instance-1')),
+    'none',
+  );
 });

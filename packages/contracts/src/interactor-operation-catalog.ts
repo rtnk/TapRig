@@ -52,7 +52,7 @@ type InteractorOperationDefinition = Readonly<{
  *
  * Not caller-supplied: `facts[operation]` alone decides whether an operation binds, so a row whose
  * key the caller's facts never define is simply never available — which is how an owner with a
- * narrower, dedicated facts object (Limrun's keyboard-less navigation facts) opts a subset out.
+ * narrower, dedicated facts object opts a subset out.
  */
 export const INTERACTOR_OPERATIONS = [
   { operation: 'back', label: 'back', bind: bindBack },
@@ -184,8 +184,7 @@ export type CatalogInteractorOperation = (typeof INTERACTOR_OPERATIONS)[number][
 /**
  * The operation-facts slice every caller already holds: an owner's full `RuntimeFacts.operations`
  * (narrows structurally — extra keys are ignored), or, for an owner whose navigation facts are
- * assembled standalone (see `platform-apple/src/navigation/runtime.ts`, `provider-limrun`'s
- * `limrunNavigationOperationFacts`), that flat map directly — which may cover only the subset of
+ * assembled standalone (see `platform-apple/src/navigation/runtime.ts`), that flat map directly — which may cover only the subset of
  * operations the owner admits at all, so a missing key here is simply never bindable.
  */
 type CatalogOperationFacts = Readonly<

@@ -182,13 +182,13 @@ test('refreshSessionDeviceIfNeeded keeps provider-owned iOS simulators out of lo
 
   const device = await withMockedPlatform('darwin', async () =>
     refreshSessionDeviceIfNeeded(
-      { ...iosSimulatorSession.device, id: 'limrun:ios:lease-1' },
+      { ...iosSimulatorSession.device, id: 'example-provider:ios:lease-1' },
       platformServices,
       process.env,
     ),
   );
 
-  expect(device.id).toBe('limrun:ios:lease-1');
+  expect(device.id).toBe('example-provider:ios:lease-1');
   expect(mockResolveTargetDevice).not.toHaveBeenCalled();
 });
 

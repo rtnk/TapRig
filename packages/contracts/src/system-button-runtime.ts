@@ -119,7 +119,7 @@ export function systemButtonRuntimeOperationFacts(
 
 /**
  * The Android `hardware-button` admission rule, shared by every owner that presses the phone
- * keys through `input keyevent` (the local adb runtime and the Limrun provider alike). A TV
+ * keys through `input keyevent` (the local adb runtime). A TV
  * target has no phone volume/power semantics and its own command family, so it refuses and
  * points at `tv-remote`; the synthetic `simulator` row has no device behind it.
  */
@@ -156,9 +156,9 @@ const hardwareCellsCoverCommandVocabulary: HardwareCellsCoverCommandVocabulary =
 void hardwareCellsCoverCommandVocabulary;
 
 /**
- * One device's verdict for every `hardware-button` cell. The local adb runtime and the Limrun
- * provider spread this over their family facts, so the phone/TV/simulator rule is stated once
- * for every key and a new key joins both owners with it.
+ * One device's verdict for every `hardware-button` cell. The local adb runtime spreads this
+ * over its family facts, so the phone/TV/simulator rule is stated once for every key and a new
+ * key joins the owner with it.
  */
 export function androidHardwareButtonFacts(
   device: AndroidHardwareButtonSubject,

@@ -40,7 +40,10 @@ const FAKE_POLICY: PluginRegistryPolicy = {
   },
 };
 
-async function startStore(env: NodeJS.ProcessEnv, builtin: readonly string[] = ['limrun']) {
+async function startStore(
+  env: NodeJS.ProcessEnv,
+  builtin: readonly string[] = ['builtin-provider'],
+) {
   const { claimProviderIds, resolveProviderPlugins, startProviderRegistry } =
     await import('./registry.ts');
   const { storePluginCandidates } = await import('./store.ts');
@@ -149,7 +152,7 @@ test('the first plugin to name a provider claims it even when it fails, and late
     `export default () => ({ apiVersion: 2, provider: 'shared', credentials: { variables: [] }, setup: async () => { throw new Error('setup failed'); } });`,
   );
   selectV2Plugin(home, 'b-duplicate', v2RegistrationSource('shared'));
-  selectV2Plugin(home, 'c-builtin-id', v2RegistrationSource('limrun'));
+  selectV2Plugin(home, 'c-builtin-id', v2RegistrationSource('builtin-provider'));
   selectV2Plugin(home, 'd-routing-id', v2RegistrationSource('proxy'));
   const registry = await startStore(env);
 
@@ -163,7 +166,7 @@ test('the first plugin to name a provider claims it even when it fails, and late
       ['d-routing-id', 'failed', 'reserved_provider'],
     ],
   );
-  assert.deepEqual(registry.claimedProviders, ['limrun', 'shared']);
+  assert.deepEqual(registry.claimedProviders, ['builtin-provider', 'shared']);
   await registry.close();
 });
 
@@ -180,7 +183,7 @@ test('a v1 manifest is dispatched before any factory runs and an incompatible on
   const { resolveProviderPlugins, claimProviderIds } = await import('./registry.ts');
   const { storePluginCandidates } = await import('./store.ts');
   const resolved = await resolveProviderPlugins([
-    ...claimProviderIds(['limrun']),
+    ...claimProviderIds(['builtin-provider']),
     ...(await storePluginCandidates(env)),
   ]);
 
@@ -330,7 +333,7 @@ test('connection callbacks run from a v1 plugin and always release its runtime',
 
   const profile = await withPluginConnection(
     'example',
-    ['limrun'],
+    ['builtin-provider'],
     env,
     async (connection) => await connection.resolve({ flags, stateDir: home, cwd: home, env }),
   );
@@ -340,7 +343,7 @@ test('connection callbacks run from a v1 plugin and always release its runtime',
   await assert.rejects(
     withPluginConnection(
       'example',
-      ['limrun'],
+      ['builtin-provider'],
       env,
       async (connection) => await connection.verify({ flags, env }),
     ),
@@ -371,7 +374,7 @@ test('a v2 plugin connection runs without setting up any runtime', async () => {
 
   const resolved = await withPluginConnection(
     'example',
-    ['limrun'],
+    ['builtin-provider'],
     env,
     async (connection) => await connection.resolve({ flags, stateDir: home, cwd: home, env }),
   );
@@ -379,7 +382,7 @@ test('a v2 plugin connection runs without setting up any runtime', async () => {
   assert.equal(resolved.profile.device, `${home}:function`);
   assert.ok(!fs.existsSync(marker));
   await assert.rejects(
-    withPluginConnection('missing', ['limrun'], env, async () => undefined),
+    withPluginConnection('missing', ['builtin-provider'], env, async () => undefined),
     { code: 'INVALID_ARGS' },
   );
 });
@@ -562,16 +565,16 @@ test('connect reuses the primed store instead of running every factory again', a
   const connect = async (provider: string) =>
     await withPluginConnection(
       provider,
-      ['limrun'],
+      ['builtin-provider'],
       env,
       async (connection) => await connection.resolve({ flags, stateDir: home, cwd: home, env }),
     );
 
-  await primePluginConnections(env, ['limrun']);
+  await primePluginConnections(env, ['builtin-provider']);
   await connect('counted');
   await connect('counted');
   assert.equal(fs.readFileSync(log, 'utf8'), 'x');
-  await assert.rejects(connect('limrun'), { code: 'INVALID_ARGS' });
+  await assert.rejects(connect('builtin-provider'), { code: 'INVALID_ARGS' });
   assert.equal(fs.readFileSync(log, 'utf8'), 'x'.repeat(2));
 });
 

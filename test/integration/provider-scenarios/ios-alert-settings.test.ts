@@ -300,7 +300,7 @@ function createRecordingPlatformRuntimeGateway(params: {
           },
           // R58 put `settings` behind the owner's own `setSetting` fact, so the scenario's
           // gateway states and serves that cell like any other. The Apple leg reuses the local
-          // family's implementation — the same shape Limrun's Android leg takes — so the simctl
+          // family's implementation, so the simctl
           // argument mapping this scenario asserts still runs through the recorded tool seam.
           setSetting: async (input) =>
             await interactor.setSetting(

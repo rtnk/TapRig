@@ -10,7 +10,7 @@ import { makeSessionStore } from '../../__tests__/support/store-factory.ts';
 import { providerCredentialsFixture } from '../../__tests__/support/provider-credentials-fixture.ts';
 
 const STATE_DIR = '/tmp/agent device state';
-const PROVIDERS = ['limrun', 'browserstack', 'testmu'] as const;
+const PROVIDERS = ['example-provider', 'browserstack', 'testmu'] as const;
 
 type LeaseBackend = 'ios-instance' | 'android-instance';
 
@@ -147,7 +147,7 @@ test('a lease compares the daemon fingerprint of the leased backend only', async
   };
   const allocate = async (leaseBackend: LeaseBackend, shellDigest: string) =>
     await allocateWithDaemonCredentials(
-      allocateRequest('limrun', shellDigest, leaseBackend),
+      allocateRequest('example-provider', shellDigest, leaseBackend),
       providerCredentials,
     );
 
@@ -157,18 +157,18 @@ test('a lease compares the daemon fingerprint of the leased backend only', async
     'provider-credentials-changed',
   );
   assert.deepEqual(requested, [
-    ['limrun', 'ios-instance'],
-    ['limrun', 'android-instance'],
+    ['example-provider', 'ios-instance'],
+    ['example-provider', 'android-instance'],
   ]);
 });
 
 test('a trimmed provider id is compared against the daemon credentials of the trimmed provider', async () => {
   const outcome = await allocateWithDaemonCredentials(
-    allocateRequest(' limrun ', shellFingerprint({ KEY: 'key-2' })),
+    allocateRequest(' example-provider ', shellFingerprint({ KEY: 'key-2' })),
     providerCredentialsFixture({ KEY: 'key-1' }, STATE_DIR),
   );
 
   assert.equal(outcome.allocations, 0);
   assert.equal(outcome.error?.details?.reason, 'provider-credentials-changed');
-  assert.equal(outcome.error?.details?.provider, 'limrun');
+  assert.equal(outcome.error?.details?.provider, 'example-provider');
 });

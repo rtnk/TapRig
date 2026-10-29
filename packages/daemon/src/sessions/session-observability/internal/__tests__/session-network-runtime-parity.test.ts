@@ -221,7 +221,7 @@ test('an explicit web provider preserves empty-success projection', async () => 
   });
 });
 
-test.each(['browserstack', 'aws-device-farm', 'limrun'] as const)(
+test.each(['browserstack', 'aws-device-farm', 'example-provider'] as const)(
   '%s exact provider preserves canonical app-log empty success',
   async (provider) => {
     const sessionStore = makeSessionStore();

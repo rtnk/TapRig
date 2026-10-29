@@ -14,13 +14,13 @@ test('journals and bounds a hung recoverable lease release before the final drai
   const lease = leaseRegistry.allocateLease({
     tenantId: 'tenant-a',
     runId: 'run-1',
-    leaseProvider: 'limrun',
+    leaseProvider: 'example-provider',
     retainOnClose: true,
   });
   const recoverExpiredLease = vi.fn(() => new Promise<void>(() => {}));
   const expiredProviderLeaseReleaser = createExpiredProviderLeaseReleaser({
     recoverExpiredLease,
-    recoverableProviderIds: ['limrun'],
+    recoverableProviderIds: ['example-provider'],
     stateDir,
   });
 

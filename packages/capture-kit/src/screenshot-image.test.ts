@@ -49,11 +49,11 @@ test('a PNG screenshot passes through byte for byte', () => {
 
 test('bytes that are neither container are refused with a typed error carrying the label', () => {
   expect(
-    thrownBy(() => transcodeScreenshotToPng(Buffer.from('GIF89a'), 'Limrun iOS screenshot')),
+    thrownBy(() => transcodeScreenshotToPng(Buffer.from('GIF89a'), 'Provider iOS screenshot')),
   ).toMatchObject({
     code: 'COMMAND_FAILED',
-    message: 'Limrun iOS screenshot is neither PNG nor JPEG',
-    details: { label: 'Limrun iOS screenshot', leadingBytes: '47494638' },
+    message: 'Provider iOS screenshot is neither PNG nor JPEG',
+    details: { label: 'Provider iOS screenshot', leadingBytes: '47494638' },
   });
 });
 
@@ -61,10 +61,12 @@ test('a valid SOI marker followed by garbage is refused with the typed decode er
   const garbage = Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.alloc(32, 0x41)]);
   expect(detectScreenshotImageFormat(garbage)).toBe('jpeg');
 
-  expect(thrownBy(() => transcodeScreenshotToPng(garbage, 'Limrun iOS screenshot'))).toMatchObject({
+  expect(
+    thrownBy(() => transcodeScreenshotToPng(garbage, 'Provider iOS screenshot')),
+  ).toMatchObject({
     code: 'COMMAND_FAILED',
-    message: 'Failed to decode Limrun iOS screenshot as JPEG',
-    details: { label: 'Limrun iOS screenshot', reason: expect.any(String) },
+    message: 'Failed to decode Provider iOS screenshot as JPEG',
+    details: { label: 'Provider iOS screenshot', reason: expect.any(String) },
   });
 });
 
@@ -73,10 +75,10 @@ test('a truncated JPEG body is refused with the same typed decode error', () => 
   const truncated = jpeg.data.subarray(0, 24);
 
   expect(
-    thrownBy(() => transcodeScreenshotToPng(truncated, 'Limrun iOS screenshot')),
+    thrownBy(() => transcodeScreenshotToPng(truncated, 'Provider iOS screenshot')),
   ).toMatchObject({
     code: 'COMMAND_FAILED',
-    message: 'Failed to decode Limrun iOS screenshot as JPEG',
+    message: 'Failed to decode Provider iOS screenshot as JPEG',
   });
 });
 

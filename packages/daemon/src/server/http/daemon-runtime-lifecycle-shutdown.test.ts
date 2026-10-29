@@ -522,7 +522,7 @@ test('daemon shutdown releases a session lease whose session teardown rejects', 
   const lease = leaseRegistry!.allocateLease({
     tenantId: 'tenant-a',
     runId: 'run-1',
-    leaseProvider: 'limrun',
+    leaseProvider: 'example-provider',
   });
   shutdownProbe.store!.publish('bound', {
     ...makeIosSession('bound'),
@@ -584,7 +584,7 @@ test('daemon shutdown releases a retainOnClose lease that no session holds', asy
     const lease = leaseRegistry!.allocateLease({
       tenantId: 'tenant-a',
       runId: 'run-1',
-      leaseProvider: 'limrun',
+      leaseProvider: 'example-provider',
       retainOnClose: true,
     });
 

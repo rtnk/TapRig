@@ -19,7 +19,7 @@ test('round-trips provider release and device claim records without lease creden
     tenantId: 'tenant-a',
     runId: 'run-1',
     backend: 'android-instance',
-    leaseProvider: 'limrun',
+    leaseProvider: 'example-provider',
     createdAt: 0,
     heartbeatAt: 0,
     expiresAt: 0,
@@ -34,8 +34,8 @@ test('round-trips provider release and device claim records without lease creden
     fs.writeFileSync(path.join(stateDir, 'daemon-shutdown.json'), JSON.stringify(report));
     expect(readDaemonShutdownReport(stateDir)).toEqual({
       providerReleases: {
-        released: [{ leaseId: lease.leaseId, provider: 'limrun' }],
-        pending: [{ leaseId: lease.leaseId, provider: 'limrun' }],
+        released: [{ leaseId: lease.leaseId, provider: 'example-provider' }],
+        pending: [{ leaseId: lease.leaseId, provider: 'example-provider' }],
       },
       claims: { released: [claim], orphaned: [], superseded: [claim], unattributable: [] },
     });

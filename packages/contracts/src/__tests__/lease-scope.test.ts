@@ -85,7 +85,7 @@ test('leaseScopeFromRequest prefers metadata and falls back to legacy flags', ()
     leaseScopeFromRequest({
       meta: {
         tenantId: 'tenant-meta',
-        leaseProvider: 'limrun',
+        leaseProvider: 'example-provider',
       },
       flags: {
         tenant: 'tenant-flag',
@@ -100,7 +100,7 @@ test('leaseScopeFromRequest prefers metadata and falls back to legacy flags', ()
       tenantId: 'tenant-meta',
       runId: 'run-flag',
       leaseId: 'lease-flag',
-      leaseProvider: 'limrun',
+      leaseProvider: 'example-provider',
       deviceKey: 'ios:SIM-001',
       clientId: 'client-a',
     },
@@ -189,7 +189,7 @@ test('findMissingProxyLeaseFields enforces complete proxy ownership scope', () =
   );
   assert.deepEqual(
     findMissingProxyLeaseFields({
-      leaseProvider: 'limrun',
+      leaseProvider: 'example-provider',
     }),
     [],
   );

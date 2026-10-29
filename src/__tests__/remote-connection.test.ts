@@ -2035,10 +2035,10 @@ test('disconnect after connect-only cleanup stays local when no session resource
     state: {
       session: 'adc-pending',
       remoteConfigPath,
-      tenant: 'limrun',
+      tenant: 'example-provider',
       runId: 'run-123',
       leaseBackend: 'android-instance',
-      leaseProvider: 'limrun',
+      leaseProvider: 'example-provider',
     },
   });
   let closeCalls = 0;

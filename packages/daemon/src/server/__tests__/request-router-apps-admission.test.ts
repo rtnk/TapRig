@@ -14,7 +14,7 @@ import { fakeCreateCommandSurface } from '../../__tests__/support/command-surfac
 function createAppsAdmissionHarness(apps: readonly string[] = []) {
   const listProviderApps = vi.fn(async () => apps);
   const providerAppCatalog = {
-    supports: vi.fn((provider: string) => provider === 'limrun'),
+    supports: vi.fn((provider: string) => provider === 'example-provider'),
     list: listProviderApps,
   };
   const inspectFacts = vi.fn(async () => {
@@ -73,7 +73,7 @@ test('tenant apps admits the runtime-declared catalog provider without device ac
   const { handler, listProviderApps, inspectFacts, bind } = createAppsAdmissionHarness([
     'Example.app.zip',
   ]);
-  const response = await handler(appsRequest('limrun'));
+  const response = await handler(appsRequest('example-provider'));
 
   expect(response).toEqual({ ok: true, data: { apps: ['Example.app.zip'] } });
   expect(listProviderApps).toHaveBeenCalledTimes(1);
@@ -83,7 +83,7 @@ test('tenant apps admits the runtime-declared catalog provider without device ac
 
 test('tenant apps treats an empty provider catalog as authoritative', async () => {
   const { handler, listProviderApps, inspectFacts, bind } = createAppsAdmissionHarness();
-  const response = await handler(appsRequest('limrun'));
+  const response = await handler(appsRequest('example-provider'));
 
   expect(response).toEqual({ ok: true, data: { apps: [] } });
   expect(listProviderApps).toHaveBeenCalledTimes(1);

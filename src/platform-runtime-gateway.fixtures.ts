@@ -29,7 +29,7 @@ import {
 export const gatewayFixtureDevice: DeviceInfo = {
   platform: 'apple',
   appleOs: 'ios',
-  id: 'limrun:ios:lease-a',
+  id: 'example-provider:ios:lease-a',
   name: 'Provider iOS',
   kind: 'simulator',
   target: 'mobile',
@@ -70,7 +70,7 @@ export function providerRuntimeFixture(options: {
 }): PlatformRuntimeProviderRegistration {
   const owner = runtimeOwnerFixture(options);
   const runtime: ProviderDeviceRuntime = {
-    provider: options.provider ?? 'limrun',
+    provider: options.provider ?? 'example-provider',
     leaseLifecycle: {},
     deviceInventoryProvider: async () => null,
     ownsDevice: options.ownsDevice ?? (() => true),
@@ -110,7 +110,7 @@ function binding(options: {
   const bindingDevice =
     options.mismatch === 'device' ? { ...gatewayFixtureDevice, id: 'wrong' } : gatewayFixtureDevice;
   const bindingOwner =
-    options.mismatch === 'owner' ? providerRuntimeOwner('limrun', 'wrong') : options.ref;
+    options.mismatch === 'owner' ? providerRuntimeOwner('example-provider', 'wrong') : options.ref;
   return {
     device: bindingDevice,
     owner: bindingOwner,
@@ -137,7 +137,7 @@ function unavailableFacts() {
   return {
     ...createUnavailableRuntimeFactsForTest(
       gatewayFixtureDevice,
-      providerRuntimeOwner('limrun', 'fixtures'),
+      providerRuntimeOwner('example-provider', 'fixtures'),
       unavailable,
     ).operations,
     ...unavailableDeploymentSnapshotAndShutdownOperationFacts,
