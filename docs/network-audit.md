@@ -47,7 +47,7 @@ jawnej komendy użytkownika.
 
 | ID | Komponent | Plik i linia | Co inicjuje połączenie | Cel połączenia | Dane | Automatyczne? | Decyzja | Uzasadnienie |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| NET-01 | CLI: update notifier | `src/cli/update-check.ts:178` (fetch), `:159` (detached worker), wywołanie `src/cli.ts:198` | Prawie każda komenda CLI z TTY na stderr, poza `help`/`test`/`--json`/`--version`, gdy brak `CI`, `NODE_ENV=test`, `AGENT_DEVICE_NO_UPDATE_NOTIFIER`; raz na 14 dni | `https://registry.npmjs.org/agent-device/{latest\|nightly}` | GET; IP hosta, nagłówki undici, wersja kanału | **TAK** (potwierdzone dynamicznie, §6) | REMOVE | Sprawdzanie aktualizacji jest wprost zabronione; nie jest potrzebne do automatyzacji |
+| NET-01 | CLI: update notifier | `src/cli/update-check.ts:178` (fetch), `:159` (detached worker), wywołanie `src/cli.ts:198` | Prawie każda komenda CLI z TTY na stderr, poza `help`/`test`/`--json`/`--version`, gdy brak `CI`, `NODE_ENV=test`, `AGENT_DEVICE_NO_UPDATE_NOTIFIER`; raz na 14 dni | `https://registry.npmjs.org/agent-device/{latest\|nightly}` | GET; IP hosta, nagłówki undici, wersja kanału | **TAK** (potwierdzone dynamicznie, §6) | REMOVE — **DONE w E2, PR #3** | Sprawdzanie aktualizacji jest wprost zabronione; nie jest potrzebne do automatyzacji |
 | NET-02 | CLI: logowanie do chmury agent-device | `src/cli/auth-session.ts:8` (`https://cloud.agent-device.dev`), `:455` (POST), `:233` (otwarcie przeglądarki), `:557` (`shouldUseCloudAuth`) | `auth login`; `connect` bez providera; każda komenda z `--daemon-base-url` w domenie `*.agent-device.dev` lub z `AGENT_DEVICE_CLOUD_AUTH`/`AGENT_DEVICE_CLOUD_BASE_URL` (odświeżanie sesji) | Control plane `cloud.agent-device.dev` (`/api/control-plane/device-auth/*`, `/cli-session/refresh`) | Kod urządzenia, refresh credential, access token (zapisywane w state dir) | **KONF.** (odświeżenie tokenu jest niejawne przy zapisanej sesji) | REMOVE | Integracja z usługą chmurową producenta |
 | NET-03 | CLI: profil połączenia chmurowego | `src/cli/connection/cloud-profile.ts:75`; domyślny provider: `src/cli/connection/connect-provider-adapters.ts:128` | **`connect` bez argumentów** domyślnie wybiera providera `cloud` | `GET {cloud}/api/control-plane/connection-profile` z `Bearer` | Token, identyfikator klienta | NIE (ale domyślne zachowanie `connect`) — potwierdzone dynamicznie, §6 | REMOVE | Chmura producenta; przypadkowe uruchomienie najprostszą komendą |
 | NET-04 | Provider BrowserStack | `packages/provider-webdriver/src/browserstack.ts:61-65`, `browserstack-connection-verification.ts:12-14`, transport `webdriver-transport.ts:241`, upload `webdriver-utils.ts:109,217,270` | `connect browserstack`, potem `open`/`install`/`artifacts`… ; także `leaseProvider` w SDK i w pliku konfiguracji | `hub-cloud.browserstack.com`, `api-cloud.browserstack.com` | Poświadczenia (Basic), **upload binarki aplikacji**, polecenia WebDriver, screenshoty, pobieranie artefaktów sesji | KONF./NIE | REMOVE | Dostawca chmurowy |
@@ -117,6 +117,8 @@ jawnej komendy użytkownika.
 ## 3. Szczegółowy opis mechanizmów
 
 ### 3.1. NET-01 — sprawdzanie aktualizacji (potwierdzone w kodzie i dynamicznie)
+
+> **Stan: usunięte w E2 (PR #3).** Opis poniżej dotyczy commita bazowego.
 
 Ścieżka: `bin/agent-device.mjs` → `dist/src/internal/bin.js` (`src/bin.ts`) → `runEntry`
 (`src/cli/entry.ts:36-64`) → `runCli` → `runCliOnHost` (`src/cli.ts:146`) →
@@ -449,3 +451,21 @@ E1 dodał dwie kontrole, które pilnują tego stanu i wymuszają aktualizację w
 - Harness failuje przy nowym naruszeniu i gdy oczekiwane naruszenie zniknie — E2 musi usunąć
   wpis NET-01 z `expectations.json`.
 
+## 9. Stan po Etapie 2
+
+E2 (PR #3) usunął NET-01: `src/cli/update-check.ts`, `src/cli/update-check-entry.ts`, ich
+testy, wywołanie w `src/cli.ts`, wpis `internal/update-check-entry` w `tsdown.config.ts` i
+zmienną `AGENT_DEVICE_NO_UPDATE_NOTIFIER` (skrypty, testy, `.fallowrc.json`, `website/docs`).
+Brak `registry.npmjs.org` w `src/`, `packages/` i `dist/`; brak `update-check-entry.js` w
+`dist/`. Test `src/__tests__/cli-no-update-check.test.ts`: `runCli` z TTY na stderr i czystym
+state dir nie uruchamia odłączonego procesu i nie tworzy `update-check.json`.
+
+- Strażnik statyczny: usunięte 3 wpisy NET-01 (`src/cli/update-check.ts`: `fetch`,
+  `forbidden-marker`, `url-literal`). Stan: **391 wystąpień w 171 wpisach (81 `REMOVE`),
+  30 identyfikatorów**. Nowych wpisów brak.
+- Harness offline: `expectations.json` jest pusty. Wszystkie scenariusze (`version`,
+  `help-commands`, `devices-android-tty`, `devices-android-no-tty`, `mcp`) — **0 naruszeń**,
+  wynik PASS. W `devices-android-tty` jedynymi zdarzeniami gniazd są połączenia z daemonem na
+  `127.0.0.1`.
+- Poza `src/`/`packages/`: `scripts/release-plan.mjs` nadal odpytuje `registry.npmjs.org` —
+  to narzędzie wydań upstream (workflow `release.yml` usunięty w E1), nie runtime; zakres E11.

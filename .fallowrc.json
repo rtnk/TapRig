@@ -35,7 +35,6 @@
     // subprocess (test/integration/daemon-replace-exit-flush.test.ts), so
     // dependency analysis cannot follow the runCmdSync string path to it.
     "test/integration/support/exit-after-flush.ts",
-    "src/cli/update-check-entry.ts",
     // TapRig offline harness: run.sh invokes the trace classifier with `node`.
     "scripts/taprig/offline-harness/check.mjs",
     "examples/sdk/client-session.ts",

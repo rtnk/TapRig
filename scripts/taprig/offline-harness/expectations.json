@@ -1,13 +1,4 @@
 {
-  "$comment": "Known violations of the offline harness (run.sh, check.mjs). An entry matches violations of one scenario/log whose process command line contains `process`. The harness fails on any other violation and when an entry matches nothing. Remove an entry in the stage that removes its mechanism.",
-  "expected": [
-    {
-      "id": "NET-01",
-      "scenario": "devices-android-tty",
-      "log": "trace",
-      "process": "--agent-device-run-update-check",
-      "status": "expected until E2",
-      "reason": "With a TTY on stderr and a fresh state dir, the CLI spawns the detached update-check worker, which resolves registry.npmjs.org (DNS). E2 removes the update check; delete this entry there."
-    }
-  ]
+  "$comment": "Known violations of the offline harness (run.sh, check.mjs). An entry matches violations of one scenario/log whose process command line contains `process`. The harness fails on any other violation and when an entry matches nothing. Remove an entry in the stage that removes its mechanism. E2 removed the only entry (NET-01, update check); every scenario must now run without violations.",
+  "expected": []
 }

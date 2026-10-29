@@ -45,7 +45,6 @@ import {
 } from '@agent-device/host-kit/diagnostics';
 import { applyDefaultPlatformBinding, resolveBindingSettings } from './cli/session-binding.ts';
 import { resolveCliOptions } from './cli/resolve-cli-options.ts';
-import { maybeRunUpgradeNotifier } from './cli/update-check.ts';
 import {
   resolveRemoteConnectionDefaults,
   type RemoteConnectionRequestMetadata,
@@ -195,12 +194,6 @@ async function runCliOnHost(argv: string[], deps: CliDeps, host: HostEnvironment
           );
           return;
         }
-        maybeRunUpgradeNotifier({
-          command,
-          currentVersion: version,
-          stateDir: ctx.daemonPaths.baseDir,
-          flags: ctx.effectiveFlags,
-        });
         await resolveRemoteContext(ctx, transport);
         registerDaemonAuthDiagnosticValue(ctx.effectiveFlags);
         if (command === 'cdp') {

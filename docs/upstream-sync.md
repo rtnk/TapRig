@@ -74,7 +74,7 @@ przenoś ręcznie.
 
 | Obszar | Pliki (stan bazowy) | Etap | Uwagi |
 | --- | --- | --- | --- |
-| Update check | `src/cli/update-check*.ts`, wywołanie w `src/cli.ts`, wpis `internal/update-check-entry` w `tsdown.config.ts` | E2 | |
+| Update check | `src/cli/update-check*.ts`, wywołanie w `src/cli.ts`, wpis `internal/update-check-entry` w `tsdown.config.ts`, `AGENT_DEVICE_NO_UPDATE_NOTIFIER` | E2 — **usunięty** (PR #3) | Merge przywracający te pliki lub wywołanie: usuń je ponownie; strażnik zgłosi `registry.npmjs.org` jako `unlisted` |
 | Chmura agent-device | `src/cli/auth-session.ts`, `src/cli/cloud-response.ts`, `src/cli/browser-launch.ts`, `src/cli/connection/cloud-profile.ts`, `src/cli/commands/auth.ts`, `connect-provider-adapters.ts` | E3 | `src/cli.ts` (`resolveRemoteContext`) jest wspólny |
 | Limrun | `packages/provider-limrun/`, `src/provider-limrun-*.ts`, `src/sdk/limrun*.ts`, `src/vendor/limrun-*.ts`, typy `'limrun-ios-tree'` | E4a | Typy snapshotów iOS są wspólne z lokalnym iOS |
 | WebDriver (BrowserStack, AWS DF) | `packages/provider-webdriver/`, `src/provider-webdriver.ts`, `src/sdk/plugin-webdriver.ts`, flagi `--provider-*`/`--aws-*` | E4b | |

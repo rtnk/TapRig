@@ -1284,33 +1284,6 @@
       "reason": "Limrun provider wiring, SDK export and profile (E4a)."
     },
     {
-      "file": "src/cli/update-check.ts",
-      "rule": "fetch",
-      "token": "fetch(",
-      "count": 1,
-      "ids": ["NET-01"],
-      "decision": "REMOVE",
-      "reason": "Background update check fetches registry.npmjs.org (E2)."
-    },
-    {
-      "file": "src/cli/update-check.ts",
-      "rule": "forbidden-marker",
-      "token": "registry.npmjs.org",
-      "count": 1,
-      "ids": ["NET-01"],
-      "decision": "REMOVE",
-      "reason": "Background update check fetches registry.npmjs.org (E2)."
-    },
-    {
-      "file": "src/cli/update-check.ts",
-      "rule": "url-literal",
-      "token": "https://registry.npmjs.org",
-      "count": 1,
-      "ids": ["NET-01"],
-      "decision": "REMOVE",
-      "reason": "Background update check fetches registry.npmjs.org (E2)."
-    },
-    {
       "file": "src/commands/capture/alert.ts",
       "rule": "forbidden-marker",
       "token": "limrun",
