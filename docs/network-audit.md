@@ -48,8 +48,8 @@ jawnej komendy użytkownika.
 | ID | Komponent | Plik i linia | Co inicjuje połączenie | Cel połączenia | Dane | Automatyczne? | Decyzja | Uzasadnienie |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | NET-01 | CLI: update notifier | `src/cli/update-check.ts:178` (fetch), `:159` (detached worker), wywołanie `src/cli.ts:198` | Prawie każda komenda CLI z TTY na stderr, poza `help`/`test`/`--json`/`--version`, gdy brak `CI`, `NODE_ENV=test`, `AGENT_DEVICE_NO_UPDATE_NOTIFIER`; raz na 14 dni | `https://registry.npmjs.org/agent-device/{latest\|nightly}` | GET; IP hosta, nagłówki undici, wersja kanału | **TAK** (potwierdzone dynamicznie, §6) | REMOVE — **DONE w E2, PR #3** | Sprawdzanie aktualizacji jest wprost zabronione; nie jest potrzebne do automatyzacji |
-| NET-02 | CLI: logowanie do chmury agent-device | `src/cli/auth-session.ts:8` (`https://cloud.agent-device.dev`), `:455` (POST), `:233` (otwarcie przeglądarki), `:557` (`shouldUseCloudAuth`) | `auth login`; `connect` bez providera; każda komenda z `--daemon-base-url` w domenie `*.agent-device.dev` lub z `AGENT_DEVICE_CLOUD_AUTH`/`AGENT_DEVICE_CLOUD_BASE_URL` (odświeżanie sesji) | Control plane `cloud.agent-device.dev` (`/api/control-plane/device-auth/*`, `/cli-session/refresh`) | Kod urządzenia, refresh credential, access token (zapisywane w state dir) | **KONF.** (odświeżenie tokenu jest niejawne przy zapisanej sesji) | REMOVE | Integracja z usługą chmurową producenta |
-| NET-03 | CLI: profil połączenia chmurowego | `src/cli/connection/cloud-profile.ts:75`; domyślny provider: `src/cli/connection/connect-provider-adapters.ts:128` | **`connect` bez argumentów** domyślnie wybiera providera `cloud` | `GET {cloud}/api/control-plane/connection-profile` z `Bearer` | Token, identyfikator klienta | NIE (ale domyślne zachowanie `connect`) — potwierdzone dynamicznie, §6 | REMOVE | Chmura producenta; przypadkowe uruchomienie najprostszą komendą |
+| NET-02 | CLI: logowanie do chmury agent-device | `src/cli/auth-session.ts:8` (`https://cloud.agent-device.dev`), `:455` (POST), `:233` (otwarcie przeglądarki), `:557` (`shouldUseCloudAuth`) | `auth login`; `connect` bez providera; każda komenda z `--daemon-base-url` w domenie `*.agent-device.dev` lub z `AGENT_DEVICE_CLOUD_AUTH`/`AGENT_DEVICE_CLOUD_BASE_URL` (odświeżanie sesji) | Control plane `cloud.agent-device.dev` (`/api/control-plane/device-auth/*`, `/cli-session/refresh`) | Kod urządzenia, refresh credential, access token (zapisywane w state dir) | **KONF.** (odświeżenie tokenu jest niejawne przy zapisanej sesji) | REMOVE — **DONE w E3, PR #4** | Integracja z usługą chmurową producenta |
+| NET-03 | CLI: profil połączenia chmurowego | `src/cli/connection/cloud-profile.ts:75`; domyślny provider: `src/cli/connection/connect-provider-adapters.ts:128` | **`connect` bez argumentów** domyślnie wybiera providera `cloud` | `GET {cloud}/api/control-plane/connection-profile` z `Bearer` | Token, identyfikator klienta | NIE (ale domyślne zachowanie `connect`) — potwierdzone dynamicznie, §6 | REMOVE — **DONE w E3, PR #4** | Chmura producenta; przypadkowe uruchomienie najprostszą komendą |
 | NET-04 | Provider BrowserStack | `packages/provider-webdriver/src/browserstack.ts:61-65`, `browserstack-connection-verification.ts:12-14`, transport `webdriver-transport.ts:241`, upload `webdriver-utils.ts:109,217,270` | `connect browserstack`, potem `open`/`install`/`artifacts`… ; także `leaseProvider` w SDK i w pliku konfiguracji | `hub-cloud.browserstack.com`, `api-cloud.browserstack.com` | Poświadczenia (Basic), **upload binarki aplikacji**, polecenia WebDriver, screenshoty, pobieranie artefaktów sesji | KONF./NIE | REMOVE | Dostawca chmurowy |
 | NET-05 | Provider AWS Device Farm | `packages/provider-webdriver/src/aws-device-farm.ts:339` (`aws devicefarm …` jako proces potomny), artefakty `aws-device-farm-artifacts.ts`, WebDriver jak NET-04 | `connect aws-device-farm` + komendy sesji | AWS API (przez AWS CLI i łańcuch poświadczeń AWS), endpoint WebDriver sesji zdalnej | ARN-y, poświadczenia AWS (pośrednio), polecenia, artefakty | KONF./NIE | REMOVE | Dostawca chmurowy |
 | NET-06 | Provider TestMu AI (LambdaTest) | `packages/provider-testmu/src/testmu.ts:27-34`, `testmu-webdriver.ts:25`; katalog `src/commands/provider-plugin-catalog.ts:8`; pomoc `src/commands/schema/cli-help.ts:584` | `plugins add @agent-device/testmu` + `connect testmu` | `manual-api.lambdatest.com`, `mobile-api.lambdatest.com`, `mobile-hub.lambdatest.com` | `LT_USERNAME`/`LT_ACCESS_KEY`, **upload aplikacji**, polecenia, artefakty | NIE | REMOVE | Dostawca chmurowy (dystrybuowany jako plugin npm) |
@@ -143,6 +143,8 @@ dokumentacji. Test: brak połączeń innych niż loopback w harnessie z §6 dla 
 z TTY i czystym state dir; brak pliku `update-check.json`.
 
 ### 3.2. NET-02/03 — chmura agent-device (control plane)
+
+> **Stan: usunięte w E3 (PR #4), §10.** Opis poniżej dotyczy commita bazowego.
 
 `connect` bez providera: `src/cli/commands/connection.ts` → `resolveConnectProviderProfile`
 (`src/cli/connection/connect-provider-adapters.ts:101-142`) → `provider = options.provider ??
@@ -469,3 +471,39 @@ state dir nie uruchamia odłączonego procesu i nie tworzy `update-check.json`.
   `127.0.0.1`.
 - Poza `src/`/`packages/`: `scripts/release-plan.mjs` nadal odpytuje `registry.npmjs.org` —
   to narzędzie wydań upstream (workflow `release.yml` usunięty w E1), nie runtime; zakres E11.
+
+## 10. Stan po Etapie 3
+
+E3 (PR #4) usunął NET-02 i NET-03: `src/cli/auth-session.ts`, `src/cli/cloud-response.ts`,
+`src/cli/browser-launch.ts` (jedynym użytkownikiem był przepływ logowania),
+`src/cli/connection/cloud-profile.ts`, komendę `auth` (`src/cli/commands/auth.ts`, router,
+deskryptor w `packages/command-registry/src/registry.ts`, pomoc w `command-overrides.ts`),
+adapter `cloud` w `connect-provider-adapters.ts`, wywołanie `resolveRemoteAuthForCli` w
+`src/cli.ts`, flagę `--no-login`, zmienne `AGENT_DEVICE_CLOUD_AUTH` i
+`AGENT_DEVICE_CLOUD_BASE_URL`, `'cloud'` z `ROUTING_PROVIDER_IDENTITIES`, pomoc „Cloud profile
+flow” i opis w `website/docs/docs/{commands,configuration}.md`. Testy tych modułów usunięto.
+
+- `connect` bez providera, bez `--remote-config` i bez skrótu `proxy` (`--daemon-base-url` z
+  ścieżką `/agent-device`) kończy się `INVALID_ARGS` „connect requires a provider”
+  (`details.reason: "connect-provider-required"`), zanim powstanie jakiekolwiek połączenie —
+  także z `AGENT_DEVICE_DAEMON_AUTH_TOKEN` w env. Test:
+  `src/__tests__/cli-connect-requires-provider.test.ts` (bez `fetch`, bez `runCmd`/
+  `runCmdDetached`, bez żądań do daemona; `auth login` → „Unknown command: auth”). Na kodzie
+  sprzed E3 oba testy failują (`connect` wywołuje `fetch`, `auth login` uruchamia logowanie).
+- Token daemona z `--daemon-auth-token`/`AGENT_DEVICE_DAEMON_AUTH_TOKEN` nadal czyta klient
+  daemona (`src/daemon-client/daemon-client-lifecycle.ts`) — tryb zdalny usuwa E6c (D-04).
+- Zostaje: `'cloud'` w `RUNTIME_LESS_LEASE_PROVIDERS` (`packages/contracts/src/lease-scope.ts`,
+  stała `CLOUD_LEASE_PROVIDER` już nieeksportowana). To kontrakt dopuszczenia dzierżaw po stronie
+  daemona (`packages/daemon/src/sessions/handlers/lease.ts`): daemon przyjmuje dzierżawę
+  `leaseProvider: "cloud"` od zdalnego klienta bez runtime'u providera. Lokalny CLI po E3 nie
+  wysyła tej wartości. Zmiana dotyczy endpointów dla zdalnych klientów — D-19 / E6d.
+- Brak `agent-device.dev` w `src/`, `packages/` i `dist/` (`grep -rlF agent-device.dev dist/`
+  → brak; fixture testu redakcji w `packages/host-kit/src/internal/diagnostics.test.ts` używa
+  teraz hostów `example.com`).
+- Strażnik statyczny: usunięte 4 wpisy (`src/cli/auth-session.ts`: `fetch`, `forbidden-marker`,
+  `url-literal`; `src/cli/connection/cloud-profile.ts`: `fetch`). Stan: **366 wystąpień w
+  167 wpisach (77 `REMOVE`), 28 identyfikatorów**. Nowych wpisów brak.
+- Harness offline: nowy scenariusz `connect-no-provider` (`agent-device connect` z
+  `AGENT_DEVICE_DAEMON_AUTH_TOKEN=<atrapa>`). Przed E3: 6 zapytań DNS (`8.8.8.8:53`,
+  `8.8.4.4:53`) procesu `agent-device connect`, błąd `fetch failed`. Po E3: `INVALID_ARGS`,
+  0 zdarzeń gniazd. `expectations.json` pusty; wszystkie scenariusze — **0 naruszeń**, PASS.
