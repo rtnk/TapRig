@@ -1106,16 +1106,7 @@ agent-device trace stop session.trace
 
 ## Remote Metro workflow
 
-When the cloud control plane owns the connection profile, `connect` discovers it:
-
-```bash
-agent-device connect
-agent-device open com.example.myapp --relaunch
-agent-device snapshot -i
-agent-device disconnect
-```
-
-For local profile files, create an `agent-device.remote.json`:
+`connect` needs a provider positional or a profile file. For a profile file, create an `agent-device.remote.json`:
 
 ```json
 {
@@ -1148,9 +1139,8 @@ agent-device snapshot --remote-config ./agent-device.remote.json -i
 agent-device disconnect --remote-config ./agent-device.remote.json
 ```
 
-- `connect` fetches the cloud connection profile; `connect --remote-config <path>` uses a local profile with the host, tenant/run, and optional session, platform, lease backend, and Metro settings. Both save connection state and defer the device lease and Metro preparation until a command needs them (including a `batch` step that opens an app). Direct-provider profiles need their provider credentials when `connect` runs. Cloud profiles must be a JSON object at `connection.remoteConfigProfile`; the older `connection.remoteConfig` string is rejected.
-- Cloud auth: `connect` refreshes a stored CLI session into a short-lived `adc_agent_...` token. Without a session, interactive shells start login; CI and non-interactive shells fail with API-token setup instructions. `--no-login` disables implicit login. Use `adc_live_...` service tokens for CI. Manage the CLI session with `agent-device auth status`, `auth login`, and `auth logout`; login never stores an `adc_live_...` token.
-- `AGENT_DEVICE_CLOUD_BASE_URL` is the bridge/control-plane API origin, not necessarily the dashboard; its `/api-keys` route may redirect to the dashboard.
+- `connect --remote-config <path>` uses a local profile with the host, tenant/run, and optional session, platform, lease backend, and Metro settings. It saves connection state and defers the device lease and Metro preparation until a command needs them (including a `batch` step that opens an app). Direct-provider profiles need their provider credentials when `connect` runs.
+- `connect` without a provider or `--remote-config` fails with `INVALID_ARGS` (`details.reason: "connect-provider-required"`) before it opens any connection. There is no cloud login and no `auth` command.
 - `connect` without `--session` always creates a fresh remote session and prints the generated `--session`. Concurrent processes must pass that value on every command; the active-connection fallback is only for one sequential workflow. To replace a connection, pass `--session <name> --force`; `--force` without a session adds a connection without releasing the previous one.
 - After `connect`, normal commands (`install-from-source`, `open`, `snapshot`, `press`, `screenshot`, and others) reuse the connection state. `connection status` shows `leaseId=pending` until the first platform-bound command allocates the lease. Explicit flags override connected defaults; `open` with explicit remote flags but no saved runtime hints warns that React Native apps may launch without Metro hints.
 - End with `disconnect` (or `disconnect --remote-config <path>`) to release the lease and stop the Metro companion owned by the connection. It does not stop your Metro server.

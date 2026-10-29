@@ -637,19 +637,19 @@ test('parseArgs scopes daemon and device flags to supported commands', () => {
 
   assert.throws(
     () =>
-      parseArgs(['auth', 'status', '--ios-xctestrun-file', './runner.xctestrun'], {
+      parseArgs(['daemon', 'status', '--ios-xctestrun-file', './runner.xctestrun'], {
         strictFlags: true,
       }),
-    /not supported for command auth/,
+    /not supported for command daemon/,
   );
 
   assert.throws(
-    () => parseArgs(['auth', 'status', '--platform', 'ios'], { strictFlags: true }),
-    /not supported for command auth/,
+    () => parseArgs(['daemon', 'status', '--platform', 'ios'], { strictFlags: true }),
+    /not supported for command daemon/,
   );
 });
 
-test('parseArgs recognizes connect lease backend force and no-login flags', () => {
+test('parseArgs recognizes connect lease backend and force flags', () => {
   const parsed = parseArgs(
     [
       'connect',
@@ -662,7 +662,6 @@ test('parseArgs recognizes connect lease backend force and no-login flags', () =
       '--lease-backend',
       'android-instance',
       '--force',
-      '--no-login',
     ],
     { strictFlags: true },
   );
@@ -670,7 +669,6 @@ test('parseArgs recognizes connect lease backend force and no-login flags', () =
   assert.equal(parsed.flags.remoteConfig, './remote.json');
   assert.equal(parsed.flags.leaseBackend, 'android-instance');
   assert.equal(parsed.flags.force, true);
-  assert.equal(parsed.flags.noLogin, true);
 });
 
 test('parseArgs preserves connect proxy provider positional', () => {
@@ -681,12 +679,6 @@ test('parseArgs preserves connect proxy provider positional', () => {
   assert.equal(parsed.command, 'connect');
   assert.deepEqual(parsed.positionals, ['proxy']);
   assert.equal(parsed.flags.daemonBaseUrl, 'http://host:4310/agent-device');
-});
-
-test('parseArgs preserves connect cloud provider positional', () => {
-  const parsed = parseArgs(['connect', 'cloud'], { strictFlags: true });
-  assert.equal(parsed.command, 'connect');
-  assert.deepEqual(parsed.positionals, ['cloud']);
 });
 
 test('parseArgs recognizes connect browserstack provider flags', () => {
@@ -790,19 +782,6 @@ test('parseArgs recognizes connect aws-device-farm provider flags', () => {
   assert.equal(parsed.flags.awsAppArn, 'app-arn');
   assert.equal(parsed.flags.awsRegion, 'us-west-2');
   assert.equal(parsed.flags.awsInteractionMode, 'INTERACTIVE');
-});
-
-test('parseArgs accepts auth management subcommands', () => {
-  const status = parseArgs(['auth', 'status'], { strictFlags: true });
-  assert.equal(status.command, 'auth');
-  assert.deepEqual(status.positionals, ['status']);
-
-  const login = parseArgs(['auth', 'login', '--remote-config', './remote.json'], {
-    strictFlags: true,
-  });
-  assert.equal(login.command, 'auth');
-  assert.deepEqual(login.positionals, ['login']);
-  assert.equal(login.flags.remoteConfig, './remote.json');
 });
 
 test('parseArgs accepts proxy command flags', () => {

@@ -20,7 +20,7 @@ test('option schema exposes config/env metadata for global options', () => {
   assert.deepEqual(spec.env.names, ['AGENT_DEVICE_PLATFORM']);
   assert.equal(spec.supportsCommand('open'), true);
   assert.equal(spec.supportsCommand('snapshot'), true);
-  assert.equal(spec.supportsCommand('auth'), false);
+  assert.equal(spec.supportsCommand('daemon'), false);
 });
 
 test('option schema exposes env defaults and command scoping', () => {
@@ -39,7 +39,7 @@ test('option schema exposes env defaults and command scoping', () => {
   assert.deepEqual(iosXctestrunFile.env.names, ['AGENT_DEVICE_IOS_XCTESTRUN_FILE']);
   assert.equal(iosXctestrunFile.supportsCommand('open'), true);
   assert.equal(iosXctestrunFile.supportsCommand('snapshot'), true);
-  assert.equal(iosXctestrunFile.supportsCommand('auth'), false);
+  assert.equal(iosXctestrunFile.supportsCommand('daemon'), false);
 
   const iosXctestDerivedDataPath = getOptionSpec('iosXctestDerivedDataPath');
   assert.ok(iosXctestDerivedDataPath);
@@ -102,9 +102,9 @@ test('isFlagSupportedForCommand consults option schema support map', () => {
   assert.equal(isFlagSupportedForCommand('snapshotDepth', 'snapshot'), true);
   assert.equal(isFlagSupportedForCommand('snapshotDepth', 'open'), false);
   assert.equal(isFlagSupportedForCommand('platform', 'open'), true);
-  assert.equal(isFlagSupportedForCommand('platform', 'auth'), false);
+  assert.equal(isFlagSupportedForCommand('platform', 'daemon'), false);
   assert.equal(isFlagSupportedForCommand('iosXctestrunFile', 'open'), true);
-  assert.equal(isFlagSupportedForCommand('iosXctestrunFile', 'auth'), false);
+  assert.equal(isFlagSupportedForCommand('iosXctestrunFile', 'daemon'), false);
   assert.equal(isFlagSupportedForCommand('delayMs', 'type'), true);
   assert.equal(isFlagSupportedForCommand('delayMs', 'fill'), true);
   assert.equal(isFlagSupportedForCommand('delayMs', 'press'), false);

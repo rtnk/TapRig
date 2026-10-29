@@ -10,11 +10,6 @@
         "count": 1
       }
     },
-    "src/cli/auth-session.ts": {
-      "complexity_moderate": {
-        "count": 1
-      }
-    },
     "src/cli/parser/args.ts": {
       "complexity_critical": {
         "count": 1

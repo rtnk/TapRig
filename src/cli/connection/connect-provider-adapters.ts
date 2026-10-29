@@ -8,7 +8,6 @@ import { AppError } from '@agent-device/kernel/errors';
 import { resolveRemoteConfigProfile } from '@agent-device/remote/remote-config';
 import { type EnvMap } from '@agent-device/kernel/source-value';
 
-import { resolveCloudConnectProfile } from './cloud-profile.ts';
 import { resolveLimrunConnectProfile } from './limrun-profile.ts';
 import { readLimrunCredentials } from '../../provider-limrun-credentials.ts';
 import { resolveProxyConnectProfile } from './proxy-profile.ts';
@@ -54,17 +53,7 @@ type ConnectProviderAdapter = {
 };
 
 /** Providers whose profile the CLI composes itself; every other provider supplies connection callbacks. */
-const CONNECT_PROVIDER_ADAPTERS: Readonly<
-  Record<'cloud' | 'proxy' | 'limrun', ConnectProviderAdapter>
-> = {
-  cloud: {
-    resolve: resolveCloudConnectProfile,
-    verify: async () => ({
-      service: 'the configured cloud service',
-      status: 'verified',
-      verificationMessage: 'Credentials and connection profile verified.',
-    }),
-  },
+const CONNECT_PROVIDER_ADAPTERS: Readonly<Record<'proxy' | 'limrun', ConnectProviderAdapter>> = {
   proxy: {
     resolve: resolveProxyConnectProfile,
     verify: async () => ({
@@ -125,7 +114,13 @@ export async function resolveConnectProviderProfile(options: {
     };
   }
   const provider =
-    options.provider ?? (shouldUseProxyConnectShortcut(options.flags) ? 'proxy' : 'cloud');
+    options.provider ?? (shouldUseProxyConnectShortcut(options.flags) ? 'proxy' : undefined);
+  if (provider === undefined) {
+    throw new AppError('INVALID_ARGS', 'connect requires a provider', {
+      reason: 'connect-provider-required',
+      hint: 'Pass a provider positional or --remote-config <path>. Run agent-device help connect for the providers.',
+    });
+  }
   const context = {
     flags: options.flags,
     stateDir: options.stateDir,

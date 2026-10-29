@@ -49,7 +49,6 @@ import {
   resolveRemoteConnectionDefaults,
   type RemoteConnectionRequestMetadata,
 } from '@agent-device/remote/remote-connection-state';
-import { resolveRemoteAuthForCli } from './cli/auth-session.ts';
 import type { FlagKey } from '@agent-device/command-registry/flag-types';
 import type { CliFlags } from '@agent-device/contracts/command';
 import type { SessionRuntimeHints } from '@agent-device/kernel/contracts';
@@ -425,16 +424,6 @@ async function resolveRemoteContext(
     ctx.parsedBatchSteps = readBatchSteps(ctx.flags);
   }
 
-  if (shouldResolveRemoteAuth(ctx.command)) {
-    const authResolution = await resolveRemoteAuthForCli({
-      command: ctx.command,
-      flags: ctx.effectiveFlags,
-      stateDir: ctx.daemonPaths.baseDir,
-      env: ctx.host.env,
-    });
-    ctx.effectiveFlags = authResolution.flags;
-  }
-
   if (ctx.effectiveFlags.remoteConfig && shouldMaterializeRemoteConnection(ctx.command)) {
     const materializationClient = createAgentDeviceClient(buildClientConfig(ctx), {
       host: ctx.host,
@@ -786,17 +775,6 @@ function resolveActiveConnectionDefaults(options: {
 
 function shouldMaterializeRemoteConnection(command: string): boolean {
   return !REMOTE_MATERIALIZATION_DEFERRED_COMMANDS.has(command);
-}
-
-function shouldResolveRemoteAuth(command: string): boolean {
-  return (
-    command !== 'auth' &&
-    command !== 'connection' &&
-    command !== 'daemon' &&
-    command !== 'plugins' &&
-    command !== 'device' &&
-    command !== 'proxy'
-  );
 }
 
 function shouldWarnOpenMayMissRemoteRuntime(options: {

@@ -3,11 +3,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { connectCommand } from '../cli/commands/connection.ts';
-import { resolveCloudAccessForConnect } from '../cli/auth-session.ts';
 import { beginStdoutCapture } from './test-utils/stream-capture.ts';
 import { runCliCapture } from './cli-capture.ts';
 import {
-  hashRemoteConfigFile,
   readActiveConnectionState,
   readRemoteConnectionState,
   type RemoteConnectionState,
@@ -29,11 +27,6 @@ import { connectWithGeneratedProviderProfile } from './test-utils/connect-comman
 
 bindTestCommandHost();
 
-vi.mock('../cli/auth-session.ts', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../cli/auth-session.ts')>()),
-  resolveCloudAccessForConnect: vi.fn(),
-}));
-
 vi.mock('@agent-device/provider-limrun', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@agent-device/provider-limrun')>()),
   verifyLimrunConnection: vi.fn(),
@@ -52,7 +45,6 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-const mockedResolveCloudAccessForConnect = vi.mocked(resolveCloudAccessForConnect);
 const mockedVerifyLimrunConnection = vi.mocked(verifyLimrunConnection);
 const mockedVerifyBrowserStackConnection = vi.mocked(verifyBrowserStackConnection);
 const mockedVerifyAwsDeviceFarmConnection = vi.mocked(verifyAwsDeviceFarmConnection);
@@ -102,61 +94,6 @@ beforeEach(() => {
         'No app upload is attached; AWS Device Farm does not support install after allocation.',
     },
   }));
-});
-
-test('connect without remote config generates one from cloud connection profile', async () => {
-  const tempRoot = mkdtempForTestSync('agent-device-connect-cloud-');
-  const stateDir = path.join(tempRoot, '.state');
-  const fetchMock = mockCloudConnectionProfile({
-    remoteConfigProfile: {
-      daemonBaseUrl: 'https://bridge.example.com/agent-device',
-      daemonTransport: 'http',
-      tenant: 'acme',
-      runId: 'demo-run-001',
-      sessionIsolation: 'tenant',
-      metroKind: 'auto',
-      metroPublicBaseUrl: 'http://127.0.0.1:8081',
-      metroProxyBaseUrl: 'https://bridge.example.com',
-    },
-  });
-
-  try {
-    await connectWithGeneratedCloudProfile(stateDir);
-    await connectWithGeneratedCloudProfile(stateDir);
-
-    assertGeneratedProfileState(readRequiredActiveState(stateDir));
-    assert.equal(
-      fetchProfileUrl(fetchMock),
-      'https://cloud.example/api/control-plane/connection-profile',
-    );
-    assert.equal(fetchMock.mock.calls.length, 2);
-  } finally {
-    fs.rmSync(tempRoot, { recursive: true, force: true });
-  }
-});
-
-test('cloud connect uses neutral public service wording in human and JSON output', async () => {
-  const profile = {
-    remoteConfigProfile: {
-      daemonBaseUrl: 'https://bridge.example.com/agent-device',
-      tenant: 'acme',
-      runId: 'demo-run-001',
-      leaseProvider: 'cloud',
-    },
-  };
-
-  mockCloudConnectionProfile(profile);
-  const human = await runCliCapture(['connect'], {
-    stateDirPrefix: 'agent-device-connect-cloud-wording-human-',
-  });
-  assert.match(human.stdout, /^Connected successfully with the configured cloud service\./);
-
-  mockCloudConnectionProfile(profile);
-  const json = await runCliCapture(['connect', '--json'], {
-    stateDirPrefix: 'agent-device-connect-cloud-wording-json-',
-  });
-  const data = (JSON.parse(json.stdout) as { data: { verification: { service: string } } }).data;
-  assert.equal(data.verification.service, 'the configured cloud service');
 });
 
 test('connect limrun generates a local daemon remote profile', async () => {
@@ -341,84 +278,6 @@ test('connect limrun rejects unsupported public device and backend selections', 
   );
   assert.equal(backend.code, 1);
   assert.match(backend.stdout, /requires --lease-backend ios-instance/);
-});
-
-test('connect without remote config rejects legacy remoteConfig string profile response', async () => {
-  const tempRoot = mkdtempForTestSync('agent-device-connect-cloud-legacy-');
-  const stateDir = path.join(tempRoot, '.state');
-  mockCloudConnectionProfile({
-    remoteConfig: JSON.stringify({
-      daemonBaseUrl: 'https://bridge.example.com/agent-device',
-      daemonTransport: 'http',
-      tenant: 'acme',
-      runId: 'demo-run-001',
-    }),
-  });
-
-  try {
-    await assert.rejects(connectWithGeneratedCloudProfile(stateDir), (error: unknown) => {
-      assert.equal((error as { code?: string }).code, 'COMMAND_FAILED');
-      assert.match((error as Error).message, /did not include remoteConfigProfile/);
-      return true;
-    });
-  } finally {
-    fs.rmSync(tempRoot, { recursive: true, force: true });
-  }
-});
-
-test('connect without remote config reports cloud profile authorization failures', async () => {
-  const tempRoot = mkdtempForTestSync('agent-device-connect-cloud-denied-');
-  const stateDir = path.join(tempRoot, '.state');
-  mockedResolveCloudAccessForConnect.mockResolvedValue({
-    accessToken: 'adc_agent_cloud',
-    cloudBaseUrl: 'https://cloud.example',
-  });
-  vi.stubGlobal(
-    'fetch',
-    vi.fn(
-      async () =>
-        new Response(JSON.stringify({ error: 'forbidden' }), {
-          status: 403,
-          headers: { 'content-type': 'application/json' },
-        }),
-    ),
-  );
-
-  try {
-    await assert.rejects(connectWithGeneratedCloudProfile(stateDir), (error: unknown) => {
-      assert.equal((error as { code?: string }).code, 'UNAUTHORIZED');
-      assert.match(
-        (error as Error).message,
-        /Cloud connection profile endpoint rejected the request/,
-      );
-      return true;
-    });
-  } finally {
-    fs.rmSync(tempRoot, { recursive: true, force: true });
-  }
-});
-
-test('connect without remote config reports unsupported cloud profile keys', async () => {
-  const tempRoot = mkdtempForTestSync('agent-device-connect-cloud-invalid-');
-  const stateDir = path.join(tempRoot, '.state');
-  mockCloudConnectionProfile({
-    remoteConfigProfile: {
-      daemonBaseUrl: 'https://bridge.example.com/agent-device',
-      tenant: 'acme',
-      runId: 'demo-run-001',
-      typoTenant: 'wrong',
-    },
-  });
-
-  try {
-    await assert.rejects(connectWithGeneratedCloudProfile(stateDir), (error: unknown) => {
-      assert.equal((error as { code?: string }).code, 'COMMAND_FAILED');
-      assert.match((error as Error).message, /invalid remote config/);
-      return true;
-    });
-  } finally {
-    fs.rmSync(tempRoot, { recursive: true, force: true });
-  }
 });
 
 test('connect browserstack generates local provider profile without credentials', async () => {
@@ -858,68 +717,6 @@ test('connect aws-device-farm rejects device-feature flags it does not read', as
     fs.rmSync(tempRoot, { recursive: true, force: true });
   }
 });
-
-function mockCloudConnectionProfile(connection: Record<string, unknown>): ReturnType<typeof vi.fn> {
-  mockedResolveCloudAccessForConnect.mockResolvedValue({
-    accessToken: 'adc_agent_cloud',
-    cloudBaseUrl: 'https://cloud.example',
-  });
-  const fetchMock = vi.fn(
-    async () =>
-      new Response(JSON.stringify({ ok: true, connection }), {
-        status: 200,
-        headers: { 'content-type': 'application/json' },
-      }),
-  );
-  vi.stubGlobal('fetch', fetchMock);
-  return fetchMock;
-}
-
-function assertGeneratedProfileState(state: RemoteConnectionState): void {
-  assert.equal(state.tenant, 'acme');
-  assert.equal(state.runId, 'demo-run-001');
-  assert.equal(state.leaseProvider, 'cloud');
-  assert.match(state.clientId ?? '', /^[a-f0-9]{16}$/);
-  assert.equal(state.daemon?.baseUrl, 'https://bridge.example.com/agent-device');
-  assert.match(state.remoteConfigPath, /remote-connections\/generated\/cloud-[a-f0-9]{16}\.json$/);
-  assert.equal(state.remoteConfigHash, hashRemoteConfigFile(state.remoteConfigPath));
-  assert.deepEqual(readGeneratedConfigKeys(state.remoteConfigPath), [
-    'clientId',
-    'daemonBaseUrl',
-    'daemonTransport',
-    'leaseProvider',
-    'metroKind',
-    'metroProxyBaseUrl',
-    'metroPublicBaseUrl',
-    'runId',
-    'sessionIsolation',
-    'tenant',
-  ]);
-  const generated = readGeneratedConfig(state.remoteConfigPath);
-  assert.equal(generated.tenant, 'acme');
-  assert.equal(generated.leaseProvider, 'cloud');
-  assert.equal(generated.clientId, state.clientId);
-}
-
-function fetchProfileUrl(fetchMock: ReturnType<typeof vi.fn>): string | undefined {
-  return fetchMock.mock.calls[0]?.[0]?.toString();
-}
-
-async function connectWithGeneratedCloudProfile(stateDir: string): Promise<void> {
-  await captureConnectStdout(async () => {
-    await connectCommand({
-      host: createTestHostEnvironment(),
-      positionals: [],
-      flags: {
-        json: true,
-        help: false,
-        version: false,
-        stateDir,
-      },
-      client: {} as AgentDeviceClient,
-    });
-  });
-}
 
 async function captureConnectStdout(task: () => Promise<void>): Promise<void> {
   const stdoutCapture = beginStdoutCapture();

@@ -107,7 +107,6 @@ export function connectionProviderCapabilities(
 ): ConnectionProviderCapabilities {
   if (provider === 'proxy') return remoteDaemonConnection('proxy');
   const declared =
-    builtinConnectionCapabilities(provider) ??
-    (provider === 'cloud' ? undefined : pluginConnectionCapabilities(provider, env));
+    builtinConnectionCapabilities(provider) ?? pluginConnectionCapabilities(provider, env);
   return declared ?? remoteDaemonConnection('remote-provider');
 }

@@ -5,7 +5,7 @@ import type { CommandFlags } from './command-flags.ts';
 import type { EndedLease } from './client-lease.ts';
 
 const PROXY_LEASE_PROVIDER = 'proxy';
-export const CLOUD_LEASE_PROVIDER = 'cloud';
+const CLOUD_LEASE_PROVIDER = 'cloud';
 
 /**
  * Lease providers that name a logical routing identity rather than a provider runtime. Any other
