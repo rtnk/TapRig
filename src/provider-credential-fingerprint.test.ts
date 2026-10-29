@@ -6,10 +6,26 @@ import {
   readDaemonProviderCredentials as daemonCredentialsFor,
 } from './provider-credential-fingerprint.ts';
 import type { EnvMap } from '@agent-device/kernel/source-value';
+import type { PluginInventoryEntry } from '@agent-device/contracts/plugin-inventory';
 import { builtinPluginInventory } from './__tests__/test-utils/builtin-plugin-inventory.ts';
 import { pluginHome, selectPluginManifest } from '@agent-device/test-kit';
 
-const inventory = await builtinPluginInventory();
+// A neutral provider whose leases on each backend read the account variables plus that
+// backend's own access variables.
+const EXAMPLE_BACKENDS = {
+  provider: 'example-backends',
+  source: 'embedder',
+  credentials: {
+    variables: ['EXAMPLE_API_KEY', 'EXAMPLE_IOS_TOKEN', 'EXAMPLE_ANDROID_TOKEN'],
+    byBackend: {
+      'ios-instance': ['EXAMPLE_API_KEY', 'EXAMPLE_IOS_TOKEN'],
+      'android-instance': ['EXAMPLE_API_KEY', 'EXAMPLE_ANDROID_TOKEN'],
+    },
+  },
+  state: 'active',
+} as const satisfies PluginInventoryEntry;
+
+const inventory = [...(await builtinPluginInventory()), EXAMPLE_BACKENDS];
 const providerCredentialFingerprint = (provider: string, env: EnvMap, leaseBackend?: string) =>
   fingerprintFor(provider, env, leaseBackend, inventory);
 const readDaemonProviderCredentials = (env: EnvMap, stateDir: string) =>
@@ -18,15 +34,11 @@ const readDaemonProviderCredentials = (env: EnvMap, stateDir: string) =>
 const BROWSERSTACK_ENV = { BROWSERSTACK_USERNAME: 'user', BROWSERSTACK_ACCESS_KEY: 'key-1' };
 
 test.for([
-  ['limrun', { LIMRUN_API_KEY: 'lim-key' }, { LIMRUN_API_KEY: 'lim-rotated' }],
+  ['example-backends', { EXAMPLE_API_KEY: 'key' }, { EXAMPLE_API_KEY: 'key-rotated' }],
   [
-    'limrun',
-    { LIMRUN_API_KEY: 'lim-key' },
-    {
-      LIMRUN_API_KEY: 'lim-key',
-      LIM_IOS_INSTANCE_URL: 'https://region.limrun.example/v1/ios_x/api',
-      LIM_IOS_INSTANCE_TOKEN: 'ios-token',
-    },
+    'example-backends',
+    { EXAMPLE_API_KEY: 'key' },
+    { EXAMPLE_API_KEY: 'key', EXAMPLE_IOS_TOKEN: 'ios-token' },
   ],
   ['browserstack', BROWSERSTACK_ENV, { ...BROWSERSTACK_ENV, BROWSERSTACK_ACCESS_KEY: 'key-2' }],
 ] as const)('%s fingerprint changes with its credential variables', ([provider, before, after]) => {
@@ -41,17 +53,19 @@ test('a fingerprint ignores variables the provider does not read and blank value
   expect(
     providerCredentialFingerprint('browserstack', {
       ...BROWSERSTACK_ENV,
-      LIMRUN_API_KEY: 'lim-key',
+      EXAMPLE_API_KEY: 'key',
       BROWSERSTACK_WEBDRIVER_ENDPOINT: 'https://hub.example',
     }),
   ).toBe(fingerprint);
 });
 
-test.for(['limrun', 'browserstack'])(
+test.for(['example-backends', 'browserstack'])(
   'neither a caller nor a daemon without %s credentials has a fingerprint',
   (provider) => {
     expect(providerCredentialFingerprint(provider, {})).toBe(undefined);
-    expect(providerCredentialFingerprint(provider, { LIMRUN_REGION: ' ' })).toBe(undefined);
+    expect(
+      providerCredentialFingerprint(provider, { EXAMPLE_API_KEY: ' ', BROWSERSTACK_USERNAME: ' ' }),
+    ).toBe(undefined);
     expect(readDaemonProviderCredentials({}, '/state').fingerprint(provider)).toBe(undefined);
   },
 );
@@ -64,8 +78,10 @@ test('a fingerprint hashes the exact values each provider reads', () => {
       BROWSERSTACK_ACCESS_KEY: 'key-1 ',
     }),
   ).not.toBe(browserstack);
-  const limrun = providerCredentialFingerprint('limrun', { LIMRUN_API_KEY: 'lim-key' });
-  expect(providerCredentialFingerprint('limrun', { LIMRUN_API_KEY: ' lim-key ' })).not.toBe(limrun);
+  const example = providerCredentialFingerprint('example-backends', { EXAMPLE_API_KEY: 'key' });
+  expect(providerCredentialFingerprint('example-backends', { EXAMPLE_API_KEY: ' key ' })).not.toBe(
+    example,
+  );
 });
 
 test('a provider name that only matches an inherited object key has no fingerprint', () => {
@@ -83,42 +99,36 @@ test('AWS Device Farm has no environment fingerprint', () => {
 
 test('a fingerprint never contains a credential value', () => {
   const daemon = readDaemonProviderCredentials(
-    { ...BROWSERSTACK_ENV, LIMRUN_API_KEY: 'lim-key' },
+    { ...BROWSERSTACK_ENV, EXAMPLE_API_KEY: 'example-key' },
     '/state',
   );
   const fingerprints = JSON.stringify([
     daemon.fingerprint('browserstack'),
-    daemon.fingerprint('limrun'),
+    daemon.fingerprint('example-backends'),
   ]);
-  for (const value of ['user', 'key-1', 'lim-key']) expect(fingerprints).not.toContain(value);
+  for (const value of ['user', 'key-1', 'example-key']) expect(fingerprints).not.toContain(value);
 });
 
-const IOS_ATTACH = {
-  LIM_IOS_INSTANCE_URL: 'https://region.limrun.example/v1/ios_x/api',
-  LIM_IOS_INSTANCE_TOKEN: 'ios-token',
-};
-const ANDROID_ATTACH = {
-  LIM_ANDROID_INSTANCE_URL: 'https://region.limrun.example/v1/android_x/api',
-  LIM_ANDROID_INSTANCE_TOKEN: 'android-token',
-  LIM_ANDROID_INSTANCE_ADB_URL: 'wss://region.limrun.example/v1/android_x/adb',
-};
-
-test('a Limrun lease fingerprint covers only the leased platform and the account', () => {
-  const before = { LIMRUN_API_KEY: 'lim-key', ...IOS_ATTACH, ...ANDROID_ATTACH };
-  const rotatedAndroid = { ...before, LIM_ANDROID_INSTANCE_TOKEN: 'android-token-2' };
+test('a lease fingerprint covers only the leased backend and the account', () => {
+  const before = {
+    EXAMPLE_API_KEY: 'key',
+    EXAMPLE_IOS_TOKEN: 'ios-token',
+    EXAMPLE_ANDROID_TOKEN: 'android-token',
+  };
+  const rotatedAndroid = { ...before, EXAMPLE_ANDROID_TOKEN: 'android-token-2' };
   const ios = (env: Record<string, string>) =>
-    providerCredentialFingerprint('limrun', env, 'ios-instance');
+    providerCredentialFingerprint('example-backends', env, 'ios-instance');
   const android = (env: Record<string, string>) =>
-    providerCredentialFingerprint('limrun', env, 'android-instance');
+    providerCredentialFingerprint('example-backends', env, 'android-instance');
 
   expect(ios(rotatedAndroid)).toBe(ios(before));
   expect(android(rotatedAndroid)).not.toBe(android(before));
-  expect(ios({ ...before, LIMRUN_API_KEY: 'lim-rotated' })).not.toBe(ios(before));
-  expect(providerCredentialFingerprint('limrun', rotatedAndroid)).not.toBe(
-    providerCredentialFingerprint('limrun', before),
+  expect(ios({ ...before, EXAMPLE_API_KEY: 'key-rotated' })).not.toBe(ios(before));
+  expect(providerCredentialFingerprint('example-backends', rotatedAndroid)).not.toBe(
+    providerCredentialFingerprint('example-backends', before),
   );
   expect(
-    readDaemonProviderCredentials(before, '/state').fingerprint('limrun', 'ios-instance'),
+    readDaemonProviderCredentials(before, '/state').fingerprint('example-backends', 'ios-instance'),
   ).toBe(ios(rotatedAndroid));
 });
 

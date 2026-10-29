@@ -6,14 +6,12 @@ import {
 import type {
   PlatformRuntimeHost,
   PlatformRuntimeOperations,
-  PlatformRuntimeOwner,
 } from '@agent-device/contracts/platform-runtime-operations';
 import { applicationLifecycleOperationFacts } from '@agent-device/contracts/application-lifecycle-runtime';
 import { createUnavailablePlatformRuntimeFacts } from '@agent-device/contracts/platform-runtime-unavailable';
 import { screenshotRuntimeOperationFacts } from '@agent-device/contracts/screenshot-runtime';
 import { viewportRuntimeOperationFacts } from '@agent-device/contracts/viewport-runtime';
 import type { DeviceInfo } from '@agent-device/kernel/device';
-import { createLimrunRuntime } from '@agent-device/provider-limrun';
 import { describe, expect, test, vi } from 'vitest';
 import { createComposedPlatformRuntimeGateway } from './platform-runtime-gateway.ts';
 import {
@@ -21,7 +19,6 @@ import {
   gatewayFixtureDevice as device,
   gatewayFixtureScope as scope,
   LIFECYCLE_FACETS,
-  limrunTestDependencies,
   providerLifecycleOwnerFixture as providerLifecycleOwner,
   providerRuntimeFixture as providerRuntime,
   runtimeOwnerFixture as runtimeOwner,
@@ -285,65 +282,6 @@ describe('composed platform runtime gateway', () => {
     expect(inspectFacts).toHaveBeenCalledOnce();
     expect(bind).not.toHaveBeenCalled();
     expect(unrelatedLoad).not.toHaveBeenCalled();
-  });
-
-  test('keeps a stale Limrun Android id unavailable without binding or local fallback', async () => {
-    const registration = createLimrunRuntime(
-      { apiKey: 'test-key', runtimeInstance: 'test-instance' },
-      limrunTestDependencies,
-      { includePlatformModule: true },
-    );
-    const staleDevice: DeviceInfo = {
-      platform: 'android',
-      id: 'limrun:android:released-lease',
-      name: 'Released Limrun Android',
-      kind: 'emulator',
-      target: 'mobile',
-      booted: true,
-    };
-    let inspectCount = 0;
-    let bindCount = 0;
-    const providerModule = {
-      ...registration.platformModule,
-      loadRuntime: async (host: PlatformRuntimeHost) => {
-        const owner = await registration.platformModule.loadRuntime(host);
-        return {
-          ...owner,
-          inspectFacts: async (device: DeviceInfo) => {
-            inspectCount += 1;
-            return await owner.inspectFacts(device);
-          },
-          bind: async (request: Parameters<PlatformRuntimeOwner['bind']>[0]) => {
-            bindCount += 1;
-            return await owner.bind(request);
-          },
-        };
-      },
-    };
-    const localLoad = vi.fn(async () => {
-      throw new Error('stale Limrun identity must not fall back to local Android');
-    });
-    const runtimeGateway = createComposedPlatformRuntimeGateway({
-      modules: new Map([['android', { family: 'android', loadRuntime: localLoad }]]),
-      loadHost: async () => ({}) as PlatformRuntimeHost,
-      providerRuntimes: [registration.runtime],
-      providerModules: [{ runtime: registration.runtime, module: providerModule }],
-    });
-
-    try {
-      const facts = await runtimeGateway.inspectFacts(staleDevice);
-      expect(facts.operations.appState).toMatchObject({
-        available: false,
-        reason: 'owner-capability-missing',
-        hint: 'Limrun requires a matching live provider session for this device.',
-      });
-      expect(inspectCount).toBe(1);
-      expect(bindCount).toBe(0);
-      expect(localLoad).not.toHaveBeenCalled();
-    } finally {
-      await runtimeGateway.shutdown();
-      await registration.runtime.shutdown();
-    }
   });
 
   test('rejects inspected facts with a provider-mode mismatch', async () => {

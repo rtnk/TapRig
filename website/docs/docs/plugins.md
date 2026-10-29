@@ -29,7 +29,7 @@ A failed install keeps the previous selection. A running daemon keeps the plugin
 
 ## See which providers are registered
 
-`agent-device daemon status` lists every provider the running daemon registered: the bundled ones (BrowserStack, AWS Device Farm, and Limrun when it is configured), then installed plugins. With `--json`, each entry has:
+`agent-device daemon status` lists every provider the running daemon registered: the bundled ones (BrowserStack and AWS Device Farm), then installed plugins. With `--json`, each entry has:
 
 ```json
 {

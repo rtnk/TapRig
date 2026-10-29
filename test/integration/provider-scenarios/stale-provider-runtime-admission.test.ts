@@ -1,11 +1,9 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { expect, test, vi } from 'vitest';
+import { expect, test } from 'vitest';
 import type { DeviceLease } from '@agent-device/contracts/device';
 import { createBundledCloudWebDriverRuntimes } from './bundled-cloud-webdriver-runtimes.ts';
-import { createLimrunRuntime, type LimrunRuntimeDependencies } from '@agent-device/provider-limrun';
-import { limrunTestDependencies } from '../../../src/platform-runtime-gateway.fixtures.ts';
 import type { DeviceInfo } from '@agent-device/kernel/device';
 import { bindTestCommandHost, mkdtempForTestSync } from '@agent-device/test-kit';
 import { createProviderDeviceRuntimeRequestProviders } from '../../../src/provider-device-runtime.ts';
@@ -26,44 +24,6 @@ import { inspectProviderDeploymentAdmission } from './stale-provider-runtime-adm
 import { CLOUD_WEBDRIVER_PROVIDERS } from '@agent-device/provider-webdriver/providers';
 
 bindTestCommandHost();
-
-const limrunState = vi.hoisted(() => ({
-  androidCreate: vi.fn(async () => ({
-    metadata: { id: 'limrun-instance-a' },
-    status: {
-      token: 'instance-token',
-      apiUrl: 'https://limrun.example.test',
-      adbWebSocketUrl: 'wss://limrun.example.test/adb',
-    },
-  })),
-  androidDelete: vi.fn(async () => undefined),
-  disconnect: vi.fn(),
-}));
-
-vi.mock('@limrun/api', () => ({
-  default: class MockLimrun {
-    readonly androidInstances = {
-      create: limrunState.androidCreate,
-      list: vi.fn(),
-      delete: limrunState.androidDelete,
-    };
-    readonly iosInstances = { create: vi.fn(), list: vi.fn(), delete: vi.fn() };
-    readonly assets = { getOrUpload: vi.fn() };
-  },
-  NotFoundError: class NotFoundError extends Error {},
-}));
-
-vi.mock('@limrun/api/instance-client', () => ({
-  createInstanceClient: vi.fn(async () => ({
-    disconnect: limrunState.disconnect,
-    setText: vi.fn(),
-    sendAsset: vi.fn(),
-    startAdbTunnel: vi.fn(async () => ({
-      address: { address: '127.0.0.1', port: 62_001 },
-      close: vi.fn(),
-    })),
-  })),
-}));
 
 test('a released WebDriver device remains provider-owned with deployment unavailable', async () => {
   const server = await startCloudWebDriverTestServer(new StaleWebDriverServer());
@@ -100,39 +60,6 @@ test('a released WebDriver device remains provider-owned with deployment unavail
   } finally {
     await runtime.shutdown();
     await server.close();
-  }
-});
-
-test('a released Limrun session exposes unavailable deployment facts before binding', async () => {
-  const registration = createLimrunRuntime({ apiKey: 'limrun-test-key' }, limrunDependencies(), {
-    includePlatformModule: true,
-  });
-  const lease = providerLease('limrun', 'limrun-stale');
-
-  try {
-    const allocation = await registration.runtime.leaseLifecycle.allocate?.(lease);
-    const device = readAllocatedDevice(allocation);
-    expect(limrunState.androidCreate).toHaveBeenCalledTimes(1);
-    await registration.runtime.leaseLifecycle.release?.(lease);
-    expect(limrunState.disconnect).toHaveBeenCalled();
-
-    expect(registration.runtime.ownsDevice(device)).toBe(true);
-    const createCallsBeforeAdmission = limrunState.androidCreate.mock.calls.length;
-    const facts = await inspectProviderDeploymentAdmission({
-      runtime: registration.runtime,
-      module: registration.platformModule,
-      device,
-    });
-    expect(facts).toMatchObject({
-      device: { providerMode: 'provider-runtime' },
-      operations: {
-        ensureReady: { available: false, reason: 'owner-capability-missing' },
-        deployApp: { available: false, reason: 'owner-capability-missing' },
-      },
-    });
-    expect(limrunState.androidCreate).toHaveBeenCalledTimes(createCallsBeforeAdmission);
-  } finally {
-    await registration.runtime.shutdown();
   }
 });
 
@@ -276,13 +203,6 @@ async function allocatedDevice(
   return device;
 }
 
-function readAllocatedDevice(allocation: Record<string, unknown> | undefined): DeviceInfo {
-  const device = allocation?.device;
-  if (!device || typeof device !== 'object')
-    throw new Error('Expected the allocated Limrun device');
-  return device as DeviceInfo;
-}
-
 function providerLease(provider: string, leaseId: string): DeviceLease {
   return {
     leaseId,
@@ -295,49 +215,6 @@ function providerLease(provider: string, leaseId: string): DeviceLease {
     createdAt: 1,
     heartbeatAt: 1,
     expiresAt: 60_001,
-  };
-}
-
-function limrunDependencies(): LimrunRuntimeDependencies {
-  return {
-    clientVersion: 'test',
-    android: {
-      createInteractor: () => ({}) as never,
-      createPortReverse: async () => ({
-        ensure: async () => {},
-        remove: async () => {},
-        removeAllOwned: async () => {},
-        list: async () => [],
-      }),
-      inferAppName: async () => 'Example',
-      listApps: async () => [],
-      getForegroundApp: async () => undefined,
-      getKeyboardState: async () => ({ visible: false, inputOwner: 'unknown' }),
-      dismissKeyboard: async () => ({
-        visible: false,
-        inputOwner: 'unknown',
-        attempts: 0,
-        wasVisible: false,
-        dismissed: false,
-      }),
-      readLogs: async () => '',
-      forceStopApp: async () => {},
-      deviceAdbInvocation: (serial: string, command: readonly string[]) => ({
-        target: { selector: { kind: 'serial', serial }, server: { kind: 'ambient' } },
-        command,
-      }),
-      hostAdbInvocation: (command: readonly string[]) => ({
-        target: { selector: { kind: 'unspecified' }, server: { kind: 'ambient' } },
-        command,
-      }),
-      adbError: async (message) => new Error(message) as never,
-    },
-    host: {
-      runAdb: async () => ({ stdout: '', stderr: '', exitCode: 0 }),
-      downloadFile: async () => undefined,
-      archiveDirectory: async () => {},
-    },
-    ios: limrunTestDependencies.ios,
   };
 }
 

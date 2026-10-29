@@ -52,7 +52,6 @@ export const ROOT_MODULE_ZONES: Readonly<Record<string, readonly string[]>> = {
     'src/platform-runtime.ts',
     'src/provider-credential-fingerprint.ts',
     'src/provider-device-runtimes.ts',
-    'src/provider-limrun-credentials.ts',
     'src/provider-plugin-policy.ts',
     'src/provider-webdriver.ts',
   ],
@@ -101,7 +100,7 @@ export const ROOT_MODULE_ZONES: Readonly<Record<string, readonly string[]>> = {
   ],
   // The typed client over the daemon transport.
   'daemon-client': ['src/agent-device-client.ts'],
-  sdk: ['src/finders.ts', 'src/provider-limrun-runtime.ts'],
+  sdk: ['src/finders.ts'],
 };
 
 const ZONE_BY_ROOT_MODULE: ReadonlyMap<string, string> = new Map(

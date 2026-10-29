@@ -4,28 +4,17 @@ import {
   CLOUD_WEBDRIVER_PROVIDER_DECLARATIONS,
   type CloudWebDriverProviderDeclaration,
 } from '@agent-device/provider-webdriver/providers';
-import { LIMRUN_ID } from './builtin-provider-ids.ts';
-import type { HostEnvironment } from '@agent-device/kernel/source-value';
-import {
-  limrunCredentialDeclaration,
-  readLimrunCredentials,
-  type LimrunCredentials,
-} from './provider-limrun-credentials.ts';
 
 /**
  * The built-in providers as registry candidates, in the shape a plugin has. Their implementations
- * load only when a runtime is set up; a candidate that needs configuration claims its id without
- * registering until the environment holds it.
+ * load only when a runtime is set up.
  */
-export function builtinProviderCandidates(host: HostEnvironment): PluginCandidate[] {
-  return [
-    ...CLOUD_WEBDRIVER_PROVIDER_DECLARATIONS.map((declaration): PluginCandidate => ({
-      source: 'builtin',
-      provider: declaration.provider,
-      load: () => cloudWebDriverPlugin(declaration),
-    })),
-    limrunCandidate(host),
-  ];
+export function builtinProviderCandidates(): PluginCandidate[] {
+  return CLOUD_WEBDRIVER_PROVIDER_DECLARATIONS.map((declaration): PluginCandidate => ({
+    source: 'builtin',
+    provider: declaration.provider,
+    load: () => cloudWebDriverPlugin(declaration),
+  }));
 }
 
 function cloudWebDriverPlugin(declaration: CloudWebDriverProviderDeclaration): AgentDevicePlugin {
@@ -61,38 +50,5 @@ function cloudWebDriverPlugin(declaration: CloudWebDriverProviderDeclaration): A
         webDriver: bundled.create(host.createBundledCloudWebDriverHost(pluginHost.env)).webDriver,
       };
     },
-  };
-}
-
-function limrunCandidate(host: HostEnvironment): PluginCandidate {
-  const base = { source: 'builtin', provider: LIMRUN_ID } as const;
-  let credentials: LimrunCredentials | undefined;
-  try {
-    credentials = readLimrunCredentials(host.env);
-  } catch (error) {
-    return { ...base, load: () => Promise.reject(error) };
-  }
-  if (!credentials) return { ...base, dormant: true, load: () => undefined };
-  const limrun = credentials;
-  return {
-    ...base,
-    load: (): AgentDevicePlugin => ({
-      apiVersion: 2,
-      provider: LIMRUN_ID,
-      credentials: limrunCredentialDeclaration(),
-      setup: async () => {
-        const [runtime, dependencies] = await Promise.all([
-          import('@agent-device/provider-limrun'),
-          import('./sdk/limrun-runtime-dependencies.ts'),
-        ]);
-        return runtime.createLimrunRuntime(
-          limrun,
-          dependencies.createLimrunRuntimeDependencies(host),
-          {
-            includePlatformModule: true,
-          },
-        );
-      },
-    }),
   };
 }

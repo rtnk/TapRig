@@ -19,7 +19,7 @@ takes over any daemon whose package version differs from the client's, so the tw
 same build.
 
 Cross-machine is the opposite by design. ADR 0006: "a 0.15 client and 0.17 remote daemon can often
-interoperate" — `agent-device proxy`, cloud/limrun providers, and a remote macOS host all run
+interoperate" — `agent-device proxy`, device-cloud providers, and a remote macOS host all run
 skewed on purpose, and package version is explicitly *not* the compatibility gate there. The one
 place version skew is designed in was the one place with no gate.
 

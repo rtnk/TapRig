@@ -17,15 +17,6 @@ import {
 } from '@agent-device/test-kit';
 
 test('provider policy projects provider identity into semantic capabilities', () => {
-  assert.deepEqual(connectionProviderCapabilities('limrun'), {
-    leaseKind: 'direct-device-provider',
-    requiresAppAttachment: false,
-    requiresRemoteDaemon: false,
-    supportsArtifacts: false,
-    supportsDeferredAppSelection: true,
-    supportsDirectPortReverse: true,
-    usesCloudWebDriverLease: false,
-  });
   const browserStack = connectionProviderCapabilities('browserstack');
   assert.equal(browserStack.supportsArtifacts, true);
   assert.equal(browserStack.usesCloudWebDriverLease, true);

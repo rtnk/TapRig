@@ -18,17 +18,15 @@ import {
 import { providerCredentialFingerprint as fingerprintFor } from '../../provider-credential-fingerprint.ts';
 import { builtinPluginInventory } from '../../__tests__/test-utils/builtin-plugin-inventory.ts';
 import type { EnvMap } from '@agent-device/kernel/source-value';
-import { LIMRUN_CREDENTIAL_VARIABLES } from '../../provider-limrun-credentials.ts';
 
 const inventory = await builtinPluginInventory();
-const providerCredentialFingerprint = (provider: string, env: EnvMap, leaseBackend?: string) =>
-  fingerprintFor(provider, env, leaseBackend, inventory);
+const providerCredentialFingerprint = (provider: string, env: EnvMap) =>
+  fingerprintFor(provider, env, undefined, inventory);
 
-const API_KEY = 'lim-secret-key';
-const ANDROID_ATTACH = {
-  LIM_ANDROID_INSTANCE_URL: 'https://region.limrun.example/v1/android_x/api',
-  LIM_ANDROID_INSTANCE_TOKEN: 'android-token',
-  LIM_ANDROID_INSTANCE_ADB_URL: 'wss://region.limrun.example/v1/android_x/adb',
+const API_KEY = 'browserstack-secret-key';
+const CREDENTIALS = {
+  BROWSERSTACK_USERNAME: 'browserstack-user',
+  BROWSERSTACK_ACCESS_KEY: API_KEY,
 };
 
 afterEach(() => {
@@ -50,7 +48,7 @@ test.for(['socket', 'http'] as const)(
     vi.stubEnv('AGENT_DEVICE_DAEMON_AUTH_TOKEN', undefined);
     const stateDir = mkdtempForTestSync('agent-device-provider-credentials-daemon-');
     const daemon = await startLocalDaemon(stateDir, transport);
-    const send = (command: string, leaseBackend?: 'ios-instance' | 'android-instance') =>
+    const send = (command: string) =>
       sendToDaemon({
         session: 'default',
         command,
@@ -58,36 +56,27 @@ test.for(['socket', 'http'] as const)(
         flags: { stateDir, daemonTransport: transport },
         meta: {
           requestId: `req-${command}`,
-          leaseProvider: 'limrun',
+          leaseProvider: 'browserstack',
           tenantId: 'tenant-a',
-          ...(leaseBackend ? { leaseBackend } : {}),
         },
       });
-    const attachedEnv = { LIMRUN_API_KEY: API_KEY, ...ANDROID_ATTACH };
 
     try {
-      vi.stubEnv('LIMRUN_API_KEY', API_KEY);
+      for (const [name, value] of Object.entries(CREDENTIALS)) vi.stubEnv(name, value);
       await send('lease_allocate');
       await send('devices');
-      vi.stubEnv('LIMRUN_API_KEY', undefined);
+      clearCredentialEnv();
       await send('lease_allocate');
-      for (const [name, value] of Object.entries(attachedEnv)) vi.stubEnv(name, value);
-      await send('lease_allocate', 'ios-instance');
-      await send('lease_allocate', 'android-instance');
     } finally {
       await daemon.close();
       fs.rmSync(stateDir, { recursive: true, force: true });
     }
 
-    const iosFingerprint = providerCredentialFingerprint('limrun', attachedEnv, 'ios-instance');
     expect(daemon.bodies.map(readFingerprint)).toEqual([
-      providerCredentialFingerprint('limrun', { LIMRUN_API_KEY: API_KEY }),
+      providerCredentialFingerprint('browserstack', CREDENTIALS),
       undefined,
       undefined,
-      iosFingerprint,
-      providerCredentialFingerprint('limrun', attachedEnv, 'android-instance'),
     ]);
-    expect(iosFingerprint).not.toBe(providerCredentialFingerprint('limrun', attachedEnv));
     for (const body of daemon.bodies) expect(body).not.toContain(API_KEY);
   },
 );
@@ -101,7 +90,7 @@ test(
       return;
     }
     clearCredentialEnv();
-    vi.stubEnv('LIMRUN_API_KEY', API_KEY);
+    for (const [name, value] of Object.entries(CREDENTIALS)) vi.stubEnv(name, value);
     const remote = await startHttpDaemonFixture({});
     vi.stubEnv('AGENT_DEVICE_DAEMON_BASE_URL', `http://127.0.0.1:${remote.port}`);
     vi.stubEnv('AGENT_DEVICE_DAEMON_AUTH_TOKEN', 'remote-secret');
@@ -111,7 +100,11 @@ test(
         session: 'default',
         command: 'lease_allocate',
         positionals: [],
-        meta: { requestId: 'req-remote-lease', leaseProvider: 'limrun', tenantId: 'tenant-a' },
+        meta: {
+          requestId: 'req-remote-lease',
+          leaseProvider: 'browserstack',
+          tenantId: 'tenant-a',
+        },
       });
     } finally {
       await closeLoopbackServer(remote.server);
@@ -137,7 +130,7 @@ function readFingerprint(body: string): unknown {
 }
 
 function clearCredentialEnv(): void {
-  for (const name of LIMRUN_CREDENTIAL_VARIABLES) vi.stubEnv(name, undefined);
+  for (const name of Object.keys(CREDENTIALS)) vi.stubEnv(name, undefined);
 }
 
 async function startLocalDaemon(

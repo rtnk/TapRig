@@ -156,7 +156,7 @@ The same session and evidence model works at every step: the agent explores the 
 | --- | --- | --- |
 | Local | Trying commands and debugging apps on simulators, emulators, physical devices, macOS, and Linux. | Follow the Quick Start. |
 | CI/CD | Automated pull request and merge validation with replay scripts and captured artifacts. | Try the [EAS workflow template](https://github.com/callstackincubator/eas-agent-device/blob/main/.eas/workflows/agent-qa-mobile.yml). |
-| Cloud / remote | Linux runners, managed devices, and remote jobs. | Set up a [remote proxy](https://oss.callstack.com/agent-device/docs/remote-proxy), connect a [device cloud](https://oss.callstack.com/agent-device/docs/device-clouds) (BrowserStack, AWS Device Farm, TestMu AI, Limrun), or [contact Callstack](mailto:hello@callstack.com) for team QA. |
+| Cloud / remote | Linux runners, managed devices, and remote jobs. | Set up a [remote proxy](https://oss.callstack.com/agent-device/docs/remote-proxy), connect a [device cloud](https://oss.callstack.com/agent-device/docs/device-clouds) (BrowserStack, AWS Device Farm, TestMu AI), or [contact Callstack](mailto:hello@callstack.com) for team QA. |
 
 ## How it works
 
@@ -164,7 +164,7 @@ The same session and evidence model works at every step: the agent explores the 
 
 Support depth varies by target. Some backends, such as HarmonyOS and Vega OS, cover a subset of commands; run `agent-device capabilities --platform <platform>` to see what a target supports. The [capabilities matrix](https://oss.callstack.com/agent-device/docs/capabilities) shows which commands each target, desktop, web, and cloud provider supports.
 
-Sessions are scoped to the caller's git worktree, and host-local device claims stop parallel agents from taking over each other's simulators and emulators. Run `agent-device device status` to inspect ownership without a daemon, and `agent-device device release --stale` to release claims whose owner is provably no longer running. The same commands drive hosted devices on [BrowserStack, AWS Device Farm, TestMu AI, and Limrun](https://oss.callstack.com/agent-device/docs/device-clouds).
+Sessions are scoped to the caller's git worktree, and host-local device claims stop parallel agents from taking over each other's simulators and emulators. Run `agent-device device status` to inspect ownership without a daemon, and `agent-device device release --stale` to release claims whose owner is provably no longer running. The same commands drive hosted devices on [BrowserStack, AWS Device Farm, and TestMu AI](https://oss.callstack.com/agent-device/docs/device-clouds).
 
 `agent-device` uses the inspect-act-verify process from Vercel's [agent-browser](https://github.com/vercel-labs/agent-browser) for mobile, TV, and desktop apps. Basic `--platform web` support runs `agent-browser` in the same session and replay system.
 

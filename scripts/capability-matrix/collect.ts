@@ -27,7 +27,7 @@ import type {
   PlatformRuntimeOwner,
 } from '@agent-device/contracts/platform-runtime-operations';
 import type { DeviceInfo } from '@agent-device/kernel/device';
-import { createProviderWire, PROVIDER_ENV, stubLimrunSdk, type ProviderWire } from './seams.ts';
+import { createProviderWire, PROVIDER_ENV, type ProviderWire } from './seams.ts';
 import { TARGETS, type Target } from './targets.ts';
 
 export type CommandSupport = Readonly<{
@@ -164,21 +164,6 @@ function cloudLease(target: Target & { readonly kind: 'cloud-webdriver' }): Devi
   } as unknown as DeviceLease;
 }
 
-function limrunLease(target: Target & { readonly kind: 'limrun' }): DeviceLease {
-  return {
-    leaseId: `lease-${target.platform}`,
-    leaseProvider: 'limrun',
-    backend: target.backend,
-    platform: target.platform,
-    target: 'mobile',
-    session: 'session-1',
-    workspace: '/workspace',
-    device: 'limrun',
-    runId: 'run-1',
-    deviceId: 'provider-device',
-  } as unknown as DeviceLease;
-}
-
 /**
  * Facts for a hosted column. The provider owns its device record, so the column
  * reads it back from the provider's own inventory after the lease is allocated;
@@ -211,45 +196,6 @@ async function cloudWebDriverSupport(
   } finally {
     globalThis.fetch = previousFetch;
   }
-}
-
-async function limrunSupport(
-  targets: ReadonlyArray<Target & { readonly kind: 'limrun' }>,
-  host: PlatformRuntimeHost,
-  commands: readonly string[],
-): Promise<Map<string, TargetFacts>> {
-  // The hooks must be in place before the provider's own `@limrun/api` import resolves.
-  stubLimrunSdk();
-  const { createLimrunRuntime } = await import('@agent-device/provider-limrun');
-  const runtime = createLimrunRuntime(
-    {
-      instances: {
-        ios: { apiUrl: 'https://limrun.invalid.test', token: 'limrun-placeholder-token' },
-        android: {
-          apiUrl: 'https://limrun.invalid.test',
-          adbUrl: 'wss://limrun.invalid.test',
-          token: 'limrun-placeholder-token',
-        },
-      },
-    },
-    {
-      clientVersion: '0.0.0',
-      android: { createPortReverse: async () => ({}) },
-      host: {},
-      ios: {},
-    } as never,
-    { includePlatformModule: true },
-  );
-  const owner = await runtime.platformModule.loadRuntime(host);
-  const support = new Map<string, TargetFacts>();
-  for (const target of targets) {
-    await namingTarget(target, async () => {
-      // Limrun facts are session-gated: the lease must exist before the runtime answers.
-      await runtime.runtime.leaseLifecycle.allocate?.(limrunLease(target), { flags: {} } as never);
-      support.set(target.id, targetFacts(await owner.inspectFacts(target.device), commands));
-    });
-  }
-  return support;
 }
 
 /** Re-raises a fact-collection failure with the column whose collection produced it. */
@@ -288,13 +234,6 @@ export async function collectCommandSupport(host: PlatformRuntimeHost): Promise<
     await namingTarget(target, async () => {
       record(target.id, await cloudWebDriverSupport(target, host, wire, commands));
     });
-  }
-
-  const limrunTargets = TARGETS.filter(
-    (target): target is Target & { readonly kind: 'limrun' } => target.kind === 'limrun',
-  );
-  for (const [id, facts] of await limrunSupport(limrunTargets, host, commands)) {
-    record(id, facts);
   }
 
   return { commands, support, operations };

@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { connectCommand } from '../cli/commands/connection.ts';
-import { beginStdoutCapture } from './test-utils/stream-capture.ts';
 import { runCliCapture } from './cli-capture.ts';
 import {
   readActiveConnectionState,
@@ -13,7 +12,6 @@ import {
 import type { AgentDeviceClient } from '../agent-device-client.ts';
 import { resolveConnectProviderProfile } from '../cli/connection/connect-provider-adapters.ts';
 import { AppError } from '@agent-device/kernel/errors';
-import { verifyLimrunConnection } from '@agent-device/provider-limrun';
 import {
   verifyAwsDeviceFarmConnection,
   verifyBrowserStackConnection,
@@ -26,11 +24,6 @@ import {
 import { connectWithGeneratedProviderProfile } from './test-utils/connect-command.ts';
 
 bindTestCommandHost();
-
-vi.mock('@agent-device/provider-limrun', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@agent-device/provider-limrun')>()),
-  verifyLimrunConnection: vi.fn(),
-}));
 
 vi.mock('@agent-device/provider-webdriver/connection-verification', async (importOriginal) => ({
   ...(await importOriginal<
@@ -45,25 +38,10 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-const mockedVerifyLimrunConnection = vi.mocked(verifyLimrunConnection);
 const mockedVerifyBrowserStackConnection = vi.mocked(verifyBrowserStackConnection);
 const mockedVerifyAwsDeviceFarmConnection = vi.mocked(verifyAwsDeviceFarmConnection);
 
 beforeEach(() => {
-  mockedVerifyLimrunConnection.mockResolvedValue({
-    provider: 'limrun',
-    service: 'Limrun',
-    verificationMessage: 'Credentials and Android instance access verified.',
-    device: {
-      status: 'deferred',
-      name: 'Provider-selected Android emulator',
-      platform: 'android',
-    },
-    app: {
-      status: 'missing',
-      message: 'Run apps to choose an uploaded asset before allocation.',
-    },
-  });
   mockedVerifyBrowserStackConnection.mockImplementation(async (options) => ({
     provider: 'browserstack',
     service: 'BrowserStack',
@@ -94,190 +72,6 @@ beforeEach(() => {
         'No app upload is attached; AWS Device Farm does not support install after allocation.',
     },
   }));
-});
-
-test('connect limrun generates a local daemon remote profile', async () => {
-  const tempRoot = mkdtempForTestSync('agent-device-connect-limrun-');
-  const stateDir = path.join(tempRoot, '.state');
-  vi.stubEnv('LIMRUN_API_KEY', 'lim_test_key');
-
-  try {
-    await captureConnectStdout(async () => {
-      await connectCommand({
-        host: createTestHostEnvironment(),
-        positionals: ['limrun'],
-        flags: {
-          json: true,
-          help: false,
-          version: false,
-          stateDir,
-          platform: 'android',
-          tenant: 'team-a',
-          runId: 'run-a',
-          session: 'limrun-android',
-        },
-        client: {} as AgentDeviceClient,
-      });
-    });
-
-    const state = readRequiredActiveState(stateDir);
-    assert.equal(state.session, 'limrun-android');
-    assert.equal(state.tenant, 'team-a');
-    assert.equal(state.runId, 'run-a');
-    assert.equal(state.leaseBackend, 'android-instance');
-    assert.equal(state.leaseProvider, 'limrun');
-    assert.equal(state.platform, 'android');
-    assert.equal(state.daemon?.baseUrl, undefined);
-    assert.match(
-      state.remoteConfigPath,
-      /remote-connections\/generated\/limrun-[a-f0-9]{16}\.json$/,
-    );
-    assert.deepEqual(readGeneratedConfigKeys(state.remoteConfigPath), [
-      'daemonTransport',
-      'leaseBackend',
-      'leaseProvider',
-      'platform',
-      'runId',
-      'session',
-      'sessionIsolation',
-      'stateDir',
-      'target',
-      'tenant',
-    ]);
-  } finally {
-    fs.rmSync(tempRoot, { recursive: true, force: true });
-  }
-});
-
-test('connect limrun attaches to an existing instance without storing its token', async () => {
-  const stateDir = path.join(mkdtempForTestSync('agent-device-connect-limrun-attach-'), '.state');
-  const ios = { apiUrl: 'https://region.limrun.example/v1/ios_x/api', token: 'ios-instance-token' };
-  vi.stubEnv('LIMRUN_API_KEY', '');
-  vi.stubEnv('LIM_IOS_INSTANCE_URL', ios.apiUrl);
-  vi.stubEnv('LIM_IOS_INSTANCE_TOKEN', ios.token);
-
-  await captureConnectStdout(async () => {
-    await connectCommand({
-      host: createTestHostEnvironment(),
-      positionals: ['limrun'],
-      flags: { json: true, help: false, version: false, stateDir, platform: 'ios' },
-      client: {} as AgentDeviceClient,
-    });
-  });
-
-  const state = readRequiredActiveState(stateDir);
-  assert.equal(state.leaseBackend, 'ios-instance');
-  assert.doesNotMatch(fs.readFileSync(state.remoteConfigPath, 'utf8'), /ios-instance-token/);
-  assert.deepEqual(mockedVerifyLimrunConnection.mock.calls[0]?.[0].instances?.ios, ios);
-});
-
-test('connect limrun persists deferred Metro bridge settings', async () => {
-  const tempRoot = mkdtempForTestSync('agent-device-connect-limrun-metro-');
-  const stateDir = path.join(tempRoot, '.state');
-  vi.stubEnv('LIMRUN_API_KEY', 'lim_test_key');
-
-  try {
-    await captureConnectStdout(async () => {
-      await connectCommand({
-        host: createTestHostEnvironment(),
-        positionals: ['limrun'],
-        flags: {
-          json: true,
-          help: false,
-          version: false,
-          stateDir,
-          platform: 'ios',
-          tenant: 'team-a',
-          runId: 'run-a',
-          session: 'limrun-ios',
-          metroProjectRoot: '/tmp/app',
-          metroKind: 'expo',
-          metroProxyBaseUrl: 'https://metro.agent-device.dev',
-          metroBearerToken: 'adc_live_test',
-          metroPreparePort: 8082,
-          launchUrl: 'exp://127.0.0.1:8082',
-        },
-        client: {} as AgentDeviceClient,
-      });
-    });
-
-    const state = readRequiredActiveState(stateDir);
-    assert.equal(state.leaseBackend, 'ios-instance');
-    assert.equal(state.leaseProvider, 'limrun');
-    assert.equal(state.platform, 'ios');
-    assert.deepEqual(readGeneratedConfig(state.remoteConfigPath), {
-      daemonTransport: 'auto',
-      launchUrl: 'exp://127.0.0.1:8082',
-      leaseBackend: 'ios-instance',
-      leaseProvider: 'limrun',
-      metroKind: 'expo',
-      metroPreparePort: 8082,
-      metroProjectRoot: '/tmp/app',
-      metroProxyBaseUrl: 'https://metro.agent-device.dev',
-      platform: 'ios',
-      runId: 'run-a',
-      session: 'limrun-ios',
-      sessionIsolation: 'tenant',
-      stateDir,
-      target: 'mobile',
-      tenant: 'team-a',
-    });
-  } finally {
-    fs.rmSync(tempRoot, { recursive: true, force: true });
-  }
-});
-
-test('connect limrun requires LIMRUN_API_KEY or access to an existing instance', async () => {
-  const tempRoot = mkdtempForTestSync('agent-device-connect-limrun-env-');
-  const stateDir = path.join(tempRoot, '.state');
-  vi.stubEnv('LIMRUN_API_KEY', '');
-  vi.stubEnv('LIM_API_KEY', 'lim_test_key');
-  vi.stubEnv('LIM_IOS_INSTANCE_URL', 'https://region.limrun.example/v1/ios_x/api');
-  vi.stubEnv('LIM_IOS_INSTANCE_TOKEN', 'ios-instance-token');
-
-  try {
-    await assert.rejects(
-      connectCommand({
-        host: createTestHostEnvironment(),
-        positionals: ['limrun'],
-        flags: {
-          json: true,
-          help: false,
-          version: false,
-          stateDir,
-          platform: 'android',
-        },
-        client: {} as AgentDeviceClient,
-      }),
-      /connect limrun requires LIMRUN_API_KEY, or LIM_ANDROID_INSTANCE_URL, LIM_ANDROID_INSTANCE_TOKEN, LIM_ANDROID_INSTANCE_ADB_URL/,
-    );
-  } finally {
-    fs.rmSync(tempRoot, { recursive: true, force: true });
-  }
-});
-
-test('connect limrun rejects unsupported public device and backend selections', async () => {
-  const environment = { LIMRUN_API_KEY: 'lim_test_key' };
-  const device = await runCliCapture(
-    ['connect', 'limrun', '--platform', 'ios', '--device', 'local-ios', '--json'],
-    { env: environment, stateDirPrefix: 'agent-device-connect-limrun-scope-' },
-  );
-  assert.equal(device.code, 1);
-  assert.match(device.stdout, /does not accept --device/);
-
-  const platform = await runCliCapture(['connect', 'limrun', '--platform', 'macos', '--json'], {
-    env: environment,
-    stateDirPrefix: 'agent-device-connect-limrun-scope-',
-  });
-  assert.equal(platform.code, 1);
-  assert.match(platform.stdout, /requires --platform ios or android/);
-
-  const backend = await runCliCapture(
-    ['connect', 'limrun', '--platform', 'ios', '--lease-backend', 'android-instance', '--json'],
-    { env: environment, stateDirPrefix: 'agent-device-connect-limrun-scope-' },
-  );
-  assert.equal(backend.code, 1);
-  assert.match(backend.stdout, /requires --lease-backend ios-instance/);
 });
 
 test('connect browserstack generates local provider profile without credentials', async () => {
@@ -473,32 +267,6 @@ test('connect aws-device-farm generates local provider profile from flags', asyn
   }
 });
 
-test('connect output makes verified configuration, deferred device allocation, and app recovery explicit', async () => {
-  const environment = { LIMRUN_API_KEY: 'lim_test_key' };
-  const result = await runCliCapture(['connect', 'limrun', '--platform', 'android'], {
-    env: environment,
-    stateDirPrefix: 'agent-device-connect-limrun-output-',
-  });
-
-  assert.equal(result.code, null);
-  assert.match(result.stdout, /^Connected successfully with Limrun\./);
-  assert.match(result.stdout, /Credentials and Android instance access verified/);
-  assert.match(
-    result.stdout,
-    /Device: Provider-selected Android emulator — allocated on first device command/,
-  );
-  assert.match(
-    result.stdout,
-    /App: not installed yet — Run apps to choose an uploaded asset before allocation/,
-  );
-  assert.match(result.stdout, /No live device session has been created/);
-  assert.match(result.stdout, /Next:/);
-  assert.match(result.stdout, /agent-device apps/);
-  assert.match(result.stdout, /agent-device open <uploaded-asset-name>/);
-  assert.doesNotMatch(result.stdout, /agent-device install/);
-  assert.doesNotMatch(result.stdout, /lease pending/);
-});
-
 test('connect JSON exposes verification, device, app, live-session, and next-step state', async () => {
   const result = await runCliCapture(
     [
@@ -650,22 +418,26 @@ function readEmittedSessions(texts: readonly string[]): Set<string> {
 test('connect does not activate provider state when verification fails', async () => {
   const tempRoot = mkdtempForTestSync('agent-device-connect-verify-fail-');
   const stateDir = path.join(tempRoot, '.state');
-  vi.stubEnv('LIMRUN_API_KEY', 'lim_bad_key');
-  mockedVerifyLimrunConnection.mockRejectedValueOnce(
-    new AppError('UNAUTHORIZED', 'Limrun rejected connection verification.'),
+  vi.stubEnv('BROWSERSTACK_USERNAME', 'browser-user');
+  vi.stubEnv('BROWSERSTACK_ACCESS_KEY', 'browser-bad-key');
+  mockedVerifyBrowserStackConnection.mockRejectedValueOnce(
+    new AppError('UNAUTHORIZED', 'BrowserStack rejected connection verification.'),
   );
 
   try {
     await assert.rejects(
       connectCommand({
         host: createTestHostEnvironment(),
-        positionals: ['limrun'],
+        positionals: ['browserstack'],
         flags: {
           json: true,
           help: false,
           version: false,
           stateDir,
           platform: 'android',
+          device: 'Google Pixel 8',
+          providerOsVersion: '14.0',
+          providerApp: 'bs://app-id',
         },
         client: {} as AgentDeviceClient,
       }),
@@ -718,15 +490,6 @@ test('connect aws-device-farm rejects device-feature flags it does not read', as
   }
 });
 
-async function captureConnectStdout(task: () => Promise<void>): Promise<void> {
-  const stdoutCapture = beginStdoutCapture();
-  try {
-    await task();
-  } finally {
-    stdoutCapture.restore();
-  }
-}
-
 function readGeneratedConfig(configPath: string): {
   tenant?: string;
   leaseProvider?: string;
@@ -755,10 +518,6 @@ function readGeneratedConfig(configPath: string): {
     awsRegion?: string;
     awsInteractionMode?: string;
   };
-}
-
-function readGeneratedConfigKeys(configPath: string): string[] {
-  return Object.keys(readGeneratedConfig(configPath));
 }
 
 function readRequiredActiveState(stateDir: string): RemoteConnectionState {

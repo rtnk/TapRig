@@ -7,8 +7,6 @@ import { builtinProviderCandidates } from '../../builtin-provider-plugins.ts';
  * configured. It does not include setup failures, which only a started registry records.
  */
 export async function builtinPluginInventory(): Promise<readonly PluginInventoryEntry[]> {
-  const resolved = await resolveProviderPlugins(
-    builtinProviderCandidates({ env: { LIMRUN_API_KEY: 'configured' }, cwd: process.cwd() }),
-  );
+  const resolved = await resolveProviderPlugins(builtinProviderCandidates());
   return resolved.inventory();
 }

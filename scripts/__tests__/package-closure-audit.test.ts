@@ -122,8 +122,8 @@ test('a peerDependency does not exempt a declared dependency from the "never imp
 });
 
 test('a subpath import is attributed to the package that must be declared', () => {
-  const audit = fixturePackage({ 'dist/cli.js': 'await import(`@limrun/api/client`);' }, [
-    '@limrun/api',
+  const audit = fixturePackage({ 'dist/cli.js': 'await import(`@example/sdk/client`);' }, [
+    '@example/sdk',
   ]);
   audit();
 });

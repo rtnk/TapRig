@@ -5,7 +5,6 @@
 // provider wire means the matrix reports what the code decides, with no device,
 // no daemon, no credentials, and no network. Nothing here talks to a provider.
 
-import moduleHooks from 'node:module';
 import { createAgentBrowserWebProvider, withWebProvider } from '@agent-device/platform-web';
 import { createWebInteractor } from '@agent-device/platform-web/interactor';
 import type { RunHostCommand } from '@agent-device/provider-webdriver';
@@ -122,83 +121,6 @@ export function createStubHost(): PlatformRuntimeHost {
  */
 export const MATRIX_HOST_PLATFORM: NodeJS.Platform = 'darwin';
 
-// The Limrun SDK is a real third-party package. Facts must not reach it, so a
-// module loader replaces its three entry points with data-URL modules before
-// anything imports the Limrun provider. `module.register` reaches back to Node
-// 20.6, so the stubbing works on the repository's supported Node floor; the
-// loader is registered before the provider's first import resolves, which is
-// why the collector imports the provider only after calling this.
-const limrunSdkStub = `
-export default class Limrun {
-  iosInstances = { create: async () => ({ metadata: { id: 'limrun-instance' }, status: {} }), list: async () => [], delete: async () => {} };
-  androidInstances = { create: async () => ({ metadata: { id: 'limrun-instance' }, status: {} }), list: async () => [], delete: async () => {} };
-  assets = { getOrUpload: async () => ({}), list: async () => [] };
-}
-export class NotFoundError extends Error {}
-`;
-
-const limrunInstanceClientStub = `
-const handlers = {
-  deviceInfo: { screenWidth: 393, screenHeight: 852 },
-  disconnect: async () => {},
-  elementTree: async () => ({ type: 'Application', children: [] }),
-};
-export const createInstanceClient = async () => handlers;
-export default { createInstanceClient };
-`;
-
-const LIMRUN_STUBS: ReadonlyMap<string, string> = new Map([
-  ['@limrun/api', limrunSdkStub],
-  ['@limrun/api/ios-client', limrunInstanceClientStub],
-  ['@limrun/api/instance-client', limrunInstanceClientStub],
-]);
-
-// The loader runs on Node's module-loading thread and receives the stub table
-// as transfer data. An SDK entry with no stub fails the load instead of
-// resolving the real package, so a new import inside the provider cannot
-// silently reach the network.
-const limrunStubLoader = `
-let stubs = new Map();
-export async function initialize(data) {
-  stubs = new Map(data.stubs);
-}
-export function resolve(specifier, context, nextResolve) {
-  if (specifier === '@limrun/api' || specifier.startsWith('@limrun/api/')) {
-    const stub = stubs.get(specifier);
-    if (stub === undefined) {
-      throw new Error(
-        'The Limrun SDK entry "' + specifier + '" has no stub, so facts would reach the real SDK. ' +
-          'Add a stub to LIMRUN_STUBS in scripts/capability-matrix/seams.ts.',
-      );
-    }
-    return {
-      url: 'data:text/javascript,' + encodeURIComponent(stub),
-      shortCircuit: true,
-      format: 'module',
-    };
-  }
-  return nextResolve(specifier, context);
-}
-`;
-
-/**
- * Replace the Limrun SDK with stubs for every later `import` in this process.
- * The specifier must match exactly; an unstubbed SDK specifier fails to load.
- */
-export function stubLimrunSdk(): void {
-  if (!moduleHooks.register) {
-    throw new Error(
-      'node:module register is unavailable, so the Limrun SDK cannot be stubbed. ' +
-        'Run the collector on the repository-supported Node (22.12 or later).',
-    );
-  }
-  moduleHooks.register(
-    `data:text/javascript,${encodeURIComponent(limrunStubLoader)}`,
-    import.meta.url,
-    { data: { stubs: [...LIMRUN_STUBS.entries()] } },
-  );
-}
-
 export type ProviderWire = Readonly<{
   /** Answers every WebDriver request the cloud runtimes send. */
   fetch: typeof fetch;
@@ -259,5 +181,4 @@ export const PROVIDER_ENV: Readonly<Record<string, string>> = {
   LT_USERNAME: 'provider-user',
   LT_ACCESS_KEY: 'provider-key',
   AWS_REGION: 'us-west-2',
-  LIMRUN_API_KEY: 'provider-key',
 };

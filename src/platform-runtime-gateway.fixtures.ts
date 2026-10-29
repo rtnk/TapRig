@@ -1,5 +1,4 @@
 import type { ProviderDeviceRuntime } from '@agent-device/contracts/device';
-import type { Interactor } from '@agent-device/contracts/interactor-types';
 import {
   type ApplicationLifecycleRuntimeOperations,
   applicationLifecycleOperationFacts,
@@ -18,8 +17,6 @@ import type {
 } from '@agent-device/contracts/platform-runtime-operations';
 import type { PlatformRequestScope } from '@agent-device/contracts/platform-runtime-host';
 import type { DeviceInfo } from '@agent-device/kernel/device';
-import type { LimrunRuntimeDependencies } from '@agent-device/provider-limrun';
-import { applySimctlSetting } from '@agent-device/platform-apple/simctl-settings';
 import {
   createUnavailableRuntimeFactsForTest,
   unavailableDeploymentSnapshotAndShutdownOperationFacts,
@@ -209,49 +206,3 @@ function lifecycleOperations(): ApplicationLifecycleRuntimeOperations {
     configureProviderPortReverse: async () => undefined,
   };
 }
-
-export const limrunTestDependencies = {
-  clientVersion: 'test',
-  android: {
-    createInteractor: () => ({}) as Interactor,
-    createPortReverse: async () => ({
-      ensure: async () => {},
-      remove: async () => {},
-      removeAllOwned: async () => {},
-    }),
-    inferAppName: async () => 'unused',
-    listApps: async () => [],
-    getForegroundApp: async () => undefined,
-    getKeyboardState: async () => ({ visible: false, inputOwner: 'unknown' as const }),
-    dismissKeyboard: async () => ({
-      visible: false,
-      inputOwner: 'unknown' as const,
-      attempts: 0,
-      wasVisible: false,
-      dismissed: false,
-    }),
-    readLogs: async () => '',
-    forceStopApp: async () => {},
-    deviceAdbInvocation: (serial: string, command: readonly string[]) => ({
-      target: { selector: { kind: 'serial', serial }, server: { kind: 'ambient' } },
-      command,
-    }),
-    hostAdbInvocation: (command: readonly string[]) => ({
-      target: { selector: { kind: 'unspecified' }, server: { kind: 'ambient' } },
-      command,
-    }),
-    adbError: async () => {
-      throw new Error('unused');
-    },
-  },
-  host: {
-    runAdb: async () => ({ stdout: '', stderr: '', exitCode: 0 }),
-    downloadFile: async () => undefined,
-    archiveDirectory: async () => {},
-  },
-  ios: {
-    applySimctlSetting,
-    resolveAppAlias: async (app: string) => app,
-    readBundleAppName: async () => undefined,
-  },
-} satisfies LimrunRuntimeDependencies;

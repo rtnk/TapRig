@@ -31,17 +31,7 @@ export type CloudWebDriverTarget = Readonly<{
   flags: Readonly<Record<string, unknown>>;
 }>;
 
-export type LimrunTarget = Readonly<{
-  kind: 'limrun';
-  id: string;
-  label: string;
-  group: TargetGroup;
-  backend: 'ios-instance' | 'android-instance';
-  platform: 'ios' | 'android';
-  device: DeviceInfo;
-}>;
-
-export type Target = LocalTarget | CloudWebDriverTarget | LimrunTarget;
+export type Target = LocalTarget | CloudWebDriverTarget;
 
 const booted = { booted: true } as const;
 
@@ -360,39 +350,6 @@ export const TARGETS: readonly Target[] = [
       device: 'iPhone 15',
       awsProjectArn: 'arn:aws:devicefarm:us-west-2:123456789012:project/example-project',
       awsDeviceArn: 'arn:aws:devicefarm:us-west-2::device/example-device',
-    },
-  },
-  {
-    kind: 'limrun',
-    id: 'limrun-ios',
-    label: 'Limrun iOS',
-    group: 'provider',
-    backend: 'ios-instance',
-    platform: 'ios',
-    device: {
-      platform: 'apple',
-      appleOs: 'ios',
-      id: 'limrun:ios:lease-ios',
-      name: 'Limrun iOS instance',
-      kind: 'simulator',
-      target: 'mobile',
-      ...booted,
-    },
-  },
-  {
-    kind: 'limrun',
-    id: 'limrun-android',
-    label: 'Limrun Android',
-    group: 'provider',
-    backend: 'android-instance',
-    platform: 'android',
-    device: {
-      platform: 'android',
-      id: 'limrun:android:lease-android',
-      name: 'Limrun Android instance',
-      kind: 'emulator',
-      target: 'mobile',
-      ...booted,
     },
   },
 ];

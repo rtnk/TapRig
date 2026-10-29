@@ -14,7 +14,7 @@ Before you edit a module with many callers, run `pnpm depgraph affected <path>` 
 | Input fields and audiences | `src/commands/common-input-fields.ts`, `src/commands/input-audience.ts` |
 | Released SDK default hosts | `src/sdk/host.ts` |
 
-For SDK entries `android-adb`, `artifacts`, `limrun`, `metro`, and `remote-config`, use `captureSdkHost` for defaults.
+For SDK entries `android-adb`, `artifacts`, `metro`, and `remote-config`, use `captureSdkHost` for defaults.
 For command-host readers, use `withSdkHost`.
 Keep provider callbacks on their supplied host.
 Request cancellation and progress belong in `@agent-device/host-kit/request`.

@@ -3,7 +3,7 @@
  * naming an app can mean anything on each target family, and its help. Usage, parsing, app scope,
  * and help are derived from this table. Which target serves a setting is not declared here: each
  * runtime owner states that in its own settings facts, because owners that share a device shape
- * (a local iOS simulator and a Limrun iOS session) serve different settings.
+ * (a local iOS simulator and a provider iOS session) can serve different settings.
  *
  * This module has no runtime imports, so the public client types can name it.
  */
@@ -173,7 +173,7 @@ export const SETTINGS = {
     ],
     app: 'input',
     appScope: { apple: 'app-scoped', mobile: 'app-scoped', 'macos-host': 'device-level' },
-    help: 'Changes a permission of the --app app or the session app. An iOS simulator resolves --app to an installed bundle id or display name, Android to an installed package, and a Limrun iOS session only through the settings alias. On Android, deny|reset of a held permission kills a running app; the response reports priorGrantState and warns, and open <app> --relaunch restores it. Android needs a resolvable foreground user and changes nothing without one. On the macOS host, grant|reset change the host TCC grants for the three desktop targets and take no --app.',
+    help: 'Changes a permission of the --app app or the session app. An iOS simulator resolves --app to an installed bundle id or display name, and Android to an installed package. On Android, deny|reset of a held permission kills a running app; the response reports priorGrantState and warns, and open <app> --relaunch restores it. Android needs a resolvable foreground user and changes nothing without one. On the macOS host, grant|reset change the host TCC grants for the three desktop targets and take no --app.',
   },
 } as const satisfies Record<string, SettingDefinition>;
 
