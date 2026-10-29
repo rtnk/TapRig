@@ -61,7 +61,7 @@ Some targets require local permissions or developer setup:
 
 ## Network and updates
 
-Interactive CLI runs may check npm for newer `agent-device` releases and print an upgrade suggestion. Set `AGENT_DEVICE_NO_UPDATE_NOTIFIER=1` to turn off the notice.
+The CLI does not check npm or any other service for newer releases.
 
 Network inspection commands collect only the traffic that the active app or session tooling can see. Review network artifacts before sharing, because headers and payloads can contain secrets.
 

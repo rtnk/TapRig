@@ -45,15 +45,13 @@ For Cursor, Codex, Claude Code, Windsurf, Cline, Goose, skills, and project rule
 
 ## Update the CLI
 
-Interactive CLI runs periodically check npm for a newer `agent-device` release in the background. When one is available, the CLI suggests reinstalling globally:
+The CLI does not check for newer releases. To update, reinstall it globally:
 
 ```bash
 npm install -g agent-device@latest
 agent-device doctor
 agent-device --version
 ```
-
-Set `AGENT_DEVICE_NO_UPDATE_NOTIFIER=1` to disable the notice.
 
 ## Nightly builds
 
@@ -63,8 +61,7 @@ Nightly builds publish `main` after its CI passes, at most once per UTC day:
 npm install -g agent-device@nightly
 ```
 
-A nightly install's update notice recommends a newer nightly when an update check finds one. To
-return to stable releases, install `agent-device@latest`.
+To return to stable releases, install `agent-device@latest`.
 
 ## Without installing
 

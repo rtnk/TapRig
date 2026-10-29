@@ -31,7 +31,6 @@ export function runCli(context: CliContext, args: string[], timeoutMs = 300_000)
   const started = performance.now();
   const result = spawnSync(process.execPath, argv, {
     cwd: context.repoRoot,
-    env: { ...process.env, AGENT_DEVICE_NO_UPDATE_NOTIFIER: '1' },
     encoding: 'utf8',
     maxBuffer: MAX_BUFFER,
     timeout: timeoutMs,
@@ -60,7 +59,6 @@ export async function runCliAsync(
       argv,
       {
         cwd: context.repoRoot,
-        env: { ...process.env, AGENT_DEVICE_NO_UPDATE_NOTIFIER: '1' },
         encoding: 'utf8',
         maxBuffer: MAX_BUFFER,
         timeout: timeoutMs,

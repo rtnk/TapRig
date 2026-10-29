@@ -19,7 +19,6 @@ export async function startProxy(repoRoot: string, stateDir: string): Promise<Pr
     ],
     {
       cwd: repoRoot,
-      env: { ...process.env, AGENT_DEVICE_NO_UPDATE_NOTIFIER: '1' },
       stdio: ['ignore', 'pipe', 'pipe'],
     },
   );

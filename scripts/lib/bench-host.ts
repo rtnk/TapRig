@@ -98,7 +98,6 @@ function commandText(command: string, args: string[], cwd?: string): string {
     return execFileSync(command, args, {
       cwd,
       encoding: 'utf8',
-      env: { ...process.env, AGENT_DEVICE_NO_UPDATE_NOTIFIER: '1' },
       maxBuffer: 1024 * 1024,
       stdio: ['ignore', 'pipe', 'ignore'],
     }).trim();

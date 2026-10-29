@@ -20,7 +20,6 @@ test('plugins list and remove route through the CLI and emits JSON without daemo
   const { home } = pluginHome();
   vi.stubEnv('AGENT_DEVICE_HOME', home);
   vi.stubEnv('AGENT_DEVICE_STATE_DIR', path.join(home, 'state'));
-  vi.stubEnv('AGENT_DEVICE_NO_UPDATE_NOTIFIER', '1');
   const marker = path.join(home, 'evaluated');
   selectPlugin(
     home,
@@ -66,7 +65,6 @@ test('plugins list reports the running daemon inventory next to the store select
   const stateDir = path.join(home, 'state');
   vi.stubEnv('AGENT_DEVICE_HOME', home);
   vi.stubEnv('AGENT_DEVICE_STATE_DIR', stateDir);
-  vi.stubEnv('AGENT_DEVICE_NO_UPDATE_NOTIFIER', '1');
   const owner = readCurrentOwnerIdentity();
   const failed = {
     provider: 'example',
@@ -124,7 +122,6 @@ test('--state-dir belongs to plugins list and daemon status, not to the commands
 async function listPluginsAsText(home: string, stateDir: string): Promise<string> {
   vi.stubEnv('AGENT_DEVICE_HOME', home);
   vi.stubEnv('AGENT_DEVICE_STATE_DIR', stateDir);
-  vi.stubEnv('AGENT_DEVICE_NO_UPDATE_NOTIFIER', '1');
   const stdoutCapture = beginStdoutCapture();
   try {
     await runCli(['plugins', 'list'], {

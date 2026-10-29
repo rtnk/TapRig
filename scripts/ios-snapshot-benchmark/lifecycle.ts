@@ -113,7 +113,6 @@ export function stopDaemon(repoRoot: string, stateDir: string): void {
     ['bin/agent-device.mjs', 'daemon', 'stop', '--state-dir', stateDir, '--clean', '--json'],
     {
       cwd: repoRoot,
-      env: { ...process.env, AGENT_DEVICE_NO_UPDATE_NOTIFIER: '1' },
       encoding: 'utf8',
       timeout: 60_000,
       stdio: ['ignore', 'pipe', 'pipe'],

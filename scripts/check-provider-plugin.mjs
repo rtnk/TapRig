@@ -85,7 +85,6 @@ try {
     ...process.env,
     ...fixture.environment(endpoint),
     AGENT_DEVICE_HOME: home,
-    AGENT_DEVICE_NO_UPDATE_NOTIFIER: '1',
   };
   const preload = path.join(scratch, 'fetch-fixture.mjs');
   await fs.writeFile(
