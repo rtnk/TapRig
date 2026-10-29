@@ -5,10 +5,10 @@ import { validateScreenshotImagePixels } from './screenshot-image-size.ts';
 
 const JPEG_SIGNATURE = Buffer.from([0xff, 0xd8, 0xff]);
 
-export type ScreenshotImageFormat = 'png' | 'jpeg';
+type ScreenshotImageFormat = 'png' | 'jpeg';
 
 /** Names the container a screenshot arrived in from its magic bytes, or `undefined` for neither. */
-export function detectScreenshotImageFormat(bytes: Buffer): ScreenshotImageFormat | undefined {
+function detectScreenshotImageFormat(bytes: Buffer): ScreenshotImageFormat | undefined {
   if (hasPngSignature(bytes)) return 'png';
   if (bytes.subarray(0, JPEG_SIGNATURE.length).equals(JPEG_SIGNATURE)) return 'jpeg';
   return undefined;
@@ -27,22 +27,6 @@ export function decodeScreenshotImage(bytes: Buffer, label: string, maxPixels?: 
   const format = detectScreenshotImageFormat(bytes);
   if (format === 'png') return decodePng(bytes, label);
   if (format === 'jpeg') return decodeJpegImage(bytes, label, maxPixels);
-  throw unsupportedContainer(label, bytes);
-}
-
-/**
- * Returns PNG bytes for a screenshot a provider handed back in whatever container it prefers. PNG
- * passes through untouched; JPEG is decoded and re-encoded losslessly from the decoded pixels, so
- * every PNG-only reader downstream (size, crop, overlay) sees the format the path promises. Those
- * readers rewrite the file in place, which is why a JPEG cannot be handed to them undecoded.
- *
- * Synchronous and CPU-bound: daemon request paths reach it through the PNG worker
- * (`transcodeScreenshotToPngAsync` in `png-worker-client.ts`), like every other codec job.
- */
-export function transcodeScreenshotToPng(bytes: Buffer, label: string): Buffer {
-  const format = detectScreenshotImageFormat(bytes);
-  if (format === 'png') return bytes;
-  if (format === 'jpeg') return PNG.sync.write(decodeJpegImage(bytes, label));
   throw unsupportedContainer(label, bytes);
 }
 

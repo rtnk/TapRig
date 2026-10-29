@@ -21,9 +21,7 @@ export type PngWorkerJob =
   | { kind: 'encode'; width: number; height: number; data: Uint8Array }
   | { kind: 'crop'; png: Uint8Array; label: string; box: Rect }
   | { kind: 'rgb-difference'; firstPng: Uint8Array; secondPng: Uint8Array; label: string }
-  | ({ kind: 'diff-pixels' } & ScreenshotDiffPixelsJob)
-  // A provider screenshot in whatever container it arrived in; answers PNG bytes.
-  | { kind: 'jpeg-to-png'; image: Uint8Array; label: string };
+  | ({ kind: 'diff-pixels' } & ScreenshotDiffPixelsJob);
 
 export type PngWorkerJobResult =
   | { kind: 'decode'; width: number; height: number; data: Uint8Array }
@@ -32,8 +30,7 @@ export type PngWorkerJobResult =
   // A crop answers `null` when the box already covers the image, so the caller keeps the file.
   | { kind: 'crop'; png: Uint8Array | null }
   | ({ kind: 'rgb-difference' } & PngRgbDifferenceResult)
-  | ({ kind: 'diff-pixels' } & ScreenshotDiffPixelsResult)
-  | { kind: 'jpeg-to-png'; png: Uint8Array };
+  | ({ kind: 'diff-pixels' } & ScreenshotDiffPixelsResult);
 
 export type PngWorkerJobKind = PngWorkerJob['kind'];
 
